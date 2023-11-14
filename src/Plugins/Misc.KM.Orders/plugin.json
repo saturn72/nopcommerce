@@ -3,7 +3,7 @@
   "FriendlyName": "Kedem Market Orders plugin",
   "SystemName": "KM.Orders",
   "Version": "1.00",
-  "SupportedVersions": [ "4.60" ],
+  "SupportedVersions": [ "4.60", "4.70" ],
   "Author": "Saturn72",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Misc.KM.Orders.dll",

@@ -3,7 +3,7 @@
   "FriendlyName": "Kedem Market Catalog plugin",
   "SystemName": "KM.Catalog",
   "Version": "1.00",
-  "SupportedVersions": [ "4.60" ],
+  "SupportedVersions": [ "4.60" , "4.70"],
   "Author": "Author Name",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Misc.KM.Catalog.dll",
