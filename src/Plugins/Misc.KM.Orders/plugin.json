@@ -6,6 +6,6 @@
   "SupportedVersions": [ "4.60", "4.70" ],
   "Author": "Saturn72",
   "DisplayOrder": 1,
-  "FileName": "Nop.Plugin.Misc.KM.Orders.dll",
+  "FileName": "Misc.KM.Orders.dll",
   "Description": "Orders import logic from firestore"
 }
