@@ -11,7 +11,6 @@ namespace Nop.Plugin.Misc.KM.Catalog.Migrations
         public override void MapEntity(CreateTableExpressionBuilder table)
         {
             table
-                .WithColumn(nameof(MediaItemInfo.Id)).AsInt32().PrimaryKey().Identity()
                 .WithColumn(nameof(MediaItemInfo.CreatedOnUtc)).AsDateTime2().WithDefault(SystemMethods.CurrentUTCDateTime)
                 .WithColumn(nameof(MediaItemInfo.EntityId)).AsInt32()
                 .WithColumn(nameof(MediaItemInfo.EntityType)).AsString(256)

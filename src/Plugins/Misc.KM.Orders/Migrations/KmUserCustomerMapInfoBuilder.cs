@@ -10,8 +10,6 @@ namespace Nop.Plugin.Misc.KM.Orders.Migrations
         public override void MapEntity(CreateTableExpressionBuilder table)
         {
             table
-                .WithColumn(nameof(KmUserCustomerMap.Id)).AsInt32().PrimaryKey().Identity()
-                .WithColumn(nameof(KmUserCustomerMap.ShouldProvisionBasicClaims)).AsBoolean()
                 .WithColumn(nameof(KmUserCustomerMap.CustomerId)).AsInt32().ForeignKey<Customer>()
                 .WithColumn(nameof(KmUserCustomerMap.KmUserId)).AsString(256).NotNullable()
                 .WithColumn(nameof(KmUserCustomerMap.CreatedOnUtc)).AsDateTime2().WithDefault(SystemMethods.CurrentUTCDateTime)

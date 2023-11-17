@@ -9,10 +9,6 @@ namespace Nop.Plugin.Misc.KM.Orders.Migrations
         public override void MapEntity(CreateTableExpressionBuilder table)
         {
             table
-                .WithColumn(nameof(KmOrder.Id))
-                    .AsInt32()
-                    .PrimaryKey()
-                    .Identity()
                 .WithColumn(nameof(KmOrder.CreatedOnUtc))
                     .AsDateTime2()
                     .Nullable()
@@ -30,12 +26,13 @@ namespace Nop.Plugin.Misc.KM.Orders.Migrations
                 .WithColumn(nameof(KmOrder.KmUserId))
                     .AsString(256).NotNullable()
 
-                .WithColumn(nameof(KmOrder.NopOrderId))
-                    .AsInt32()
-                    .NotNullable()
-                .WithColumn(nameof(KmOrder.Errors))
-                    .AsString()
-                    .NotNullable();
+            .WithColumn(nameof(KmOrder.NopOrderId))
+                .AsInt32()
+                .NotNullable();
+
+            //.WithColumn(nameof(KmOrder.Errors))
+            //    .AsString()
+            //    .NotNullable();
         }
     }
 }
