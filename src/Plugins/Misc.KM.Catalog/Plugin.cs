@@ -9,7 +9,7 @@ namespace Nop.Plugin.Misc.KM.Catalog
     public class Plugin : BasePlugin
     {
         private readonly IScheduleTaskService _scheduleTaskService;
-        private const string TaskName = "Export catalog to telegram";
+        private const string TaskName = "Export catalog to kedem-market's firebase";
 
         public Plugin(IScheduleTaskService scheduleTaskService)
         {

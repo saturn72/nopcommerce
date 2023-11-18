@@ -10,7 +10,7 @@ namespace Nop.Plugin.Misc.KM.Catalog.Migrations
     {
         public override void Up()
         {
-            Create.TableFor<MediaItemInfo>();
+           // Create.TableFor<KmMediaItemInfo>();
         }
     }
 }

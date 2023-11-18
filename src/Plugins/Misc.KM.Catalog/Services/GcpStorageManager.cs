@@ -1,15 +1,19 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Nop.Plugin.Misc.KM.Catalog.Domain;
+using Nop.Services.Logging;
 
 namespace Nop.Plugin.Misc.KM.Catalog.Services
 {
     public class GcpStorageManager : IStorageManager
     {
         private readonly IOptionsMonitor<GcpOptions> _options;
+        private readonly ILogger _logger;
         private readonly string[] _scopes = new[]
         {
            "https://www.googleapis.com/auth/cloud-platform",
@@ -17,16 +21,24 @@ namespace Nop.Plugin.Misc.KM.Catalog.Services
        };
         private StorageClient _storageClient;
 
-        public GcpStorageManager(IOptionsMonitor<GcpOptions> options)
+        public GcpStorageManager(
+            IOptionsMonitor<GcpOptions> options,
+            ILogger logger)
         {
             _options = options;
+            _logger = logger;
         }
 
         public async Task<IStorageManager.StoredFileInfo> UploadAsync(string path, string contentType, Stream stream)
         {
             var storage = await GetStorage();
             var p = HandlePath(path);
+            await _logger.InformationAsync($"Start uploading object. Bucket name: {_options.CurrentValue.BucketName}");
+
             var res = await storage.UploadObjectAsync(_options.CurrentValue.BucketName, p, contentType, stream);
+
+            await _logger.InformationAsync($"Finish uploading to bucket. Success =  {(res.Id.IsNullOrEmpty() ? "false": "true")}");
+            
             return new()
             {
                 StorageIdentifier = res.Id,
@@ -50,7 +62,7 @@ namespace Nop.Plugin.Misc.KM.Catalog.Services
         private string HandlePath(string path)
         {
             //remove heading slashes
-            while(path.StartsWith('/'))
+            while (path.StartsWith('/'))
                 path = path.Substring(1);
             path = path.Replace("  ", " ").Replace(' ', '-').ToLower();
             return path;

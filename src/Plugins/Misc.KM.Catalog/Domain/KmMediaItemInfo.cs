@@ -3,7 +3,7 @@ using Nop.Core;
 
 namespace Nop.Plugin.Misc.KM.Catalog.Domain
 {
-    public partial class MediaItemInfo : BaseEntity
+    public partial class KmMediaItemInfo : BaseEntity
     {
         public string Uri { get; set; }
         public DateTime CreatedOnUtc { get; set; }

@@ -14,7 +14,7 @@ namespace Nop.Plugin.Misc.KM.Catalog.Services
     {
         #region fields
 
-        private readonly IRepository<MediaItemInfo> _mediaItemInfoRepository;
+        private readonly IRepository<KmMediaItemInfo> _mediaItemInfoRepository;
         private readonly IRepository<PictureBinary> _pictureBinaryRepository;
         private readonly IStorageManager _storageManager;
         private readonly IReadOnlyDictionary<string, ResizeOptions> _resizeOptions;
@@ -23,7 +23,7 @@ namespace Nop.Plugin.Misc.KM.Catalog.Services
 
         #region ctor
         public MediaItemInfoService(
-            IRepository<MediaItemInfo> mediaItemInfoRepository,
+            IRepository<KmMediaItemInfo> mediaItemInfoRepository,
             IRepository<PictureBinary> pictureBinayRepository,
             IStorageManager storageManager)
         {
@@ -62,7 +62,7 @@ namespace Nop.Plugin.Misc.KM.Catalog.Services
         #endregion
 
 
-        public async Task<MediaItemInfo> GetOrCreateMediaItemInfoAsync(string type, Picture picture, int displayOrder)
+        public async Task<KmMediaItemInfo> GetOrCreateMediaItemInfoAsync(string type, Picture picture, int displayOrder)
         {
             var e = await _mediaItemInfoRepository.Table
                      .FirstOrDefaultAsync(p =>
@@ -83,7 +83,7 @@ namespace Nop.Plugin.Misc.KM.Catalog.Services
                     await image.SaveAsWebpAsync(outStream);
 
                     image.Mutate(i => i.Resize(_resizeOptions[type]));
-                    e = new MediaItemInfo
+                    e = new KmMediaItemInfo
                     {
                         EntityType = typeof(Picture).Name,
                         EntityId = picture.Id,

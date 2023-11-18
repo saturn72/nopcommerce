@@ -18,6 +18,7 @@ using Nop.Core.Domain.Stores;
 using Microsoft.IdentityModel.Tokens;
 using Nop.Plugin.Misc.KM.Catalog.Documents;
 using Microsoft.AspNetCore.SignalR;
+using Nop.Services.Logging;
 
 namespace Nop.Plugin.Misc.KM.Catalog
 {
@@ -36,9 +37,10 @@ namespace Nop.Plugin.Misc.KM.Catalog
         private readonly IStorageManager _storageManager;
         private readonly IStore<ProductInfoDocument> _store;
         private readonly IHubContext<CatalogHub> _hub;
+        private readonly ILogger _logger;
 
         private readonly Dictionary<ProductType, string> _productTypeNames;
-        private static Queue<DateTime> _updateRequestQueue = new Queue<DateTime>();
+        private static Queue<DateTime> _updateRequestQueue = new();
 
         #endregion
 
@@ -55,7 +57,8 @@ namespace Nop.Plugin.Misc.KM.Catalog
             IStorageManager storageManager,
             IStore<ProductInfoDocument> store,
             ICategoryService categoryService,
-            IHubContext<CatalogHub> hub)
+            IHubContext<CatalogHub> hub,
+            ILogger logger)
         {
             _storeService = storeService;
             _vendorService = vendorService;
@@ -72,6 +75,7 @@ namespace Nop.Plugin.Misc.KM.Catalog
             _store = store;
             _categoryService = categoryService;
             _hub = hub;
+            _logger = logger;
         }
 
         #endregion
@@ -81,6 +85,7 @@ namespace Nop.Plugin.Misc.KM.Catalog
 
         public async Task ExecuteAsync()
         {
+
             if (_updateRequestQueue.Count == 0)
                 return;
 
@@ -90,6 +95,8 @@ namespace Nop.Plugin.Misc.KM.Catalog
             //remove all update request from the past 5 minutes
             while (_updateRequestQueue.TryPeek(out var result) && cur - result <= iteration)
                 _updateRequestQueue.Dequeue();
+
+            await _logger.InformationAsync("Start catalog updating process");
 
             var catalogProducts = new List<ProductInfoDocument>();
 
@@ -129,9 +136,17 @@ namespace Nop.Plugin.Misc.KM.Catalog
             }
 
             sis = sis.Where(s => !s.vendors.IsNullOrEmpty()).ToList();
-            await UploadAsJsonAsync($"catalog/stores.json", new { stores = sis });
+            try
+            {
+                await UploadAsJsonAsync($"catalog/stores.json", new { stores = sis });
 
-            await _store.CreateOrUpdateAsync(catalogProducts);
+                await _store.CreateOrUpdateAsync(catalogProducts);
+            }
+            catch (Exception ex)
+            {
+                EnqueueCatalogUpdateRequest();
+                throw ex;
+            }
             await _hub.Clients.All.SendAsync("updated");
         }
 

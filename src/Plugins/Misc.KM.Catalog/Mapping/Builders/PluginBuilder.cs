@@ -4,7 +4,7 @@ using Nop.Plugin.Misc.KM.Catalog.Domain;
 
 namespace Nop.Plugin.Misc.KM.Catalog.Mapping.Builders
 {
-    public class PluginBuilder : NopEntityBuilder<MediaItemInfo>
+    public class PluginBuilder : NopEntityBuilder<KmMediaItemInfo>
     {
         #region Methods
 

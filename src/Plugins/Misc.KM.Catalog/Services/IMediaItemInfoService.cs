@@ -7,6 +7,6 @@ namespace Nop.Plugin.Misc.KM.Catalog.Services
 {
     public interface IMediaItemInfoService
     {
-        Task<MediaItemInfo> GetOrCreateMediaItemInfoAsync(string type, Picture picture, int displayOrder);
+        Task<KmMediaItemInfo> GetOrCreateMediaItemInfoAsync(string type, Picture picture, int displayOrder);
     }
 }
