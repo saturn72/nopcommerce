@@ -1,12 +1,16 @@
-﻿CREATE TABLE KmOrder(
-	Id int NOT NULL AUTO_INCREMENT,
-	CreatedOnUtc TIMESTAMP NOT NULL DEFAULT (UTC_TIMESTAMP),
-    Data tinytext NULL,
-    Status varchar(128) NOT NULL,
-    KmOrderId varchar(256) NOT NULL,
-    KmUserId varchar(256) NOT NULL,
-    NopOrderId int NOT NULL,
-    Errors mediumtext NULL,
-    PRIMARY KEY (Id),
-    FOREIGN KEY (NopOrderId) REFERENCES Order(Id)
+﻿CREATE TABLE `KmOrder` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `CreatedOnUtc` DATETIME(6) NOT NULL DEFAULT (UTC_TIMESTAMP),
+  `Data` TINYTEXT NULL,
+  `Status` VARCHAR(128) NOT NULL,
+  `KmOrderId` VARCHAR(256) NOT NULL,
+  `KmUserId` VARCHAR(256) NOT NULL,
+  `NopOrderId` INT NOT NULL,
+  `Errors` MEDIUMTEXT NULL,
+  INDEX `NopOrderId_idx` (`NopOrderId` ASC) VISIBLE,
+  PRIMARY KEY (`Id`),
+  CONSTRAINT `NopOrderId_fk`
+    FOREIGN KEY (`NopOrderId`)
+    REFERENCES `Order` (`Id`)
+    ON DELETE CASCADE
 );
