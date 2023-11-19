@@ -83,7 +83,10 @@ public class KmOrderService : IKmOrderService
 
             _storeContext.SetStore(store);
 
-            var cart = await ExtractShoppingCart(r.Request.CartItems);
+            var (cart, disapproved) = await ExtractShoppingCart(r.Request.CartItems);
+            r.ApprovedShoppingCartItems = cart;
+            r.DisapprovedShoppingCartItems = disapproved;
+
             if (cart == default || !cart.Any())
             {
                 r.Error = "no-cart-items";
@@ -119,7 +122,7 @@ public class KmOrderService : IKmOrderService
         return res;
     }
 
-    private async Task<IList<ShoppingCartItem>> ExtractShoppingCart(IEnumerable<ShoppingCartItem> items)
+    private async Task<(IList<ShoppingCartItem> approvedShoppingCartItems, IList<ShoppingCartItem> disapprovedShoppingCartItems)> ExtractShoppingCart(IEnumerable<ShoppingCartItem> items)
     {
         var productIds = new List<int>();
 
@@ -144,6 +147,9 @@ public class KmOrderService : IKmOrderService
             });
         }
 
+        List<ShoppingCartItem> approved = new(),
+            disapproved = new(cart);
+
         var products = (await _productService.GetProductsByIdsAsync(productIds.ToArray()))
             .Where(x => !x.Deleted);
 
@@ -155,7 +161,7 @@ public class KmOrderService : IKmOrderService
                 if (storeMap.All(sm => sm.StoreId != store.Id))
                 {
                     await clearCustomerCart();
-                    return null;
+                    return (null, null);
                 }
             }
 
@@ -166,9 +172,12 @@ public class KmOrderService : IKmOrderService
                 ShoppingCartType.ShoppingCart,
                 store.Id,
                 quantity: csi.Quantity);
+
+            approved.Add(csi);
+            disapproved.Remove(csi);
         }
 
-        return cart;
+        return (approved, disapproved);
 
         async Task clearCustomerCart()
         {

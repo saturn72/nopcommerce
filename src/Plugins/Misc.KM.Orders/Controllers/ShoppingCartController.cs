@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace Nop.Plugin.Misc.KM.Orders.Controllers
 {
@@ -10,7 +9,6 @@ namespace Nop.Plugin.Misc.KM.Orders.Controllers
     public class ShoppingCartController : ControllerBase
     {
         private readonly IExternalUsersService _userService;
-        //private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartModelFactory _shoppingCartModelFactory;
         private readonly IStoreService _storeService;
         private readonly IProductService _productService;
@@ -18,14 +16,12 @@ namespace Nop.Plugin.Misc.KM.Orders.Controllers
 
         public ShoppingCartController(
             IExternalUsersService userService,
-            //IShoppingCartService shoppingCartService,
             IShoppingCartModelFactory shoppingCartModelFactory,
             IStoreService storeService,
             IProductService productService,
             IStoreMappingService storeMappingService)
         {
             _userService = userService;
-            //_shoppingCartService = shoppingCartService;
             _shoppingCartModelFactory = shoppingCartModelFactory;
             _storeService = storeService;
             _productService = productService;
@@ -35,15 +31,16 @@ namespace Nop.Plugin.Misc.KM.Orders.Controllers
         [HttpPost]
         public async Task<IActionResult> CalculateShoppingCartAsync([FromBody] ShoppingCartApiModel incomingCart)
         {
+            List<CartTransactionItemApiModel> exist = new();
             if (!ModelState.IsValid || !await validateModel())
                 return BadRequest();
 
             var maps = await _userService.ProvisionUsersAsync(new[] { incomingCart.UserId });
             if (maps.IsNullOrEmpty())
                 return BadRequest();
-
             var map = maps.First();
-            var cart = incomingCart.Items.Select(i =>
+
+            var cart = exist.Select(i =>
                             new ShoppingCartItem
                             {
                                 ProductId = i.ProductId,
@@ -55,17 +52,18 @@ namespace Nop.Plugin.Misc.KM.Orders.Controllers
 
             var model = new ShoppingCartModel();
             model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
+
             return Ok(model);
 
             async Task<bool> validateModel()
             {
                 var store = await _storeService.GetStoreByIdAsync(incomingCart.StoreId);
                 if (store == default)
-                {
                     return false;
-                }
+
                 var productIds = incomingCart.Items.Select(p => p.ProductId).ToArray();
-                var products = await _productService.GetProductsByIdsAsync(productIds);
+                var products = (await _productService.GetProductsByIdsAsync(productIds)).Where(p => !p.Deleted);
+
                 foreach (var product in products)
                 {
                     if (product.LimitedToStores)
@@ -74,9 +72,14 @@ namespace Nop.Plugin.Misc.KM.Orders.Controllers
                         if (storeMap.All(sm => sm.StoreId != incomingCart.StoreId))
                             return false;
                     }
+                    var cur = incomingCart.Items.FirstOrDefault(s => s.ProductId == product.Id);
+                    if (cur == default)
+                        continue;
+
+                    exist.Add(cur);
                 }
 
-                return true;
+                return true ;
             }
         }
     }
