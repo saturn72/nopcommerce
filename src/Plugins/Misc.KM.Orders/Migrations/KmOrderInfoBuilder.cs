@@ -8,31 +8,32 @@ namespace Nop.Plugin.Misc.KM.Orders.Migrations
     {
         public override void MapEntity(CreateTableExpressionBuilder table)
         {
+
             table
-                .WithColumn(nameof(KmOrder.CreatedOnUtc))
-                    .AsDateTime2()
-                    .Nullable()
-                    .WithDefault(SystemMethods.CurrentUTCDateTime)
+                    .WithColumn(nameof(KmOrder.CreatedOnUtc))
+                        .AsDateTime2()
+                        .Nullable()
+                        .WithDefault(SystemMethods.CurrentUTCDateTime)
 
-                .WithColumn(nameof(KmOrder.Data))
-                    .AsString().NotNullable()
+                    .WithColumn(nameof(KmOrder.Data))
+                        .AsString().NotNullable()
 
-                .WithColumn(nameof(KmOrder.Status))
-                    .AsString(128).NotNullable()
+                    .WithColumn(nameof(KmOrder.Status))
+                        .AsString(128).NotNullable()
 
-                .WithColumn(nameof(KmOrder.KmOrderId))
-                .AsString(256).NotNullable()
-
-                .WithColumn(nameof(KmOrder.KmUserId))
+                    .WithColumn(nameof(KmOrder.KmOrderId))
                     .AsString(256).NotNullable()
 
-            .WithColumn(nameof(KmOrder.NopOrderId))
-                .AsInt32()
-                .NotNullable();
+                    .WithColumn(nameof(KmOrder.KmUserId))
+                        .AsString(256).NotNullable()
 
-            //.WithColumn(nameof(KmOrder.Errors))
-            //    .AsString()
-            //    .NotNullable();
+                .WithColumn(nameof(KmOrder.NopOrderId))
+                    .AsInt32()
+                    .NotNullable()
+                    
+                .WithColumn(nameof(KmOrder.Errors))
+                    .AsString()
+                    .NotNullable();
         }
     }
 }

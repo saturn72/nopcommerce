@@ -48,6 +48,8 @@ namespace Nop.Plugin.Misc.KM.Orders.Infrastructure
                 sp.GetRequiredService<IShoppingCartService>()));
 
             services.AddScoped(typeof(IDocumentStore<>), typeof(FirebaseDocumentStore<>));
+         
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder application)

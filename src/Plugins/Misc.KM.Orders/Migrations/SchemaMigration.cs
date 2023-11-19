@@ -13,8 +13,8 @@ namespace Nop.Plugin.Misc.KM.Orders.Migrations
         /// </summary>
         public override void Up()
         {
-            Create.TableFor<KmUserCustomerMap>();
-            Create.TableFor<KmOrder>();
+            //Create.TableFor<KmUserCustomerMap>();
+            //Create.TableFor<KmOrder>();
         }
     }
 }
