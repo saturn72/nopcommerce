@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Nop.Plugin.Misc.KM.Orders.Infrastructure
 {

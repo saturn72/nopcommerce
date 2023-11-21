@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nop.Plugin.Misc.KM.Orders.Services.Checkout;
-using static LinqToDB.Reflection.Methods.LinqToDB.Insert;
 
 namespace Nop.Plugin.Misc.KM.Orders.Controllers
 {

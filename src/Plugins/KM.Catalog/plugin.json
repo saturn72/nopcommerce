@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Kedem Market",
+  "FriendlyName": "Kedem Market Catalog plugin",
+  "SystemName": "KM.Catalog",
+  "Version": "1.10",
+  "SupportedVersions": [ "4.60" , "4.70"],
+  "Author": "Saturn72",
+  "DisplayOrder": 1,
+  "FileName": "KM.Catalog.dll",
+  "Description": "Catalog export logic to firestore"
+}
