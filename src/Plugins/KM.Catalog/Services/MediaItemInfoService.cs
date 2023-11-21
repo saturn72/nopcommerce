@@ -84,6 +84,7 @@ public class MediaItemInfoService : IMediaItemInfoService
             }
             await _mediaItemInfoRepository.InsertAsync(e);
         }
+
         if (e.Storage == null || e.StorageIdentifier == null)
         {
             IStorageManager.StoredFileInfo sfi = null;

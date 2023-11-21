@@ -109,10 +109,12 @@ public partial class UpdateStoresTask : IScheduleTask
             if (sis.StoreClosed)
                 continue;
 
+            await _logger.InformationAsync($"{nameof(UpdateStoresTask)}: start procesing store: {store.Name}, with Id: {store.Id}");
             var logoPicture = await _pictureService.GetPictureByIdAsync(sis.LogoPictureId);
+            await _logger.InformationAsync($"{nameof(UpdateStoresTask)}: Upload store logo thumbnail");
             var thumb = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(Consts.MediaTypes.Thumbs, logoPicture, 0);
+            await _logger.InformationAsync($"{nameof(UpdateStoresTask)}: Upload store logo image");
             var pic = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(Consts.MediaTypes.Images, logoPicture, 0);
-
 
             res.Add(new StoreInfo
             {
