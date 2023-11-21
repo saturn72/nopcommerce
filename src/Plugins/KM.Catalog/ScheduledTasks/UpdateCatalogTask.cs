@@ -1,4 +1,6 @@
-﻿namespace Km.Catalog.ScheduledTasks;
+﻿using DocumentFormat.OpenXml.Office2013.WebExtension;
+
+namespace Km.Catalog.ScheduledTasks;
 
 public partial class UpdateCatalogTask : IScheduleTask
 {
@@ -14,7 +16,7 @@ public partial class UpdateCatalogTask : IScheduleTask
     private readonly IMediaItemInfoService _mediaItemInfoService;
     private readonly IStorageManager _storageManager;
     private readonly IStore<ProductInfoDocument> _store;
-    private readonly IHubContext<CatalogHub> _hub;
+    private readonly IEventPublisher _eventPublisher;
     private readonly ILogger _logger;
 
     private readonly Dictionary<ProductType, string> _productTypeNames;
@@ -35,7 +37,8 @@ public partial class UpdateCatalogTask : IScheduleTask
         IStorageManager storageManager,
         IStore<ProductInfoDocument> store,
         ICategoryService categoryService,
-        IHubContext<CatalogHub> hub,
+        IEventPublisher eventPublisher,
+        IRepository<ProductsSnapshot> productsSnapshotRepository,
         ILogger logger)
     {
         _storeService = storeService;
@@ -52,7 +55,7 @@ public partial class UpdateCatalogTask : IScheduleTask
         _storageManager = storageManager;
         _store = store;
         _categoryService = categoryService;
-        _hub = hub;
+        _eventPublisher = eventPublisher;
         _logger = logger;
     }
 
@@ -76,54 +79,57 @@ public partial class UpdateCatalogTask : IScheduleTask
 
         await _logger.InformationAsync("Start catalog updating process");
 
-        var catalogProducts = new List<ProductInfoDocument>();
-
         var stores = await _storeService.GetAllStoresAsync();
         var vendors = await _vendorService.GetAllVendorsAsync();
         var mis = await GetManufacturerInfos();
 
+        var snapshot = new List<IEnumerable<ProductInfoDocument>>();
         var sis = new List<StoreInfo>();
         foreach (var store in stores)
         {
-            var storeVendors = new List<VendorInfo>();
-            sis.Add(new StoreInfo
-            {
-                id = store.Id.ToString(),
-                name = store.Name,
-            });
-            var products = await _productService.SearchProductsAsync(storeId: store.Id, overridePublished: true);
-            var productsByVendor = products
-                .Where(CheckIsAvailable)
-                .GroupBy(x => x.VendorId);
+            var products = (await _productService.SearchProductsAsync(storeId: store.Id, overridePublished: true))
+                .Where(CheckIsAvailable);
 
-            foreach (var pv in productsByVendor)
-            {
-                //no vendor
-                if (pv.Key == 0)
-                    continue;
+            var productInfos = await ToProductInfos(products, mis);
+            var path = $"catalog/{store.Name}/products.json";
 
-                var vendor = vendors.First(x => x.Id == pv.Key);
-                var vi = await ToVendorInfos(vendor, store, pv, mis);
-
-                var path = $"catalog/{store.Name}/{vendor.Name}.json";
-                await _storageManager.UploadAsync(path, "application/json", vi);
-                storeVendors.Add(vi with { products = null });
-                catalogProducts.AddRange(vi.products);
-            }
+            await _storageManager.UploadAsync(path, "application/json", productInfos);
+            snapshot.Add(productInfos);
         }
 
-        try
+        var last = await _metadataSnapshotRepository.GetLatestAsync();
+
+        var v = (uint)1;
+        if (last != null && last.Version < uint.MaxValue)
+            v = last.Version++;
+
+        var snapshot = new StoresSnapshotInfo
         {
-            await _storageManager.UploadAsync($"catalog/stores.json", "application/json", new { stores = sis });
+            stores = await GetStoreInfoAsync(),
+            version = v
+        };
 
-            await _store.CreateOrUpdateAsync(catalogProducts);
-        }
-        catch (Exception ex)
+        var e = new StoreSnapshot { Json = toJson(), Version = v };
+        await _storeSnapshotRepository.InsertAsync(e);
+
+        var e = new ProductsSnapshot { Json = json, Version = v };
+        await _storeSnapshotRepository.InsertAsync(e);
+
+
+
+        await _eventPublisher.PublishAsync(new EntityUpdatedEvent<ProductsSnapshot>(snapshot));
+
+        string toJson()
         {
-            EnqueueCatalogUpdateRequest();
-            throw ex;
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = false,
+            };
+
+            return JsonSerializer.Serialize(snapshot, options);
         }
-        await _hub.Clients.All.SendAsync("catalog-updated");
     }
 
 
@@ -150,14 +156,12 @@ public partial class UpdateCatalogTask : IScheduleTask
         return res;
     }
 
-    private async Task<VendorInfo> ToVendorInfos(
-        Vendor vendor,
-        Store store,
-        IEnumerable<Product> vendorProducts,
+    private async Task<IEnumerable<ProductInfoDocument>> ToProductInfos(
+        IEnumerable<Product> products,
         IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)> manufacturersInfos)
     {
         var pis = new List<ProductInfoDocument>();
-        foreach (var p in vendorProducts)
+        foreach (var p in products)
         {
             var mis = manufacturersInfos.Where(m => m.productIds.Contains(p.Id)).Select(m => m.info).ToList();
             var tags = await GetProductTags(p.Id);
@@ -216,25 +220,7 @@ public partial class UpdateCatalogTask : IScheduleTask
             };
             pis.Add(pi);
         }
-
-        CatalogMediaInfo logo = null;
-        if (vendor.PictureId != 0)
-        {
-            var picture = await _pictureService.GetPictureByIdAsync(vendor.PictureId);
-            logo = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, picture, 0);
-        }
-        return new VendorInfo
-        {
-            id = vendor.Id.ToString(),
-            name = vendor.Name,
-            logo = logo,
-            store = new()
-            {
-                id = store.Id.ToString(),
-                name = store.Name,
-            },
-            products = pis,
-        };
+        return pis;
     }
 
     private async Task<IEnumerable<string>> GetProductTags(int productId)

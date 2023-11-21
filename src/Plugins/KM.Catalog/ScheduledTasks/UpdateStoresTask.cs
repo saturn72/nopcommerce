@@ -55,9 +55,9 @@ public partial class UpdateStoresTask : IScheduleTask
         while (_updateRequestQueue.TryPeek(out var result) && cur - result <= iteration)
             _updateRequestQueue.Dequeue();
 
-        await _logger.InformationAsync("Start catalog updating process");
+        await _logger.InformationAsync("Start store updating process");
 
-        var last = await _storeSnapshotRepository.GetLastAsync();
+        var last = await _storeSnapshotRepository.GetLatestAsync();
 
         var v = (uint)1;
         if (last != null && last.Version < uint.MaxValue)
@@ -69,14 +69,12 @@ public partial class UpdateStoresTask : IScheduleTask
             version = v
         };
 
-        var json = toJson();
-        var e = new StoreSnapshot { Json = json, Version = v };
+        var e = new StoreSnapshot { Json = toJson(), Version = v };
         await _storeSnapshotRepository.InsertAsync(e);
-
+        
         try
         {
-            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-            _ = await _storageManager.UploadAsync("catalog/stores.json", "application /json", stream);
+            await _storageManager.UploadAsync("catalog/stores.json", "application /json", snapshot);
         }
         catch (Exception ex)
         {
