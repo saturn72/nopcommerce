@@ -77,7 +77,6 @@ public partial class UpdateStoresTask : IScheduleTask
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
             _ = await _storageManager.UploadAsync("catalog/stores.json", "application /json", stream);
-
         }
         catch (Exception ex)
         {

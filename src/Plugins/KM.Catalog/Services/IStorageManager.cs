@@ -1,5 +1,4 @@
 ﻿namespace Km.Catalog.Services;
-
 public interface IStorageManager
 {
     Task<StoredFileInfo> UploadAsync(string path, string mediaType, Stream stream);

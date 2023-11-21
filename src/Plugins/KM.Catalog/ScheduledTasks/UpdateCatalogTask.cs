@@ -106,7 +106,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                 var vi = await ToVendorInfos(vendor, store, pv, mis);
 
                 var path = $"catalog/{store.Name}/{vendor.Name}.json";
-                await UploadAsJsonAsync(path, vi);
+                await _storageManager.UploadAsync(path, "application/json", vi);
                 storeVendors.Add(vi with { products = null });
                 catalogProducts.AddRange(vi.products);
             }
@@ -114,7 +114,7 @@ public partial class UpdateCatalogTask : IScheduleTask
 
         try
         {
-            await UploadAsJsonAsync($"catalog/stores.json", new { stores = sis });
+            await _storageManager.UploadAsync($"catalog/stores.json", "application/json", new { stores = sis });
 
             await _store.CreateOrUpdateAsync(catalogProducts);
         }
@@ -123,24 +123,9 @@ public partial class UpdateCatalogTask : IScheduleTask
             EnqueueCatalogUpdateRequest();
             throw ex;
         }
-        await _hub.Clients.All.SendAsync("updated");
+        await _hub.Clients.All.SendAsync("catalog-updated");
     }
 
-    private async Task UploadAsJsonAsync<TData>(string path, TData data)
-    {
-        var options = new JsonSerializerOptions
-        {
-            AllowTrailingCommas = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = false,
-        };
-
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(data, options);
-        using var stream = new MemoryStream(bytes);
-        {
-            _ = await _storageManager.UploadAsync(path, "application/json", stream);
-        }
-    }
 
     private async Task<IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)>> GetManufacturerInfos()
     {
