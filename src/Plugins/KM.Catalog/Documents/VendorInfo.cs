@@ -1,12 +1,8 @@
 ﻿namespace Km.Catalog.Documents;
 
-[FirestoreData]
-public record VendorInfo : IDocument
+public record VendorInfo
 {
-    [FirestoreProperty]
-    public string id { get; init; }
-    [FirestoreProperty]
-    public string name { get; init; }
-    [FirestoreProperty]
-    public CatalogMediaInfo logo { get; init; }
+    public string Id { get; init; }
+    public string Name { get; init; }
+    public CatalogMediaInfo Logo { get; init; }
 }

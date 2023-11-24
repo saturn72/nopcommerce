@@ -1,18 +1,11 @@
 ﻿namespace Km.Catalog.Documents;
 
-[FirestoreData]
-public record StoreInfo : IDocument
+public record StoreInfo 
 {
-    [FirestoreProperty]
-    public string id { get; init; }
-    [FirestoreProperty]
-    public string name { get; init; }
-    [FirestoreProperty]
-    public KmMediaItemInfo logoThumb { get; init; }
-    [FirestoreProperty]
-    public KmMediaItemInfo logoPicture { get; init; }
-    [FirestoreProperty]
-    public IEnumerable<ProductInfoDocument> products { get; init; }
-    [FirestoreProperty]
-    public IEnumerable<VendorInfo> vendors { get; init; }
+    public string Id { get; init; }
+    public string Name { get; init; }
+    public KmMediaItemInfo LogoThumb { get; init; }
+    public KmMediaItemInfo LogoPicture { get; init; }
+    public IEnumerable<ProductInfoDocument> Products { get; init; }
+    public IEnumerable<VendorInfo> Vendors { get; init; }
 }

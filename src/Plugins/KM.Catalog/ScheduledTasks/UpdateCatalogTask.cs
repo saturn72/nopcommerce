@@ -16,8 +16,6 @@ public partial class UpdateCatalogTask : IScheduleTask
     private readonly IPictureService _pictureService;
     private readonly IVideoService _videoService;
     private readonly IMediaItemInfoService _mediaItemInfoService;
-    private readonly IStorageManager _storageManager;
-    private readonly IStore<ProductInfoDocument> _store;
     private readonly ISettingService _settingService;
     private readonly IEventPublisher _eventPublisher;
     private readonly IRepository<KmStoresSnapshot> _storeSnapshotRepository;
@@ -38,8 +36,6 @@ public partial class UpdateCatalogTask : IScheduleTask
         IPictureService pictureService,
         IVideoService videoService,
         IMediaItemInfoService mediaItemInfoService,
-        IStorageManager storageManager,
-        IStore<ProductInfoDocument> store,
         ICategoryService categoryService,
         IEventPublisher eventPublisher,
         IRepository<KmStoresSnapshot> storeSnapshotRepository,
@@ -57,8 +53,6 @@ public partial class UpdateCatalogTask : IScheduleTask
         _productTypeNames = new Dictionary<ProductType, string>();
 
         _mediaItemInfoService = mediaItemInfoService;
-        _storageManager = storageManager;
-        _store = store;
         _categoryService = categoryService;
         _eventPublisher = eventPublisher;
         _storeSnapshotRepository = storeSnapshotRepository;
@@ -86,7 +80,9 @@ public partial class UpdateCatalogTask : IScheduleTask
         await _logger.InformationAsync("Start catalog updating process");
         var storeInfos = await GetStoresSnapshot();
 
-        var last = await _storeSnapshotRepository.GetLatestAsync();
+        var l = await _storeSnapshotRepository.GetAllAsync(q => q.OrderByDescending(x => x.CreatedOnUtc).Take(1));
+        var last = l?.FirstOrDefault();
+
         var v = (uint)1;
         if (last != null && last.Version < uint.MaxValue)
             v = last.Version++;
@@ -128,17 +124,17 @@ public partial class UpdateCatalogTask : IScheduleTask
 
             var storeProducts = await GetProductsByStoreId(store.Id, mis, vis);
             var storeVendors = storeProducts
-                .Select(p => p.vendor).DistinctBy(v => v.id)
+                .Select(p => p.Vendor).DistinctBy(v => v.Id)
                 .ToList();
 
             res.Add(new StoreInfo
             {
-                id = store.Id.ToString(),
-                name = store.Name,
-                logoThumb = thumb,
-                logoPicture = pic,
-                products = storeProducts,
-                vendors = storeVendors
+                Id = store.Id.ToString(),
+                Name = store.Name,
+                LogoThumb = thumb,
+                LogoPicture = pic,
+                Products = storeProducts,
+                Vendors = storeVendors
             });
         }
 
@@ -166,9 +162,9 @@ public partial class UpdateCatalogTask : IScheduleTask
 
                 res.Add(new VendorInfo
                 {
-                    id = vId,
-                    name = v.Name,
-                    logo = logo,
+                    Id = vId,
+                    Name = v.Name,
+                    Logo = logo,
                 });
             }
             pageIndex++;
@@ -210,10 +206,10 @@ public partial class UpdateCatalogTask : IScheduleTask
                 var tierPricesSources = await _productService.GetTierPricesByProductAsync(p.Id);
                 var tierPrices = tierPricesSources.Select(t => new TierPriceDocument
                 {
-                    quantity = t.Quantity,
-                    price = (float)t.Price,
-                    startDateTimeUtc = t.StartDateTimeUtc,
-                    endDateTimeUtc = t.EndDateTimeUtc
+                    Quantity = t.Quantity,
+                    Price = (float)t.Price,
+                    StartDateTimeUtc = t.StartDateTimeUtc,
+                    EndDateTimeUtc = t.EndDateTimeUtc
                 }).ToList();
 
                 var pcs = await _categoryService.GetProductCategoriesByProductIdAsync(p.Id);
@@ -231,37 +227,37 @@ public partial class UpdateCatalogTask : IScheduleTask
 
                 var pi = new ProductInfoDocument
                 {
-                    id = p.Id.ToString(),
+                    Id = p.Id.ToString(),
 
-                    categories = categories,
-                    displayOrder = p.DisplayOrder,
-                    name = p.Name,
-                    fullDescription = p.FullDescription,
-                    gtin = p.Gtin,
-                    height = (float)p.Height,
-                    isNew = CheckIsNew(p),
-                    isShipEnabled = p.IsShipEnabled,
-                    length = (float)p.Length,
-                    media = await GetProductMedia(p),
-                    manufacturers = mis,
-                    mpn = p.ManufacturerPartNumber,
-                    oldPrice = (float)p.OldPrice,
-                    orderMinimumQuantity = p.OrderMinimumQuantity,
-                    parentGroupedProductId = p.ParentGroupedProductId,
-                    price = (float)p.Price,
-                    productType = GetProductTypeName(p.ProductType),
-                    quantity = p.StockQuantity,
-                    rating = p.ApprovedRatingSum,
-                    reviews = p.ApprovedTotalReviews,
-                    shippingCost = p.IsFreeShipping ? 0 : (float)p.AdditionalShippingCharge,
-                    sku = p.Sku,
-                    shortDescription = p.ShortDescription,
-                    tags = tags,
-                    tierPrices = tierPrices,
-                    vendor = vendorInfos.FirstOrDefault(x => x.id == p.VendorId.ToString()),
-                    visibleIndividually = p.VisibleIndividually,
-                    weight = (float)p.Weight,
-                    width = (float)p.Width,
+                    Categories = categories,
+                    DisplayOrder = p.DisplayOrder,
+                    Name = p.Name,
+                    FullDescription = p.FullDescription,
+                    Gtin = p.Gtin,
+                    Height = (float)p.Height,
+                    IsNew = CheckIsNew(p),
+                    IsShipEnabled = p.IsShipEnabled,
+                    Length = (float)p.Length,
+                    Media = await GetProductMedia(p),
+                    Manufacturers = mis,
+                    Mpn = p.ManufacturerPartNumber,
+                    OldPrice = (float)p.OldPrice,
+                    OrderMinimumQuantity = p.OrderMinimumQuantity,
+                    ParentGroupedProductId = p.ParentGroupedProductId,
+                    Price = (float)p.Price,
+                    ProductType = GetProductTypeName(p.ProductType),
+                    Quantity = p.StockQuantity,
+                    Rating = p.ApprovedRatingSum,
+                    Reviews = p.ApprovedTotalReviews,
+                    ShippingCost = p.IsFreeShipping ? 0 : (float)p.AdditionalShippingCharge,
+                    Sku = p.Sku,
+                    ShortDescription = p.ShortDescription,
+                    Tags = tags,
+                    TierPrices = tierPrices,
+                    Vendor = vendorInfos.FirstOrDefault(x => x.Id == p.VendorId.ToString()),
+                    VisibleIndividually = p.VisibleIndividually,
+                    Weight = (float)p.Weight,
+                    Width = (float)p.Width,
                 };
                 pis.Add(pi);
             }
@@ -292,8 +288,8 @@ public partial class UpdateCatalogTask : IScheduleTask
 
                 var info = new ManufacturerInfo
                 {
-                    name = m.Name,
-                    picture = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, m.PictureId, 0),
+                    Name = m.Name,
+                    Picture = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, m.PictureId, 0),
                 };
                 res.Add((productIds, info));
             }
@@ -379,20 +375,20 @@ public partial class UpdateCatalogTask : IScheduleTask
         var mii = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(type, picture, displayOrder);
         return new CatalogMediaInfo
         {
-            alt = picture.AltAttribute,
-            displayOrder = displayOrder,
-            title = picture.TitleAttribute,
-            type = mii.Type,
-            uri = mii.Uri
+            Alt = picture.AltAttribute,
+            DisplayOrder = displayOrder,
+            Title = picture.TitleAttribute,
+            Type = mii.Type,
+            Uri = mii.Uri
         };
     }
     private CatalogMediaInfo ToVideoMediaInfo(Video video, int displayOrder = 0)
     {
         return new CatalogMediaInfo
         {
-            type = "video",
-            uri = video.VideoUrl,
-            displayOrder = displayOrder
+            Type = "video",
+            Uri = video.VideoUrl,
+            DisplayOrder = displayOrder
         };
     }
 }

@@ -1,13 +1,9 @@
 ﻿namespace Km.Catalog.Documents;
 
-[FirestoreData]
-public record StoresSnapshotInfo : IDocument
+public record StoresSnapshotInfo
 {
-    [FirestoreProperty]
-    public string id { get; init; }
-    [FirestoreProperty]
-    public long version { get; init; }
+    public string Id { get; init; }
+    public long Version { get; init; }
 
-    [FirestoreProperty]
-    public IEnumerable<StoreInfo> stores { get; init; }
+    public IEnumerable<StoreInfo> Stores { get; init; }
 }

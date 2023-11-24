@@ -30,7 +30,7 @@ public class PluginNopStartup : INopStartup
         //register services and interfaces
         services.AddScoped<IMediaItemInfoService, MediaItemInfoService>();
         services.AddSingleton<IStorageManager, GcpStorageManager>();
-        services.AddScoped(typeof(IStore<>), typeof(FirestoreStore<>));
+        //services.AddScoped(typeof(IStore<>), typeof(FirestoreStore<>));
 
         services.Configure<GcpOptions>(options =>
         {

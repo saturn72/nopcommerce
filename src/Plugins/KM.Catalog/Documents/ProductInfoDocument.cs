@@ -1,71 +1,37 @@
 ﻿namespace Km.Catalog.Documents;
 
-[FirestoreData]
-public record ProductInfoDocument : IDocument
+public record ProductInfoDocument
 {
-
-    [FirestoreProperty]
-    public string id { get; init; }
-    [FirestoreProperty]
-    public string name { get; init; }
-    [FirestoreProperty]
-    public string productType { get; init; }
-    [FirestoreProperty]
-    public int parentGroupedProductId { get; init; }
-    [FirestoreProperty]
-    public bool visibleIndividually { get; init; }
-    [FirestoreProperty]
-    public string shortDescription { get; init; }
-    [FirestoreProperty]
-    public string fullDescription { get; init; }
-    [FirestoreProperty]
-    public int rating { get; init; }
-    [FirestoreProperty]
-    public int reviews { get; init; }
-    [FirestoreProperty]
-    public string sku { get; init; }
-    [FirestoreProperty]
-    public string mpn { get; init; }
-    [FirestoreProperty]
-    public string gtin { get; init; }
-    [FirestoreProperty]
-    public bool isShipEnabled { get; init; }
-    [FirestoreProperty]
-    public float shippingCost { get; init; }
-    [FirestoreProperty]
-    public int quantity { get; init; }
-    [FirestoreProperty]
-    public int orderMinimumQuantity { get; init; }
-    [FirestoreProperty]
-    public int orderMaximumQuantity { get; init; }
-    [FirestoreProperty]
-    public string allowedQuantities { get; init; }
-    [FirestoreProperty]
-    public float price { get; init; }
-    [FirestoreProperty]
-    public float oldPrice { get; init; }
-    [FirestoreProperty]
-    public bool isNew { get; init; }
-    [FirestoreProperty]
-    public float weight { get; init; }
-    [FirestoreProperty]
-    public float length { get; init; }
-    [FirestoreProperty]
-    public float width { get; init; }
-    [FirestoreProperty]
-    public float height { get; init; }
-    [FirestoreProperty]
-    public int displayOrder { get; init; }
-    [FirestoreProperty]
-    public VendorInfo vendor { get; set; }
-    [FirestoreProperty]
-    public IEnumerable<CatalogMediaInfo> media { get; init; }
-    [FirestoreProperty]
-    public IEnumerable<ManufacturerInfo> manufacturers { get; init; }
-    [FirestoreProperty]
-    public IEnumerable<string> tags { get; init; }
-    [FirestoreProperty]
-    public IEnumerable<TierPriceDocument> tierPrices { get; init; }
-    [FirestoreProperty]
-    public IEnumerable<string> categories { get; init; }
+    public string Id { get; init; }
+    public string Name { get; init; }
+    public string ProductType { get; init; }
+    public int ParentGroupedProductId { get; init; }
+    public bool VisibleIndividually { get; init; }
+    public string ShortDescription { get; init; }
+    public string FullDescription { get; init; }
+    public int Rating { get; init; }
+    public int Reviews { get; init; }
+    public string Sku { get; init; }
+    public string Mpn { get; init; }
+    public string Gtin { get; init; }
+    public bool IsShipEnabled { get; init; }
+    public float ShippingCost { get; init; }
+    public int Quantity { get; init; }
+    public int OrderMinimumQuantity { get; init; }
+    public int OrderMaximumQuantity { get; init; }
+    public string AllowedQuantities { get; init; }
+    public float Price { get; init; }
+    public float OldPrice { get; init; }
+    public bool IsNew { get; init; }
+    public float Weight { get; init; }
+    public float Length { get; init; }
+    public float Width { get; init; }
+    public float Height { get; init; }
+    public int DisplayOrder { get; init; }
+    public VendorInfo Vendor { get; set; }
+    public IEnumerable<CatalogMediaInfo> Media { get; init; }
+    public IEnumerable<ManufacturerInfo> Manufacturers { get; init; }
+    public IEnumerable<string> Tags { get; init; }
+    public IEnumerable<TierPriceDocument> TierPrices { get; init; }
+    public IEnumerable<string> Categories { get; init; }
 }

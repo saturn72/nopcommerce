@@ -1,16 +1,10 @@
 ﻿namespace Km.Catalog.Documents;
 
-[FirestoreData]
 public record CatalogMediaInfo
 {
-    [FirestoreProperty]
-    public int displayOrder { get; init; }
-    [FirestoreProperty]
-    public string alt { get; init; }
-    [FirestoreProperty]
-    public string title { get; init; }
-    [FirestoreProperty]
-    public string type { get; set; }
-    [FirestoreProperty]
-    public string uri { get; init; }
+    public int DisplayOrder { get; init; }
+    public string Alt { get; init; }
+    public string Title { get; init; }
+    public string Type { get; set; }
+    public string Uri { get; init; }
 }
