@@ -1,4 +1,6 @@
-﻿using DocumentFormat.OpenXml.Office2013.WebExtension;
+﻿
+using AutoMapper.Configuration.Annotations;
+using Km.Catalog.Documents;
 
 namespace Km.Catalog.ScheduledTasks;
 
@@ -16,7 +18,9 @@ public partial class UpdateCatalogTask : IScheduleTask
     private readonly IMediaItemInfoService _mediaItemInfoService;
     private readonly IStorageManager _storageManager;
     private readonly IStore<ProductInfoDocument> _store;
+    private readonly ISettingService _settingService;
     private readonly IEventPublisher _eventPublisher;
+    private readonly IRepository<KmStoresSnapshot> _storeSnapshotRepository;
     private readonly ILogger _logger;
 
     private readonly Dictionary<ProductType, string> _productTypeNames;
@@ -38,7 +42,8 @@ public partial class UpdateCatalogTask : IScheduleTask
         IStore<ProductInfoDocument> store,
         ICategoryService categoryService,
         IEventPublisher eventPublisher,
-        IRepository<ProductsSnapshot> productsSnapshotRepository,
+        IRepository<KmStoresSnapshot> storeSnapshotRepository,
+        ISettingService settingService,
         ILogger logger)
     {
         _storeService = storeService;
@@ -56,6 +61,8 @@ public partial class UpdateCatalogTask : IScheduleTask
         _store = store;
         _categoryService = categoryService;
         _eventPublisher = eventPublisher;
+        _storeSnapshotRepository = storeSnapshotRepository;
+        _settingService = settingService;
         _logger = logger;
     }
 
@@ -66,7 +73,6 @@ public partial class UpdateCatalogTask : IScheduleTask
 
     public async Task ExecuteAsync()
     {
-
         if (_updateRequestQueue.Count == 0)
             return;
 
@@ -78,150 +84,225 @@ public partial class UpdateCatalogTask : IScheduleTask
             _updateRequestQueue.Dequeue();
 
         await _logger.InformationAsync("Start catalog updating process");
+        var storeInfos = await GetStoresSnapshot();
 
-        var stores = await _storeService.GetAllStoresAsync();
-        var vendors = await _vendorService.GetAllVendorsAsync();
-        var mis = await GetManufacturerInfos();
-
-        var snapshot = new List<IEnumerable<ProductInfoDocument>>();
-        var sis = new List<StoreInfo>();
-        foreach (var store in stores)
-        {
-            var products = (await _productService.SearchProductsAsync(storeId: store.Id, overridePublished: true))
-                .Where(CheckIsAvailable);
-
-            var productInfos = await ToProductInfos(products, mis);
-            var path = $"catalog/{store.Name}/products.json";
-
-            await _storageManager.UploadAsync(path, "application/json", productInfos);
-            snapshot.Add(productInfos);
-        }
-
-        var last = await _metadataSnapshotRepository.GetLatestAsync();
-
+        var last = await _storeSnapshotRepository.GetLatestAsync();
         var v = (uint)1;
         if (last != null && last.Version < uint.MaxValue)
             v = last.Version++;
 
-        var snapshot = new StoresSnapshotInfo
+        var options = new JsonSerializerOptions
         {
-            stores = await GetStoreInfoAsync(),
-            version = v
+            AllowTrailingCommas = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false,
         };
 
-        var e = new StoreSnapshot { Json = toJson(), Version = v };
-        await _storeSnapshotRepository.InsertAsync(e);
-
-        var e = new ProductsSnapshot { Json = json, Version = v };
-        await _storeSnapshotRepository.InsertAsync(e);
-
-
-
-        await _eventPublisher.PublishAsync(new EntityUpdatedEvent<ProductsSnapshot>(snapshot));
-
-        string toJson()
+        var json = JsonSerializer.Serialize(storeInfos, options);
+        var storeSnapshot = new KmStoresSnapshot
         {
-            var options = new JsonSerializerOptions
-            {
-                AllowTrailingCommas = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = false,
-            };
-
-            return JsonSerializer.Serialize(snapshot, options);
-        }
+            Json = json,
+            Version = v,
+        };
+        await _storeSnapshotRepository.InsertAsync(storeSnapshot);
+        await _eventPublisher.PublishAsync(new EntityUpdatedEvent<KmStoresSnapshot>(storeSnapshot));
     }
 
-
-    private async Task<IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)>> GetManufacturerInfos()
+    private async Task<IEnumerable<StoreInfo>> GetStoresSnapshot()
     {
-        var manufacturers = await _manufacturerService.GetAllManufacturersAsync(overridePublished: true);
+        var stores = await _storeService.GetAllStoresAsync();
+        var mis = await GetManufacturerInfos();
+        var vis = await GetVendorInfos();
 
-        var res = new List<(IEnumerable<int> productIds, ManufacturerInfo info)>();
-        foreach (var m in manufacturers)
+        var res = new List<StoreInfo>();
+
+        foreach (var store in stores)
         {
-            if (m.Deleted || !m.Published)
+            var sis = await _settingService.LoadSettingAsync<StoreInformationSettings>(store.Id);
+            if (sis.StoreClosed)
                 continue;
-            var manufacturerProductIds = await _manufacturerService.GetProductManufacturersByManufacturerIdAsync(m.Id);
-            var productIds = manufacturerProductIds.Select(x => x.ProductId).ToList();
 
-            var picture = await _pictureService.GetPictureByIdAsync(m.PictureId);
-            var info = new ManufacturerInfo
+            var logoPicture = await _pictureService.GetPictureByIdAsync(sis.LogoPictureId);
+            var thumb = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(Consts.MediaTypes.Thumbs, logoPicture, 0);
+            var pic = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(Consts.MediaTypes.Images, logoPicture, 0);
+
+            var storeProducts = await GetProductsByStoreId(store.Id, mis, vis);
+            var storeVendors = storeProducts
+                .Select(p => p.vendor).DistinctBy(v => v.id)
+                .ToList();
+
+            res.Add(new StoreInfo
             {
-                name = m.Name,
-                picture = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, picture, 0),
-            };
-            res.Add((productIds, info));
+                id = store.Id.ToString(),
+                name = store.Name,
+                logoThumb = thumb,
+                logoPicture = pic,
+                products = storeProducts,
+                vendors = storeVendors
+            });
         }
+
         return res;
     }
 
-    private async Task<IEnumerable<ProductInfoDocument>> ToProductInfos(
-        IEnumerable<Product> products,
-        IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)> manufacturersInfos)
+    private async Task<IEnumerable<VendorInfo>> GetVendorInfos()
     {
-        var pis = new List<ProductInfoDocument>();
-        foreach (var p in products)
+        var pageIndex = 0;
+        const int pageSize = 25;
+        IPagedList<Vendor> page;
+        var res = new List<VendorInfo>();
+
+        do
         {
-            var mis = manufacturersInfos.Where(m => m.productIds.Contains(p.Id)).Select(m => m.info).ToList();
-            var tags = await GetProductTags(p.Id);
-            var tierPricesSources = await _productService.GetTierPricesByProductAsync(p.Id);
-            var tierPrices = tierPricesSources.Select(t => new TierPriceDocument
+            page = await _vendorService.GetAllVendorsAsync(pageIndex: pageIndex, pageSize: pageSize);
+
+            foreach (var v in page)
             {
-                quantity = t.Quantity,
-                price = (float)t.Price,
-                startDateTimeUtc = t.StartDateTimeUtc,
-                endDateTimeUtc = t.EndDateTimeUtc
-            }).ToList();
+                if (v.Deleted || !v.Active)
+                    continue;
 
-            var pcs = await _categoryService.GetProductCategoriesByProductIdAsync(p.Id);
+                var logo = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, v.PictureId, 0);
+                var vId = v.Id.ToString();
 
-            var categories = new List<string>();
-
-            foreach (var pc in pcs)
-            {
-                var c = await _categoryService.GetCategoryByIdAsync(pc.CategoryId);
-                var cc = await _categoryService.GetCategoryBreadCrumbAsync(c);
-                var bc = await _categoryService.GetFormattedBreadCrumbAsync(c);
-                categories.Add(bc);
+                res.Add(new VendorInfo
+                {
+                    id = vId,
+                    name = v.Name,
+                    logo = logo,
+                });
             }
+            pageIndex++;
+        } while (page.HasNextPage);
 
-            var pi = new ProductInfoDocument
+        return res;
+    }
+
+    private async Task<IEnumerable<ProductInfoDocument>> GetProductsByStoreId(
+        int storeId,
+        IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)> productManufacturerInfos,
+        IEnumerable<VendorInfo> vendorInfos)
+    {
+        var pageIndex = 0;
+        var pageSize = 50;
+        IPagedList<Product> page;
+        var pis = new List<ProductInfoDocument>();
+
+        do
+        {
+            page = await _productService.SearchProductsAsync(
+                storeId: storeId,
+                pageIndex: pageIndex,
+                pageSize: pageSize,
+                overridePublished: true);
+
+            var products = page
+                .Where(p => !p.Deleted &&
+                       p.Published &&
+                        (p.AvailableStartDateTimeUtc == null && p.AvailableEndDateTimeUtc == null ||
+                        p.AvailableStartDateTimeUtc == null && p.AvailableEndDateTimeUtc > DateTime.UtcNow ||
+                        p.AvailableStartDateTimeUtc < DateTime.UtcNow && p.AvailableEndDateTimeUtc == null));
+
+            foreach (var p in products)
             {
-                id = p.Id.ToString(),
-                name = p.Name,
-                productType = GetProductTypeName(p.ProductType),
-                parentGroupedProductId = p.ParentGroupedProductId,
-                visibleIndividually = p.VisibleIndividually,
-                shortDescription = p.ShortDescription,
-                fullDescription = p.FullDescription,
-                rating = p.ApprovedRatingSum,
-                reviews = p.ApprovedTotalReviews,
-                sku = p.Sku,
-                mpn = p.ManufacturerPartNumber,
-                gtin = p.Gtin,
-                isShipEnabled = p.IsShipEnabled,
-                shippingCost = p.IsFreeShipping ? 0 : (float)p.AdditionalShippingCharge,
-                quantity = p.StockQuantity,
-                orderMinimumQuantity = p.OrderMinimumQuantity,
-                price = (float)p.Price,
-                tierPrices = tierPrices,
-                oldPrice = (float)p.OldPrice,
-                isNew = CheckIsNew(p),
-                weight = (float)p.Weight,
-                length = (float)p.Length,
-                width = (float)p.Width,
-                height = (float)p.Height,
-                displayOrder = p.DisplayOrder,
-                media = await GetProductMedia(p),
-                manufacturers = mis,
-                tags = tags,
-                categories = categories
-            };
-            pis.Add(pi);
-        }
+                var mis = productManufacturerInfos.Where(m => m.productIds.Contains(p.Id)).Select(m => m.info).ToList();
+
+                var tags = await GetProductTags(p.Id);
+                var tierPricesSources = await _productService.GetTierPricesByProductAsync(p.Id);
+                var tierPrices = tierPricesSources.Select(t => new TierPriceDocument
+                {
+                    quantity = t.Quantity,
+                    price = (float)t.Price,
+                    startDateTimeUtc = t.StartDateTimeUtc,
+                    endDateTimeUtc = t.EndDateTimeUtc
+                }).ToList();
+
+                var pcs = await _categoryService.GetProductCategoriesByProductIdAsync(p.Id);
+
+                var categories = new List<string>();
+
+                foreach (var pc in pcs)
+                {
+                    var c = await _categoryService.GetCategoryByIdAsync(pc.CategoryId);
+                    var cc = await _categoryService.GetCategoryBreadCrumbAsync(c);
+                    var bc = await _categoryService.GetFormattedBreadCrumbAsync(c);
+                    categories.Add(bc);
+                }
+
+
+                var pi = new ProductInfoDocument
+                {
+                    id = p.Id.ToString(),
+
+                    categories = categories,
+                    displayOrder = p.DisplayOrder,
+                    name = p.Name,
+                    fullDescription = p.FullDescription,
+                    gtin = p.Gtin,
+                    height = (float)p.Height,
+                    isNew = CheckIsNew(p),
+                    isShipEnabled = p.IsShipEnabled,
+                    length = (float)p.Length,
+                    media = await GetProductMedia(p),
+                    manufacturers = mis,
+                    mpn = p.ManufacturerPartNumber,
+                    oldPrice = (float)p.OldPrice,
+                    orderMinimumQuantity = p.OrderMinimumQuantity,
+                    parentGroupedProductId = p.ParentGroupedProductId,
+                    price = (float)p.Price,
+                    productType = GetProductTypeName(p.ProductType),
+                    quantity = p.StockQuantity,
+                    rating = p.ApprovedRatingSum,
+                    reviews = p.ApprovedTotalReviews,
+                    shippingCost = p.IsFreeShipping ? 0 : (float)p.AdditionalShippingCharge,
+                    sku = p.Sku,
+                    shortDescription = p.ShortDescription,
+                    tags = tags,
+                    tierPrices = tierPrices,
+                    vendor = vendorInfos.FirstOrDefault(x => x.id == p.VendorId.ToString()),
+                    visibleIndividually = p.VisibleIndividually,
+                    weight = (float)p.Weight,
+                    width = (float)p.Width,
+                };
+                pis.Add(pi);
+            }
+            pageIndex++;
+
+        } while (page.HasNextPage);
+
         return pis;
     }
+
+    private async Task<IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)>> GetManufacturerInfos()
+    {
+        var pageIndex = 0;
+        const int pageSize = 25;
+        IPagedList<Manufacturer> page;
+        var res = new List<(IEnumerable<int> productIds, ManufacturerInfo info)>();
+
+        do
+        {
+            page = await _manufacturerService.GetAllManufacturersAsync(pageSize: pageSize, pageIndex: pageIndex, overridePublished: true);
+
+            foreach (var m in page)
+            {
+                if (m.Deleted || !m.Published)
+                    continue;
+                var manufacturerProductIds = await _manufacturerService.GetProductManufacturersByManufacturerIdAsync(m.Id);
+                var productIds = manufacturerProductIds.Select(x => x.ProductId).ToList();
+
+                var info = new ManufacturerInfo
+                {
+                    name = m.Name,
+                    picture = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, m.PictureId, 0),
+                };
+                res.Add((productIds, info));
+            }
+            pageIndex++;
+        } while (page.HasNextPage);
+
+        return res;
+    }
+
 
     private async Task<IEnumerable<string>> GetProductTags(int productId)
     {
@@ -263,16 +344,6 @@ public partial class UpdateCatalogTask : IScheduleTask
         return cmis;
     }
 
-    private bool CheckIsAvailable(Product product)
-    {
-        return
-            !product.Deleted &&
-            product.Published &&
-            (product.AvailableStartDateTimeUtc == null && product.AvailableEndDateTimeUtc == null ||
-            product.AvailableStartDateTimeUtc == null && product.AvailableEndDateTimeUtc > DateTime.UtcNow ||
-            product.AvailableStartDateTimeUtc < DateTime.UtcNow && product.AvailableEndDateTimeUtc == null);
-    }
-
     private bool CheckIsNew(Product product)
     {
         return product.MarkAsNew &&
@@ -291,10 +362,21 @@ public partial class UpdateCatalogTask : IScheduleTask
         return name;
     }
 
+    private async Task<CatalogMediaInfo> ToCatalogMediaInfo(string type, int pictureId, int displayOrder)
+    {
+        if (pictureId == default)
+            return default;
+        var picture = await _pictureService.GetPictureByIdAsync(pictureId);
+
+        return await ToCatalogMediaInfo(type, picture, displayOrder);
+    }
+
     private async Task<CatalogMediaInfo> ToCatalogMediaInfo(string type, Picture picture, int displayOrder)
     {
-        var mii = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(type, picture, displayOrder);
+        if (picture == default)
+            return default;
 
+        var mii = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(type, picture, displayOrder);
         return new CatalogMediaInfo
         {
             alt = picture.AltAttribute,

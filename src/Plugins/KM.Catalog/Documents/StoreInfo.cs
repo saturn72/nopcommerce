@@ -10,5 +10,9 @@ public record StoreInfo : IDocument
     [FirestoreProperty]
     public KmMediaItemInfo logoThumb { get; init; }
     [FirestoreProperty]
-    public KmMediaItemInfo logoPicture { get; internal set; }
+    public KmMediaItemInfo logoPicture { get; init; }
+    [FirestoreProperty]
+    public IEnumerable<ProductInfoDocument> products { get; init; }
+    [FirestoreProperty]
+    public IEnumerable<VendorInfo> vendors { get; init; }
 }

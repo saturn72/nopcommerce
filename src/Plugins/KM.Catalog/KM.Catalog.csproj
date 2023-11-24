@@ -37,7 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Migrations\StoreSnapshot.sql">
+    <None Update="Migrations\KmCatalogMetadata.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Migrations\KmStoresSnapshot.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Migrations\KmMediaInfo.sql">

@@ -3,6 +3,7 @@
 [FirestoreData]
 public record ProductInfoDocument : IDocument
 {
+
     [FirestoreProperty]
     public string id { get; init; }
     [FirestoreProperty]
@@ -55,6 +56,8 @@ public record ProductInfoDocument : IDocument
     public float height { get; init; }
     [FirestoreProperty]
     public int displayOrder { get; init; }
+    [FirestoreProperty]
+    public VendorInfo vendor { get; set; }
     [FirestoreProperty]
     public IEnumerable<CatalogMediaInfo> media { get; init; }
     [FirestoreProperty]

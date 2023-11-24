@@ -1,17 +1,15 @@
 ﻿namespace Km.Catalog.EventConsumers;
 
 public class KmStoresUpdatedEventConsumer :
-    IConsumer<EntityUpdatedEvent<StoreSnapshot>>,
-    IConsumer<EntityUpdatedEvent<ProductsSnapshot>>
-
+    IConsumer<EntityUpdatedEvent<KmStoresSnapshot>>
 {
     private readonly IHubContext<CatalogHub> _hub;
     private readonly IStorageManager _storageManager;
-    private readonly IRepository<CatalogMetadata> _catalogMetadataRepository;
+    private readonly IRepository<KmCatalogMetadata> _catalogMetadataRepository;
 
     public KmStoresUpdatedEventConsumer(
         IHubContext<CatalogHub> hub,
-        IRepository<CatalogMetadata> catalogMetadataRepository,
+        IRepository<KmCatalogMetadata> catalogMetadataRepository,
         IStorageManager storageManager)
     {
         _hub = hub;
@@ -19,40 +17,27 @@ public class KmStoresUpdatedEventConsumer :
         _catalogMetadataRepository = catalogMetadataRepository;
     }
 
-    public Task HandleEventAsync(EntityUpdatedEvent<StoreSnapshot> eventMessage)
+    public Task HandleEventAsync(EntityUpdatedEvent<KmStoresSnapshot> eventMessage)
     {
         return Task.WhenAll(new[]
         {
-            _hub.Clients.All.SendAsync("stores-updated"),
-            UpdateCatalogMetadataAsync(md => md.storesVersion = eventMessage.Entity.Version);
-        ;
-    }
-
-    public Task HandleEventAsync(EntityUpdatedEvent<ProductsSnapshot> eventMessage)
-    {
-        return Task.WhenAll(new[]
-        {
-            _hub.Clients.All.SendAsync("catalog-updated"),
-            UpdateCatalogMetadataAsync(md => md.productInfos = eventMessage.Entity.Version),
+            _hub.Clients.All.SendAsync("updated"),
+            UpdateCatalogMetadataAsync(md => md.StoresVersion = eventMessage.Entity.Version.ToString()),
         });
     }
 
-    private async Task UpdateCatalogMetadataAsync(Action<CatalogMetadata> config)
+    private async Task UpdateCatalogMetadataAsync(Action<KmCatalogMetadata> config)
     {
-        var md = (from a in _catalogMetadataRepository.Table
-                  select a).Take(1)?.FirstOrDefault();
+        var newMd = new KmCatalogMetadata();
+        var md = await _catalogMetadataRepository.GetLatestAsync();
 
-        if (md == null)
+        if (md != null)
         {
-            md = new CatalogMetadata();
-            config(md);
-            await _catalogMetadataRepository.InsertAsync(md);
+            newMd.StoresVersion = md.StoresVersion;
         }
-        else
-        {
-            config(md);
-            await _catalogMetadataRepository.UpdateAsync(md);
-        }
-        _storageManager.UploadAsync("catalog/metadata.json", "application/json", md);
+
+        config(newMd);
+        await _catalogMetadataRepository.InsertAsync(md);
+        await _storageManager.UploadAsync("catalog/metadata.json", "application/json", md);
     }
 }

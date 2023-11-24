@@ -1,6 +1,6 @@
 ﻿namespace Km.Catalog.Domain;
 
-public class StoreSnapshot : BaseEntity
+public class KmStoresSnapshot : BaseEntity
 {
     public string Json { get; set; }
     public uint Version { get; set; }

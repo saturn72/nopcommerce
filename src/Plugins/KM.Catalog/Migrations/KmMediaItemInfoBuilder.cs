@@ -5,7 +5,7 @@ using Nop.Data.Mapping.Builders;
 
 namespace Km.Catalog.Migrations;
 
-public class MediaItemInfoBuilder : NopEntityBuilder<KmMediaItemInfo>
+public class KmMediaItemInfoBuilder : NopEntityBuilder<KmMediaItemInfo>
 {
     public override void MapEntity(CreateTableExpressionBuilder table)
     {

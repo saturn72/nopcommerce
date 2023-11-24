@@ -3,7 +3,7 @@ using Nop.Data.Mapping.Builders;
 
 namespace Km.Catalog.Mapping.Builders;
 
-public class StoreSnapshotPluginBuilder : NopEntityBuilder<StoreSnapshot>
+public class KmStoresSnapshotPluginBuilder : NopEntityBuilder<KmStoresSnapshot>
 {
     #region Methods
 
