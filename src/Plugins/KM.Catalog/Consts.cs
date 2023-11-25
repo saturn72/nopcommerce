@@ -4,7 +4,7 @@ internal sealed class Consts
 {
     internal sealed class MediaTypes
     {
-        internal const string Thumbs = "thumbs";
-        internal const string Images = "images";
+        internal const string Thumbnail = "thumbnail";
+        internal const string Image = "image";
     }
 }

@@ -23,7 +23,7 @@ public class MediaItemInfoService : IMediaItemInfoService
 
         _resizeOptions = new Dictionary<string, ResizeOptions>
         {
-            { Consts.MediaTypes.Thumbs,
+            { Consts.MediaTypes.Thumbnail,
                 new()
                 {
                     Size = new()
@@ -35,7 +35,7 @@ public class MediaItemInfoService : IMediaItemInfoService
                     Sampler = KnownResamplers.Lanczos3,
                 }
             },{
-                Consts.MediaTypes.Images,
+                Consts.MediaTypes.Image,
                 new()
                 {
                     Size = new()

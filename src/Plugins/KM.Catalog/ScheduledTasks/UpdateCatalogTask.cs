@@ -111,8 +111,8 @@ public partial class UpdateCatalogTask : IScheduleTask
                 continue;
 
             var logoPicture = await _pictureService.GetPictureByIdAsync(sis.LogoPictureId);
-            var thumb = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, logoPicture, 0);
-            var pic = await ToCatalogMediaInfo(Consts.MediaTypes.Images, logoPicture, 0);
+            var thumb = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, logoPicture, 0);
+            var pic = await ToCatalogMediaInfo(Consts.MediaTypes.Image, logoPicture, 0);
 
             var storeProducts = await GetProductsByStoreId(store.Id, mis, vis);
             var storeVendors = storeProducts
@@ -149,7 +149,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                 if (v.Deleted || !v.Active)
                     continue;
 
-                var logo = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, v.PictureId, 0);
+                var logo = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, v.PictureId, 0);
                 var vId = v.Id.ToString();
 
                 res.Add(new VendorInfo
@@ -281,7 +281,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                 var info = new ManufacturerInfo
                 {
                     Name = m.Name,
-                    Picture = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, m.PictureId, 0),
+                    Picture = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, m.PictureId, 0),
                 };
                 res.Add((productIds, info));
             }
@@ -309,7 +309,7 @@ public partial class UpdateCatalogTask : IScheduleTask
         var thumb = productPictures.OrderBy(x => x.DisplayOrder).FirstOrDefault();
         if (thumb != default)
         {
-            var thumbCmi = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, pictures.First(x => x.Id == thumb.PictureId), thumb.DisplayOrder);
+            var thumbCmi = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, pictures.First(x => x.Id == thumb.PictureId), thumb.DisplayOrder);
             cmis.Add(thumbCmi);
         }
 
@@ -317,7 +317,7 @@ public partial class UpdateCatalogTask : IScheduleTask
         foreach (var pic in pictures)
         {
             var displayOrder = productPictures.FirstOrDefault(x => x.PictureId == pic.Id)?.DisplayOrder ?? 0;
-            var cmi = await ToCatalogMediaInfo(Consts.MediaTypes.Images, pic, displayOrder);
+            var cmi = await ToCatalogMediaInfo(Consts.MediaTypes.Image, pic, displayOrder);
             cmis.Add(cmi);
         }
 
