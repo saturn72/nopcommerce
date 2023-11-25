@@ -1,8 +1,4 @@
-﻿
-using AutoMapper.Configuration.Annotations;
-using Km.Catalog.Documents;
-
-namespace Km.Catalog.ScheduledTasks;
+﻿namespace Km.Catalog.ScheduledTasks;
 
 public partial class UpdateCatalogTask : IScheduleTask
 {
@@ -115,8 +111,8 @@ public partial class UpdateCatalogTask : IScheduleTask
                 continue;
 
             var logoPicture = await _pictureService.GetPictureByIdAsync(sis.LogoPictureId);
-            var thumb = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(Consts.MediaTypes.Thumbs, logoPicture, 0);
-            var pic = await _mediaItemInfoService.GetOrCreateMediaItemInfoAsync(Consts.MediaTypes.Images, logoPicture, 0);
+            var thumb = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbs, logoPicture, 0);
+            var pic = await ToCatalogMediaInfo(Consts.MediaTypes.Images, logoPicture, 0);
 
             var storeProducts = await GetProductsByStoreId(store.Id, mis, vis);
             var storeVendors = storeProducts

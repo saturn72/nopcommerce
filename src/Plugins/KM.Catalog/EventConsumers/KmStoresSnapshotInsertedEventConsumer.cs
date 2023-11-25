@@ -1,4 +1,6 @@
-﻿namespace Km.Catalog.EventConsumers;
+﻿using Km.Catalog.Documents;
+
+namespace Km.Catalog.EventConsumers;
 
 public class KmStoresSnapshotInsertedEventConsumer :
     IConsumer<EntityInsertedEvent<KmStoresSnapshot>>
@@ -17,11 +19,12 @@ public class KmStoresSnapshotInsertedEventConsumer :
     public Task HandleEventAsync(EntityInsertedEvent<KmStoresSnapshot> eventMessage)
     {
         var e = eventMessage.Entity;
+        var json = JsonSerializer.Deserialize<object>(e.Json);
         var o = new
         {
             version = e.Version,
             createdOnUtc = e.CreatedOnUtc,
-            data = e.Json
+            stores = json
         };
 
         return Task.WhenAll(new[]
