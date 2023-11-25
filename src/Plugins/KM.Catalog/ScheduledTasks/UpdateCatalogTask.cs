@@ -17,7 +17,6 @@ public partial class UpdateCatalogTask : IScheduleTask
     private readonly IVideoService _videoService;
     private readonly IMediaItemInfoService _mediaItemInfoService;
     private readonly ISettingService _settingService;
-    private readonly IEventPublisher _eventPublisher;
     private readonly IRepository<KmStoresSnapshot> _storeSnapshotRepository;
     private readonly ILogger _logger;
 
@@ -37,7 +36,6 @@ public partial class UpdateCatalogTask : IScheduleTask
         IVideoService videoService,
         IMediaItemInfoService mediaItemInfoService,
         ICategoryService categoryService,
-        IEventPublisher eventPublisher,
         IRepository<KmStoresSnapshot> storeSnapshotRepository,
         ISettingService settingService,
         ILogger logger)
@@ -54,7 +52,6 @@ public partial class UpdateCatalogTask : IScheduleTask
 
         _mediaItemInfoService = mediaItemInfoService;
         _categoryService = categoryService;
-        _eventPublisher = eventPublisher;
         _storeSnapshotRepository = storeSnapshotRepository;
         _settingService = settingService;
         _logger = logger;
@@ -80,12 +77,12 @@ public partial class UpdateCatalogTask : IScheduleTask
         await _logger.InformationAsync("Start catalog updating process");
         var storeInfos = await GetStoresSnapshot();
 
-        var l = await _storeSnapshotRepository.GetAllAsync(q => q.OrderByDescending(x => x.CreatedOnUtc).Take(1));
+        var l = await _storeSnapshotRepository.GetAllAsync(q => q.OrderByDescending(x => x.Version).Take(1));
         var last = l?.FirstOrDefault();
 
         var v = (uint)1;
         if (last != null && last.Version < uint.MaxValue)
-            v = last.Version++;
+            v = last.Version + 1;
 
         var options = new JsonSerializerOptions
         {
@@ -101,7 +98,6 @@ public partial class UpdateCatalogTask : IScheduleTask
             Version = v,
         };
         await _storeSnapshotRepository.InsertAsync(storeSnapshot);
-        await _eventPublisher.PublishAsync(new EntityUpdatedEvent<KmStoresSnapshot>(storeSnapshot));
     }
 
     private async Task<IEnumerable<StoreInfo>> GetStoresSnapshot()

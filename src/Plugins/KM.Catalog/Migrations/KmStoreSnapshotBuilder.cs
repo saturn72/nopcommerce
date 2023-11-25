@@ -10,7 +10,7 @@ public class KmStoreSnapshotBuilder : NopEntityBuilder<KmStoresSnapshot>
     public override void MapEntity(CreateTableExpressionBuilder table)
     {
         table
-            .WithColumn(nameof(KmStoresSnapshot.CreatedOnUtc)).AsDateTime2().WithDefault(SystemMethods.CurrentUTCDateTime)
+            .WithColumn(nameof(KmStoresSnapshot.CreatedOnUtc)).AsDateTime2().Nullable().WithDefault(SystemMethods.CurrentUTCDateTime)
             .WithColumn(nameof(KmStoresSnapshot.Version)).AsInt32()
             .WithColumn(nameof(KmStoresSnapshot.Json)).AsString().NotNullable();
     }

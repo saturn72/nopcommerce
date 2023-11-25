@@ -1,12 +1,12 @@
 ﻿namespace Km.Catalog.EventConsumers;
 
-public class KmStoresUpdatedEventConsumer :
-    IConsumer<EntityUpdatedEvent<KmStoresSnapshot>>
+public class KmStoresSnapshotInsertedEventConsumer :
+    IConsumer<EntityInsertedEvent<KmStoresSnapshot>>
 {
     private readonly IHubContext<CatalogHub> _hub;
     private readonly IStorageManager _storageManager;
 
-    public KmStoresUpdatedEventConsumer(
+    public KmStoresSnapshotInsertedEventConsumer(
         IHubContext<CatalogHub> hub,
         IStorageManager storageManager)
     {
@@ -14,7 +14,7 @@ public class KmStoresUpdatedEventConsumer :
         _storageManager = storageManager;
     }
 
-    public Task HandleEventAsync(EntityUpdatedEvent<KmStoresSnapshot> eventMessage)
+    public Task HandleEventAsync(EntityInsertedEvent<KmStoresSnapshot> eventMessage)
     {
         var e = eventMessage.Entity;
         var o = new
