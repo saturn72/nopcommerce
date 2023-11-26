@@ -6,6 +6,6 @@
   "SupportedVersions": [ "4.60", "4.70" ],
   "Author": "Saturn72",
   "DisplayOrder": 1,
-  "FileName": "Misc.KM.Orders.dll",
-  "Description": "Orders import logic from firestore"
+  "FileName": "KM.Orders.dll",
+  "Description": "Orders integration with kedemmarket's 'firestore"
 }
