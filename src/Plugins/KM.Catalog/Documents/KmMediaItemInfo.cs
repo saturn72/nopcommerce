@@ -1,9 +1,8 @@
-﻿namespace Km.Catalog.Domain;
+﻿namespace KM.Catalog.Documents;
 
-public partial class KmMediaItemInfo : BaseEntity
+public partial class KmMediaItemInfo
 {
     public string Uri { get; set; }
-    public DateTime CreatedOnUtc { get; set; } = DateTime.UtcNow;
     public byte[] BinaryData { get; set; }
     public string EntityType { get; set; }
     public int EntityId { get; set; }

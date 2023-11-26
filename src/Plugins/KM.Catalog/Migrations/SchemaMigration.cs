@@ -8,7 +8,6 @@ public class SchemaMigration : AutoReversingMigration
 {
     public override void Up()
     {
-        // Create.TableFor<KmMediaItemInfo>();
         // Create.TableFor<Storesnapshot>();
     }
 }

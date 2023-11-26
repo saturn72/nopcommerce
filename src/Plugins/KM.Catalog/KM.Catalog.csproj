@@ -43,9 +43,6 @@
     <None Update="Migrations\KmStoresSnapshot.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Migrations\KmMediaItemInfo.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <!-- This target execute after "Build" target -->
