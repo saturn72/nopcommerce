@@ -5,7 +5,7 @@ using Nop.Data.Mapping.Builders;
 
 namespace Km.Catalog.Migrations;
 
-public class KmStoreSnapshotBuilder : NopEntityBuilder<KmStoresSnapshot>
+public class KmStoresSnapshotBuilder : NopEntityBuilder<KmStoresSnapshot>
 {
     public override void MapEntity(CreateTableExpressionBuilder table)
     {
