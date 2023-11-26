@@ -3,7 +3,7 @@
 public partial class KmMediaItemInfo : BaseEntity
 {
     public string Uri { get; set; }
-    public DateTime CreatedOnUtc { get; set; }
+    public DateTime CreatedOnUtc { get; set; } = DateTime.UtcNow;
     public byte[] BinaryData { get; set; }
     public string EntityType { get; set; }
     public int EntityId { get; set; }
