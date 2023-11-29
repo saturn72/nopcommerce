@@ -5,12 +5,12 @@ public class OrderUpdatedEventConsumer :
     IConsumer<OrderStatusChangedEvent>
 {
     private readonly IRepository<KmOrder> _kmOrderRepository;
-    private readonly IDocumentStore<FirestoreCartDocument> _orderStore;
+    private readonly IOrderDocumentStore _orderStore;
     private readonly IHubContext<OrderHub> _hub;
 
     public OrderUpdatedEventConsumer(
         IRepository<KmOrder> kmOrderRepository,
-        IDocumentStore<FirestoreCartDocument> orderStore,
+        IOrderDocumentStore orderStore,
         IHubContext<OrderHub> hub)
     {
         _kmOrderRepository = kmOrderRepository;

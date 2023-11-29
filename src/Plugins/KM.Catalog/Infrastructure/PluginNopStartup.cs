@@ -48,5 +48,5 @@ public class PluginNopStartup : INopStartup
         application.UseCors(CatalogWSCorsPolicy);
     }
 
-    public int Order => 11;
+    public int Order => 10;
 }

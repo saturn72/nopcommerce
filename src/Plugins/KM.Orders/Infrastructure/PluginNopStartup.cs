@@ -39,6 +39,7 @@ namespace KM.Orders.Infrastructure
                 sp.GetRequiredService<IStoreMappingService>(),
                 sp.GetRequiredService<IShoppingCartService>()));
 
+            services.AddScoped<IOrderDocumentStore, OrderDocumentStore>();
             services.AddScoped(typeof(IDocumentStore<>), typeof(FirebaseDocumentStore<>));
          
             services.AddSignalR();
@@ -49,6 +50,6 @@ namespace KM.Orders.Infrastructure
             application.UseCors(CorsPolicy);
         }
 
-        public int Order => 899;
+        public int Order => 10;
     }
 }

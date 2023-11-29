@@ -16,7 +16,7 @@ namespace KM.Orders.Services
             _projectId = configuration["project_id"] ?? "kedem-market";
         }
 
-        private CollectionReference GetFireStoreCollection()
+        protected virtual CollectionReference GetFireStoreCollection()
         {
             var db = FirestoreDb.Create(_projectId);
             return db.Collection(_collectionName);
