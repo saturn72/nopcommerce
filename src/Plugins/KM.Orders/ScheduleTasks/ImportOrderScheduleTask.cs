@@ -1,6 +1,4 @@
 ﻿
-using Nop.Services.Logging;
-
 namespace KM.Orders.ScheduleTasks
 {
     public class ImportOrderScheduleTask : IScheduleTask
@@ -46,9 +44,11 @@ namespace KM.Orders.ScheduleTasks
             var pageSize = 100;
             var totalOrders = 0;
             var newOrders = Enumerable.Empty<FirestoreCartDocument>();
+
+            var ids = string.Join(",", existIds);
             do
             {
-                await _logger.InformationAsync($"Getting store's (firebase) exist orders with parameters: {nameof(existIds)}: {existIds}, {nameof(pageSize)}:{pageSize}, {nameof(offset)}: {offset}");
+                await _logger.InformationAsync($"Getting store's (firebase) exist orders with parameters: {nameof(existIds)}: {ids}, {nameof(pageSize)}:{pageSize}, {nameof(offset)}: {offset}");
                 newOrders = await _orderStore.GetNewOrderPageAsync(
                     pageSize: pageSize,
                     offset: offset);
@@ -57,18 +57,15 @@ namespace KM.Orders.ScheduleTasks
                 var requests = new List<CreateOrderRequest>();
                 foreach (var no in newOrders)
                 {
-                    await _logger.InformationAsync($"start importing order with Id:\'{no.Id}\' to the database");
                     lock (ImportOrderLock)
                     {
-
                         if (existIds.Contains(no.Id))
                         {
-                            _logger.Information($"Order with Id:\'{no.Id}\' already exists - skipping");
+                            _logger.Warning($"Order with Id:\'{no.Id}\' already exists - skipping");
                             continue;
                         }
                         existIds.Add(no.Id);
                     }
-                    await _logger.InformationAsync($"Adding order with Id:\'{no.Id}\' to the database");
 
                     requests.Add(new CreateOrderRequest
                     {

@@ -25,6 +25,7 @@ global using Nop.Core.Events;
 global using Nop.Core.Infrastructure;
 global using Nop.Data;
 global using Nop.Services.Catalog;
+global using Nop.Services.Logging;
 global using KM.Orders.Infrastructure;
 global using KM.Orders.Services.Checkout;
 global using Nop.Services.Events;

@@ -12,6 +12,7 @@ public class KmOrderService : IKmOrderService
     private readonly IProductService _productService;
     private readonly IStoreMappingService _storeMappingService;
     private readonly IShoppingCartService _shoppingCartService;
+    private readonly ILogger _logger;
 
     public KmOrderService(
         IRepository<KmOrder> kmOrderRepository,
@@ -23,7 +24,8 @@ public class KmOrderService : IKmOrderService
         IOrderProcessingService orderProcessingService,
         IProductService productService,
         IStoreMappingService storeMappingService,
-        IShoppingCartService shoppingCartService)
+        IShoppingCartService shoppingCartService,
+        ILogger logger)
     {
         _kmOrderRepository = kmOrderRepository;
         _externalUserService = externalUserService;
@@ -35,10 +37,12 @@ public class KmOrderService : IKmOrderService
         _productService = productService;
         _storeMappingService = storeMappingService;
         _shoppingCartService = shoppingCartService;
-
+        _logger = logger;
     }
     public async Task<IEnumerable<CreateOrderResponse>> CreateOrdersAsync(IEnumerable<CreateOrderRequest> requests)
     {
+        await _logger.InformationAsync($"Start processing orders");
+
         var jso = new JsonSerializerOptions
         {
             AllowTrailingCommas = true,
@@ -112,6 +116,13 @@ public class KmOrderService : IKmOrderService
                     Errors = string.Join("\n\n", placeOrderResult.Errors),
                 };
                 await _kmOrderRepository.InsertAsync(kmOrder);
+                await _logger.InformationAsync($"order added to the database. " +
+                    $"{nameof(kmOrder.NopOrderId)}=\'{kmOrder.NopOrderId}\', {nameof(kmOrder.KmOrderId)}=\'{kmOrder.KmOrderId}\'");
+            }
+            else
+            {
+                await _logger.InformationAsync($"Failed to import {nameof(r.Request.KmOrderId)}=\'{r.Request.KmOrderId}\'. " +
+                    $"{nameof(r.Error)}={r.Error}");
             }
         }
 
@@ -157,6 +168,8 @@ public class KmOrderService : IKmOrderService
                 if (storeMap.All(sm => sm.StoreId != store.Id))
                 {
                     await clearCustomerCart();
+                    await _logger.WarningAsync($"Product with id=\'{product.Id}\' is not mapped to store with id: \'{store.Id}");
+
                     return (null, null);
                 }
             }
