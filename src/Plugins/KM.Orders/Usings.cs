@@ -18,6 +18,7 @@ global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Nop.Core;
 global using Nop.Core.Caching;
+global using Nop.Core.Domain.Common;
 global using Nop.Core.Domain.Customers;
 global using Nop.Core.Domain.Orders;
 global using Nop.Core.Domain.ScheduleTasks;

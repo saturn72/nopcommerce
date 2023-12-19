@@ -5,9 +5,11 @@ namespace KM.Orders.Documents
     public class FirestoreCartDocument : IDocument
     {
         [FirestoreProperty]
-        public string Id { get; set; }
+        public string id { get; set; }
         [FirestoreProperty]
         public IEnumerable<string> couponCodes { get; set; }
+        [FirestoreProperty]
+        public UserProfileDocument user { get; set; }
         [FirestoreProperty]
         public decimal customerEnteredPrice { get; internal set; }
         [FirestoreProperty]
@@ -25,6 +27,6 @@ namespace KM.Orders.Documents
         [FirestoreProperty]
         public string userId { get; set; }
         [FirestoreProperty]
-        public ulong utcTimestamp { get; set; }
+        public DateTime createdOnUtc { get; set; }
     }
 }

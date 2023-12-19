@@ -2,5 +2,5 @@
 
 public interface IDocument
 {
-    string Id { get; set; }
+    string id { get; set; }
 }

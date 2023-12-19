@@ -1,5 +1,4 @@
-﻿
-namespace KM.Orders.Services.Checkout;
+﻿namespace KM.Orders.Services.Checkout;
 public class KmOrderService : IKmOrderService
 {
     private readonly IRepository<KmOrder> _kmOrderRepository;
@@ -52,8 +51,12 @@ public class KmOrderService : IKmOrderService
         var res = requests.Select(r => new CreateOrderResponse { Request = r });
 
         //provision users
-        var uids = requests.Select(x => x.KmUserId).Distinct().ToList();
-        var maps = await _externalUserService.ProvisionUsersAsync(uids);
+        var userIds = requests.Select(x => x.KmUserId).Distinct().ToList();
+        userIds.ThrowIfNullOrEmpty(nameof(userIds));
+        var maps = await _externalUserService.ProvisionUsersAsync(userIds);
+
+        var bar = requests.Select(r => new UpdateBillingInfoRequest(r.KmUserId, r.BillingInfo));
+        await _externalUserService.ProvisionBillingInfosAsync(bar);
 
         //check if already exists
         var existKmOrderIds = (from k in _kmOrderRepository.Table
@@ -67,11 +70,9 @@ public class KmOrderService : IKmOrderService
                 continue;
             }
 
-            var map = maps.First(c => c.KmUserId == r.Request.KmUserId);
-            if (map.Customer == default)
+            var customerId = await PrepareCustomer(r.Request, maps);
+            if (customerId == default)
                 continue;
-
-            await _workContext.SetCurrentCustomerAsync(map.Customer);
 
             //set default store;
             if (r.Request.StoreId == 0)
@@ -96,7 +97,7 @@ public class KmOrderService : IKmOrderService
             var processPaymentRequest = new ProcessPaymentRequest();
             _paymentService.GenerateOrderGuid(processPaymentRequest);
             processPaymentRequest.StoreId = store.Id;
-            processPaymentRequest.CustomerId = map.CustomerId;
+            processPaymentRequest.CustomerId = customerId;
             processPaymentRequest.PaymentMethodSystemName = r.Request.PaymentMethod;
 
             var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
@@ -127,6 +128,18 @@ public class KmOrderService : IKmOrderService
         }
 
         return res;
+    }
+
+    private async Task<int> PrepareCustomer(
+        CreateOrderRequest request,
+        IEnumerable<KmUserCustomerMap> maps)
+    {
+        var map = maps.First(c => c.KmUserId == request.KmUserId);
+        if (map.Customer == default)
+            return default;
+
+        await _workContext.SetCurrentCustomerAsync(map.Customer);
+        return map.Customer.Id;
     }
 
     private async Task<(IList<ShoppingCartItem> approvedShoppingCartItems, IList<ShoppingCartItem> disapprovedShoppingCartItems)> ExtractShoppingCart(IEnumerable<ShoppingCartItem> items)

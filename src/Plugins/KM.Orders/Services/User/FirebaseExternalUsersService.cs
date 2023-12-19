@@ -1,38 +1,52 @@
-﻿
+﻿using Google.Apis.Auth.OAuth2;
+using Nop.Services.Common;
+using Nop.Services.Customers;
+
 namespace KM.Orders.Services.User;
 
 public partial class FirebaseExternalUsersService : IExternalUsersService
 {
-    private readonly IRepository<KmUserCustomerMap>? _userCustomerMapRepository;
-    // private readonly IRepository<CustomerAttributeValue> _customerAttributeValueRepository;
-    private readonly IRepository<Customer>? _customerRepository;
-    private readonly IRepository<CustomerRole>? _customerRoleRepository;
+    private readonly IRepository<KmUserCustomerMap> _kmUserCustomerMapRepository;
+    private readonly IRepository<Customer> _customerRepository;
+    private readonly IRepository<CustomerRole> _customerRoleRepository;
     private readonly IRepository<CustomerCustomerRoleMapping> _customerRoleMapRepository;
     private readonly IStaticCacheManager _cache;
-    // private IReadOnlyDictionary<string, CustomerAttribute> _customerAttributes;
+    private readonly IUserProfileDocumentStore _userProfileStore;
+    private readonly ICustomerService _customerService;
+    private readonly IAddressService _addressService;
 
     public FirebaseExternalUsersService(
-        IRepository<KmUserCustomerMap>? userCustomerMapRepository,
+        IRepository<KmUserCustomerMap> userCustomerMapRepository,
         // IRepository<CustomerAttributeValue> customerAttributeValueRepository,
-        IRepository<Customer>? customerRepository,
-        IRepository<CustomerRole>? customerRoleRepository,
+        IRepository<Customer> customerRepository,
+        IRepository<CustomerRole> customerRoleRepository,
         IRepository<CustomerCustomerRoleMapping> customerRoleMapRepository,
+        IUserProfileDocumentStore userProfileStore,
+        ICustomerService customerService,
+        IAddressService addressService,
         IStaticCacheManager cache
         )
     {
-        _userCustomerMapRepository = userCustomerMapRepository;
+        _kmUserCustomerMapRepository = userCustomerMapRepository;
         // _customerAttributeValueRepository = customerAttributeValueRepository;
         _customerRepository = customerRepository;
         _customerRoleRepository = customerRoleRepository;
         _customerRoleMapRepository = customerRoleMapRepository;
+        _addressService = addressService;
+        _userProfileStore = userProfileStore;
+        _customerService = customerService;
         _cache = cache;
     }
 
     private FirebaseAuth GetAuth()
     {
-        if (FirebaseApp.DefaultInstance == default)
-            FirebaseApp.Create();
-        return FirebaseAuth.DefaultInstance;
+        var app = FirebaseApp.GetInstance("user-service") ?? FirebaseApp.Create(new AppOptions()
+        {
+            Credential = GoogleCredential.GetApplicationDefault(),
+            ProjectId = "kedem-market",
+        }, "user-service");
+
+        return FirebaseAuth.GetAuth(app);
     }
 
     public async Task<IEnumerable<KmUserCustomerMap>> ProvisionUsersAsync(IEnumerable<string> userIds)
@@ -65,6 +79,7 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
 
             var map = await GetOrCreateCustomerAndMap(user);
             await ProvisionUserRoles(map, user, customerRoles);
+            await ProvisionUserProfile(map);
             // await ProvisionCustomAttributes(map.Customer, user, customerAttributes);
 
             maps.Add(map);
@@ -72,6 +87,28 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
             await _cache.SetAsync(ck, map);
         }
         return maps;
+    }
+
+    private async Task ProvisionUserProfile(KmUserCustomerMap map)
+    {
+        var userProfile = await _userProfileStore.GetByUserId(map.KmUserId);
+        if (userProfile == default)
+            return;
+
+        var ba = userProfile.billingInfo;
+        var names = ba.fullName.Split(' ');
+        var address = new Address
+        {
+            Address1 = ba.address,
+            City = ba.city,
+            Email = ba.email,
+            FirstName = names.Length >= 0 ? names[0] : null,
+            LastName = names.Length > 0 ? names[1] : null,
+            PhoneNumber = ba.phoneNumber,
+        };
+
+        var req = new UpdateBillingInfoRequest(map.KmUserId, address);
+        await ProvisionBillingInfosAsync(new[] { req });
     }
 
     private CacheKey BuildUserCacheKey(string uid)
@@ -84,7 +121,7 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
     private async Task<KmUserCustomerMap> GetOrCreateCustomerAndMap(UserRecord user)
     {
         Customer customer;
-        var map = await _userCustomerMapRepository.Table.FirstOrDefaultAsync(c => c.KmUserId == user.Uid);
+        var map = await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(c => c.KmUserId == user.Uid);
 
         if (map != null)
         {
@@ -131,28 +168,28 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
                 Customer = customer,
                 ProviderId = user.ProviderId,
                 TenantId = user.TenantId,
-                ShouldProvisionBasicClaims = shouldProvisionBasicClaims
+                ShouldProvisionBasicClaims = shouldProvisionBasicClaims,
+                CreatedOnUtc = DateTime.UtcNow,
             };
-            await _userCustomerMapRepository.InsertAsync(map, false);
+            await _kmUserCustomerMapRepository.InsertAsync(map, false);
             return map;
         }
     }
+
     private async Task ProvisionUserRoles(KmUserCustomerMap map, UserRecord user, Dictionary<string, CustomerRole> customerRoles)
     {
         var hasRoles = user.CustomClaims.TryGetValue("roles", out var value) ||
             user.CustomClaims.TryGetValue("role", out value);
 
+        var crIds = _customerRoleMapRepository.Table
+        .Where(cr => cr.CustomerId == map.CustomerId)
+        .Select(c => c.CustomerRoleId);
+        var currentCustomerRoles = _customerRoleRepository.Table.Where(cr => crIds.Contains(cr.Id));
+
         if (hasRoles &&
             value is IEnumerable<string> roles &&
             roles.Any())
         {
-
-            var crIds = _customerRoleMapRepository.Table
-            .Where(cr => cr.CustomerId == map.CustomerId)
-            .Select(c => c.CustomerRoleId);
-
-            var currentCustomerRoles = _customerRoleRepository.Table.Where(cr => crIds.Contains(cr.Id));
-
             foreach (var role in roles.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 if (!customerRoles.TryGetValue(role, out var cr))
@@ -169,36 +206,68 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
                 await _customerRoleMapRepository.InsertAsync(roleMapping, false);
             }
         }
+
+        var guestRoleId = customerRoles[NopCustomerDefaults.GuestsRoleName].Id;
+        var isGuest = currentCustomerRoles.Any(c => c.Id == guestRoleId);
+        if (!isGuest)
+        {
+            var guestRoleMapping = new CustomerCustomerRoleMapping
+            {
+                CustomerId = map.CustomerId,
+                CustomerRoleId = guestRoleId,
+            };
+            await _customerRoleMapRepository.InsertAsync(guestRoleMapping, false);
+        }
     }
 
     public async Task<KmUserCustomerMap> GetUserIdCustomerMapByUserId(string userId)
     {
-        return await _userCustomerMapRepository.Table.FirstOrDefaultAsync(x => x.KmUserId == userId);
+        return await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(x => x.KmUserId == userId);
     }
 
-    // private async Task ProvisionCustomAttributes(UserRecord user, Dictionary<string, CustomerAttribute> customerAttributes)
-    // {
-    //     foreach (var cc in user.CustomClaims)
-    //     {
-    //         if (!customerAttributes.TryGetValue(cc.Key, out var cAtt))
-    //             continue;
+    public async Task ProvisionBillingInfosAsync(IEnumerable<UpdateBillingInfoRequest> requests)
+    {
+        foreach (var req in requests)
+        {
+            var maps = from m in _kmUserCustomerMapRepository.Table
+                       where m.KmUserId == req.UserId
+                       select m;
+            var cId = maps.FirstOrDefault()?.CustomerId;
+            if (cId == default || !cId.HasValue)
+                continue;
 
-    //         var cav = new CustomerAttributeValue
-    //         {
-    //             CustomerAttributeId = cAtt.Id,
-    //             Name = cc.Value.ToString(),
-    //         };
-    //         await _customerAttributeValueRepository.InsertAsync(cav, false)
-    //     }
-    // }
-    // private async Task<IReadOnlyDictionary<string, CustomerAttribute>> ReloadAllCustomerAttributesAsync()
-    // {
-    //     var accs = await _customerAttributeValueRepository.GetAllCustomerAttributesAsync();
+            var customer = await _customerService.GetCustomerByIdAsync(cId.Value);
+            if (customer == default)
+                continue;
 
-    //     var res = new Dictionary<string, CustomerAttribute>(StringComparer.OrdinalIgnoreCase);
-    //     foreach (var a in accs)
-    //         res[a.Name] = a;
+            var cba = await _customerService.GetCustomerBillingAddressAsync(customer);
+            if (cba == default)
+            {
+                await _addressService.InsertAddressAsync(req.BillingAddress);
+                customer.BillingAddressId = req.BillingAddress.Id;
+                await _customerRepository.UpdateAsync(customer);
+                await _customerService.InsertCustomerAddressAsync(customer, req.BillingAddress);
+            }
+            else
+            {
+                cba.FirstName = req.BillingAddress.FirstName;
+                cba.LastName = req.BillingAddress.LastName;
+                cba.Email = req.BillingAddress.Email;
+                cba.Company = req.BillingAddress.Company;
+                cba.CountryId = req.BillingAddress.CountryId;
+                cba.StateProvinceId = req.BillingAddress.StateProvinceId;
+                cba.County = req.BillingAddress.County;
+                cba.City = req.BillingAddress.City;
+                cba.Address1 = req.BillingAddress.Address1;
+                cba.Address2 = req.BillingAddress.Address2;
+                cba.ZipPostalCode = req.BillingAddress.ZipPostalCode;
+                cba.PhoneNumber = req.BillingAddress.PhoneNumber;
+                cba.FaxNumber = req.BillingAddress.FaxNumber;
+                cba.CustomAttributes = req.BillingAddress.CustomAttributes;
+                cba.CreatedOnUtc = req.BillingAddress.CreatedOnUtc;
 
-    //     return res;
-    // }
+                await _addressService.UpdateAddressAsync(cba);
+            }
+        }
+    }
 }

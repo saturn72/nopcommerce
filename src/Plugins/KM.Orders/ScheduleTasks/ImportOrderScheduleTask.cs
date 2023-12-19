@@ -29,7 +29,6 @@ namespace KM.Orders.ScheduleTasks
 
         #endregion
 
-
         public async Task ExecuteAsync()
         {
             await _logger.InformationAsync($"Starting {nameof(ImportOrderScheduleTask)} execution");
@@ -59,21 +58,22 @@ namespace KM.Orders.ScheduleTasks
                 {
                     lock (ImportOrderLock)
                     {
-                        if (existIds.Contains(no.Id))
+                        if (existIds.Contains(no.id))
                         {
-                            _logger.Warning($"Order with Id:\'{no.Id}\' already exists - skipping");
+                            _logger.Warning($"Order with Id:\'{no.id}\' already exists - skipping");
                             continue;
                         }
-                        existIds.Add(no.Id);
+                        existIds.Add(no.id);
                     }
 
                     requests.Add(new CreateOrderRequest
                     {
-                        KmOrderId = no.Id,
+                        KmOrderId = no.id,
                         KmUserId = no.userId,
                         StoreId = no.storeId,
                         CartItems = ToCartItems(no),
                         PaymentMethod = (no.paymentMethod ?? DefaultPaymentMethod).ToSystemPaymentMethod(),
+                        BillingInfo = ToBillingAddress(no.user.billingInfo)
                     });
 
                     _ = await _kmOrderService.CreateOrdersAsync(requests);
@@ -84,6 +84,20 @@ namespace KM.Orders.ScheduleTasks
             while (newOrders.Count() == pageSize);
 
             await _logger.InformationAsync($"Finish import KM orders. total orders imported = {totalOrders}");
+        }
+
+        private static Address ToBillingAddress(AddressDocument billingInfo)
+        {
+            var names = billingInfo.fullName.Split(' ');
+            return new()
+            {
+                Address1 = billingInfo.address,
+                City = billingInfo.city,
+                Email = billingInfo.email,
+                FirstName = names.Length >= 0 ? names[0] : null,
+                LastName = names.Length > 0 ? names[1] : null,
+                PhoneNumber = billingInfo.phoneNumber,
+            };
         }
 
         private IEnumerable<ShoppingCartItem> ToCartItems(FirestoreCartDocument fcd)
