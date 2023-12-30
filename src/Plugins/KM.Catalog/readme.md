@@ -2,6 +2,8 @@
 https://cloud.google.com/docs/authentication/application-default-credentials.
 This must be done PER SERVICE, following this specific method: https://cloud.google.com/docs/authentication/gcloud#gcloud-credentials
 
+ONLY cash payment is supportted. install "Cash on delivery" payment module from nop commerce marketplace
+
 settings:
 - Order Settings --> Advanced --> Checkout
  - Uncheck `Terms of Service (shopping cart page)`

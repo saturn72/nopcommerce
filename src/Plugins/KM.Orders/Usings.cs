@@ -10,6 +10,7 @@ global using KM.Orders.Models.Cart;
 global using KM.Orders.Models.Checkout;
 global using KM.Orders.Services;
 global using KM.Orders.Services.User;
+global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.SignalR;

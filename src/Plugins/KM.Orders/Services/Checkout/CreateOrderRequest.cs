@@ -7,4 +7,5 @@ public record CreateOrderRequest
     public IEnumerable<ShoppingCartItem> CartItems { get; init; }
     public string PaymentMethod { get; init; }
     public Address BillingInfo { get; init; }
+    public Address ShippingAddress { get; init; }
 }

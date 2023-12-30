@@ -38,6 +38,7 @@ namespace KM.Orders.Infrastructure
                 sp.GetRequiredService<IProductService>(),
                 sp.GetRequiredService<IStoreMappingService>(),
                 sp.GetRequiredService<IShoppingCartService>(),
+                sp.GetRequiredService<ISystemClock>(),
                 sp.GetRequiredService<ILogger>()));
 
             services.AddScoped<IOrderDocumentStore, OrderDocumentStore>();

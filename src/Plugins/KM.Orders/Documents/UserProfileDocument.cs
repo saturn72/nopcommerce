@@ -10,5 +10,8 @@ namespace KM.Orders.Documents
         public string userId { get; set; }
         [FirestoreProperty]
         public AddressDocument billingInfo { get; set; }
+        [FirestoreProperty]
+        public AddressDocument? shippingAddress { get; set; }
+
     }
 }

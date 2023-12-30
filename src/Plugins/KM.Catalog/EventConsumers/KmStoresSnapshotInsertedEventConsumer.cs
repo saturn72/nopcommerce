@@ -1,6 +1,4 @@
-﻿using Km.Catalog.Documents;
-
-namespace Km.Catalog.EventConsumers;
+﻿namespace Km.Catalog.EventConsumers;
 
 public class KmStoresSnapshotInsertedEventConsumer :
     IConsumer<EntityInsertedEvent<KmStoresSnapshot>>
@@ -16,7 +14,7 @@ public class KmStoresSnapshotInsertedEventConsumer :
         _storageManager = storageManager;
     }
 
-    public Task HandleEventAsync(EntityInsertedEvent<KmStoresSnapshot> eventMessage)
+    public async Task HandleEventAsync(EntityInsertedEvent<KmStoresSnapshot> eventMessage)
     {
         var e = eventMessage.Entity;
         var json = JsonSerializer.Deserialize<object>(e.Json);
@@ -27,10 +25,7 @@ public class KmStoresSnapshotInsertedEventConsumer :
             stores = json
         };
 
-        return Task.WhenAll(new[]
-        {
-            _hub.Clients.All.SendAsync("updated"),
-            _storageManager.UploadAsync("catalog/index.json", "application/json", o),
-        });
+        await _storageManager.UploadAsync("catalog/index.json", "application/json", o),
+        await _hub.Clients.All.SendAsync("updated");
     }
 }

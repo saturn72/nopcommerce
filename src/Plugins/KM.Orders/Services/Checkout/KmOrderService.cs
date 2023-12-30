@@ -1,4 +1,5 @@
-﻿namespace KM.Orders.Services.Checkout;
+﻿
+namespace KM.Orders.Services.Checkout;
 public class KmOrderService : IKmOrderService
 {
     private readonly IRepository<KmOrder> _kmOrderRepository;
@@ -11,6 +12,7 @@ public class KmOrderService : IKmOrderService
     private readonly IProductService _productService;
     private readonly IStoreMappingService _storeMappingService;
     private readonly IShoppingCartService _shoppingCartService;
+    private readonly ISystemClock _systemClock;
     private readonly ILogger _logger;
 
     public KmOrderService(
@@ -24,6 +26,7 @@ public class KmOrderService : IKmOrderService
         IProductService productService,
         IStoreMappingService storeMappingService,
         IShoppingCartService shoppingCartService,
+        ISystemClock systemClock,
         ILogger logger)
     {
         _kmOrderRepository = kmOrderRepository;
@@ -36,6 +39,7 @@ public class KmOrderService : IKmOrderService
         _productService = productService;
         _storeMappingService = storeMappingService;
         _shoppingCartService = shoppingCartService;
+        _systemClock = systemClock;
         _logger = logger;
     }
     public async Task<IEnumerable<CreateOrderResponse>> CreateOrdersAsync(IEnumerable<CreateOrderRequest> requests)
@@ -57,6 +61,9 @@ public class KmOrderService : IKmOrderService
 
         var bar = requests.Select(r => new UpdateBillingInfoRequest(r.KmUserId, r.BillingInfo));
         await _externalUserService.ProvisionBillingInfosAsync(bar);
+
+        var sar = requests.Select(r => new UpdateShippingAddressRequest(r.KmUserId, r.ShippingAddress, r.BillingInfo));
+        await _externalUserService.ProvisionShippingAddressesAsync(sar);
 
         //check if already exists
         var existKmOrderIds = (from k in _kmOrderRepository.Table
@@ -108,11 +115,12 @@ public class KmOrderService : IKmOrderService
             {
                 var kmOrder = new KmOrder
                 {
+                    CreatedOnUtc = _systemClock.UtcNow.DateTime,
+                    Data = JsonSerializer.Serialize(r.Request, jso),
                     NopOrderId = placeOrderResult.PlacedOrder.Id,
                     NopOrder = placeOrderResult.PlacedOrder,
                     KmOrderId = r.Request.KmOrderId,
                     KmUserId = r.Request.KmUserId,
-                    Data = JsonSerializer.Serialize(r.Request, jso),
                     Status = placeOrderResult.Success ? "success" : "failed",
                     Errors = string.Join("\n\n", placeOrderResult.Errors),
                 };
