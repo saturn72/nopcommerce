@@ -1,4 +1,5 @@
 ﻿
+
 namespace KM.Orders.ScheduleTasks
 {
     public class ImportOrderScheduleTask : IScheduleTask
@@ -29,7 +30,6 @@ namespace KM.Orders.ScheduleTasks
 
         #endregion
 
-
         public async Task ExecuteAsync()
         {
             await _logger.InformationAsync($"Starting {nameof(ImportOrderScheduleTask)} execution");
@@ -59,21 +59,23 @@ namespace KM.Orders.ScheduleTasks
                 {
                     lock (ImportOrderLock)
                     {
-                        if (existIds.Contains(no.Id))
+                        if (existIds.Contains(no.id))
                         {
-                            _logger.Warning($"Order with Id:\'{no.Id}\' already exists - skipping");
+                            _logger.Warning($"Order with Id:\'{no.id}\' already exists - skipping");
                             continue;
                         }
-                        existIds.Add(no.Id);
+                        existIds.Add(no.id);
                     }
 
                     requests.Add(new CreateOrderRequest
                     {
-                        KmOrderId = no.Id,
+                        KmOrderId = no.id,
                         KmUserId = no.userId,
                         StoreId = no.storeId,
                         CartItems = ToCartItems(no),
                         PaymentMethod = (no.paymentMethod ?? DefaultPaymentMethod).ToSystemPaymentMethod(),
+                        BillingInfo = ToAddress(no.user.billingInfo),
+                        ShippingAddress = ToAddress(no.user.shippingAddress),
                     });
 
                     _ = await _kmOrderService.CreateOrdersAsync(requests);
@@ -84,6 +86,23 @@ namespace KM.Orders.ScheduleTasks
             while (newOrders.Count() == pageSize);
 
             await _logger.InformationAsync($"Finish import KM orders. total orders imported = {totalOrders}");
+        }
+
+        private static Address ToAddress(AddressDocument document)
+        {
+            if (document == null)
+                return null;
+
+            var names = document.fullName.Split(' ');
+            return new()
+            {
+                Address1 = document.address,
+                City = document.city,
+                Email = document.email,
+                FirstName = names.Length >= 0 ? names[0] : null,
+                LastName = names.Length > 0 ? names[1] : null,
+                PhoneNumber = document.phoneNumber,
+            };
         }
 
         private IEnumerable<ShoppingCartItem> ToCartItems(FirestoreCartDocument fcd)

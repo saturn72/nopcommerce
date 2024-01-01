@@ -38,9 +38,11 @@ namespace KM.Orders.Infrastructure
                 sp.GetRequiredService<IProductService>(),
                 sp.GetRequiredService<IStoreMappingService>(),
                 sp.GetRequiredService<IShoppingCartService>(),
+                sp.GetRequiredService<ISystemClock>(),
                 sp.GetRequiredService<ILogger>()));
 
             services.AddScoped<IOrderDocumentStore, OrderDocumentStore>();
+            services.AddScoped<IUserProfileDocumentStore, UserProfileDocumentStore>();
             services.AddScoped(typeof(IDocumentStore<>), typeof(FirebaseDocumentStore<>));
 
             services.AddSignalR();

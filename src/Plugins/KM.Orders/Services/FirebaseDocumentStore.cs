@@ -3,16 +3,12 @@ namespace KM.Orders.Services
 {
     public class FirebaseDocumentStore<TDocument> : IDocumentStore<TDocument> where TDocument : IDocument
     {
-        private static readonly IReadOnlyDictionary<Type, string> Collections = new Dictionary<Type, string>
-        {
-            {typeof(FirestoreCartDocument), "orders"},
-        };
         private readonly string _collectionName;
         private readonly string _projectId;
 
-        public FirebaseDocumentStore(IConfiguration configuration)
+        public FirebaseDocumentStore(IConfiguration configuration, string collectionName)
         {
-            _collectionName = Collections[typeof(TDocument)];
+            _collectionName = collectionName;
             _projectId = configuration["project_id"] ?? "kedem-market";
         }
 
@@ -53,7 +49,7 @@ namespace KM.Orders.Services
                     continue;
 
                 var t = sd.ConvertTo<TDocument>();
-                t.Id = sd.Id;
+                t.id = sd.Id;
                 res.Add(t);
             }
             return res;

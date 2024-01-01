@@ -1,8 +1,7 @@
 ﻿namespace KM.Orders.Services;
-
 public class OrderDocumentStore : FirebaseDocumentStore<FirestoreCartDocument>, IOrderDocumentStore
 {
-    public OrderDocumentStore(IConfiguration configuration) : base(configuration)
+    public OrderDocumentStore(IConfiguration configuration) : base(configuration, "orders")
     {
     }
 
@@ -23,7 +22,7 @@ public class OrderDocumentStore : FirebaseDocumentStore<FirestoreCartDocument>, 
                 continue;
 
             var t = sd.ConvertTo<FirestoreCartDocument>();
-            t.Id = sd.Id;
+            t.id = sd.Id;
             res.Add(t);
         }
         return res;
