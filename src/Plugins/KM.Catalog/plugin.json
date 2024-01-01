@@ -2,7 +2,7 @@
   "Group": "Kedem Market",
   "FriendlyName": "Kedem Market Catalog plugin",
   "SystemName": "KM.Catalog",
-  "Version": "1.10",
+  "Version": "1.11",
   "SupportedVersions": [ "4.60" , "4.70"],
   "Author": "Saturn72",
   "DisplayOrder": 1,
