@@ -21,6 +21,9 @@ namespace KM.Orders.Documents
         [FirestoreProperty]
         public string rentalStartDateUtc { get; set; }
         [FirestoreProperty]
+
+        public AddressDocument shippingAddress { get; set; }
+        [FirestoreProperty]
         public int storeId { get; set; }
         [FirestoreProperty]
         public string status { get; set; }

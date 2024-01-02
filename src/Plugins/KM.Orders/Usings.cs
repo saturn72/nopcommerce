@@ -30,6 +30,8 @@ global using Nop.Services.Catalog;
 global using Nop.Services.Logging;
 global using KM.Orders.Infrastructure;
 global using KM.Orders.Services.Checkout;
+global using Nop.Services.Common;
+global using Nop.Services.Customers;
 global using Nop.Services.Events;
 global using Nop.Services.Orders;
 global using Nop.Services.Payments;

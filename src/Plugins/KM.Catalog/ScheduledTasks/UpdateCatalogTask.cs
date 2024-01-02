@@ -149,7 +149,9 @@ public partial class UpdateCatalogTask : IScheduleTask
                 if (v.Deleted || !v.Active)
                     continue;
 
-                var logo = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, v.PictureId, 0);
+                var picture = await _pictureService.GetPictureByIdAsync(v.PictureId);
+
+                var logo = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, picture, 0);
                 var vId = v.Id.ToString();
 
                 res.Add(new VendorInfo
@@ -278,10 +280,11 @@ public partial class UpdateCatalogTask : IScheduleTask
                 var manufacturerProductIds = await _manufacturerService.GetProductManufacturersByManufacturerIdAsync(m.Id);
                 var productIds = manufacturerProductIds.Select(x => x.ProductId).ToList();
 
+                var picture = await _pictureService.GetPictureByIdAsync(m.PictureId);
                 var info = new ManufacturerInfo
                 {
                     Name = m.Name,
-                    Picture = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, m.PictureId, 0),
+                    Picture = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, picture, 0),
                 };
                 res.Add((productIds, info));
             }
@@ -350,14 +353,6 @@ public partial class UpdateCatalogTask : IScheduleTask
         return name;
     }
 
-    private async Task<CatalogMediaInfo> ToCatalogMediaInfo(string type, int pictureId, int displayOrder)
-    {
-        if (pictureId == default)
-            return default;
-        var picture = await _pictureService.GetPictureByIdAsync(pictureId);
-
-        return await ToCatalogMediaInfo(type, picture, displayOrder);
-    }
 
     private async Task<CatalogMediaInfo> ToCatalogMediaInfo(string type, Picture picture, int displayOrder)
     {

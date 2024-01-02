@@ -75,11 +75,11 @@ namespace KM.Orders.ScheduleTasks
                         CartItems = ToCartItems(no),
                         PaymentMethod = (no.paymentMethod ?? DefaultPaymentMethod).ToSystemPaymentMethod(),
                         BillingInfo = ToAddress(no.user.billingInfo),
-                        ShippingAddress = ToAddress(no.user.shippingAddress),
+                        ShippingAddress = ToAddress(no.shippingAddress),
                     });
-
-                    _ = await _kmOrderService.CreateOrdersAsync(requests);
                 }
+
+                _ = await _kmOrderService.CreateOrdersAsync(requests);
 
                 offset += pageSize;
             }

@@ -7,6 +7,8 @@ public class KmOrderService : IKmOrderService
     private readonly IWorkContext _workContext;
     private readonly IStoreService _storeService;
     private readonly KmStoreContext _storeContext;
+    private readonly ICustomerService _customerService;
+    private readonly IAddressService _addressService;
     private readonly IPaymentService _paymentService;
     private readonly IOrderProcessingService _orderProcessingService;
     private readonly IProductService _productService;
@@ -21,6 +23,8 @@ public class KmOrderService : IKmOrderService
         IWorkContext workContext,
         IStoreService storeService,
         IStoreContext storeContext,
+        ICustomerService customerService,
+        IAddressService addressService,
         IPaymentService paymentService,
         IOrderProcessingService orderProcessingService,
         IProductService productService,
@@ -34,6 +38,8 @@ public class KmOrderService : IKmOrderService
         _workContext = workContext;
         _storeService = storeService;
         _storeContext = (storeContext as KmStoreContext) ?? throw new ArgumentNullException();
+        _customerService = customerService;
+        _addressService = addressService;
         _paymentService = paymentService;
         _orderProcessingService = orderProcessingService;
         _productService = productService;
@@ -59,12 +65,6 @@ public class KmOrderService : IKmOrderService
         userIds.ThrowIfNullOrEmpty(nameof(userIds));
         var maps = await _externalUserService.ProvisionUsersAsync(userIds);
 
-        var bar = requests.Select(r => new UpdateBillingInfoRequest(r.KmUserId, r.BillingInfo));
-        await _externalUserService.ProvisionBillingInfosAsync(bar);
-
-        var sar = requests.Select(r => new UpdateShippingAddressRequest(r.KmUserId, r.ShippingAddress, r.BillingInfo));
-        await _externalUserService.ProvisionShippingAddressesAsync(sar);
-
         //check if already exists
         var existKmOrderIds = (from k in _kmOrderRepository.Table
                                select k.KmOrderId).ToList();
@@ -77,9 +77,15 @@ public class KmOrderService : IKmOrderService
                 continue;
             }
 
-            var customerId = await PrepareCustomer(r.Request, maps);
-            if (customerId == default)
+            var m = maps.FirstOrDefault(x => x.KmUserId == r.Request.KmUserId);
+            if (m == default || m.Customer == default)
                 continue;
+
+            var customer = m.Customer;
+
+            await _workContext.SetCurrentCustomerAsync(customer);
+            await CreateOrUpdateCustomerAddress(customer, r.Request.BillingInfo, AddressType.BillingAddress);
+            await CreateOrUpdateCustomerAddress(customer, r.Request.ShippingAddress, AddressType.ShippingAddress);
 
             //set default store;
             if (r.Request.StoreId == 0)
@@ -104,7 +110,7 @@ public class KmOrderService : IKmOrderService
             var processPaymentRequest = new ProcessPaymentRequest();
             _paymentService.GenerateOrderGuid(processPaymentRequest);
             processPaymentRequest.StoreId = store.Id;
-            processPaymentRequest.CustomerId = customerId;
+            processPaymentRequest.CustomerId = customer.Id;
             processPaymentRequest.PaymentMethodSystemName = r.Request.PaymentMethod;
 
             var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
@@ -138,16 +144,82 @@ public class KmOrderService : IKmOrderService
         return res;
     }
 
-    private async Task<int> PrepareCustomer(
-        CreateOrderRequest request,
-        IEnumerable<KmUserCustomerMap> maps)
+    internal enum AddressType
     {
-        var map = maps.First(c => c.KmUserId == request.KmUserId);
-        if (map.Customer == default)
-            return default;
+        BillingAddress = 0,
+        ShippingAddress = 1,
+    }
 
-        await _workContext.SetCurrentCustomerAsync(map.Customer);
-        return map.Customer.Id;
+    private async Task CreateOrUpdateCustomerAddress(Customer customer, Address address, AddressType addressType)
+    {
+        if (customer == default || address == default)
+            return;
+
+        var isBillingAddress = addressType == AddressType.BillingAddress;
+        var customerAddress = isBillingAddress ?
+            await _customerService.GetCustomerBillingAddressAsync(customer) :
+            await _customerService.GetCustomerShippingAddressAsync(customer);
+
+        if (customerAddress == default)
+        {
+            await _addressService.InsertAddressAsync(address);
+            if (isBillingAddress)
+            {
+                customer.BillingAddressId = address.Id;
+            }
+            else
+            {
+                customer.ShippingAddressId = address.Id;
+            }
+
+            await _customerService.UpdateCustomerAsync(customer);
+            await _customerService.InsertCustomerAddressAsync(customer, address);
+            return;
+        }
+
+        if (!areAddressesEqual())
+        {
+            customerAddress.FirstName = address.FirstName;
+            customerAddress.LastName = address.LastName;
+            customerAddress.Email = address.Email;
+            customerAddress.Company = address.Company;
+            customerAddress.CountryId = address.CountryId;
+            customerAddress.StateProvinceId = address.StateProvinceId;
+            customerAddress.County = address.County;
+            customerAddress.City = address.City;
+            customerAddress.Address1 = address.Address1;
+            customerAddress.Address2 = address.Address2;
+            customerAddress.ZipPostalCode = address.ZipPostalCode;
+            customerAddress.PhoneNumber = address.PhoneNumber;
+            customerAddress.FaxNumber = address.FaxNumber;
+            customerAddress.CustomAttributes = address.CustomAttributes;
+            customerAddress.CreatedOnUtc = address.CreatedOnUtc;
+
+            await _addressService.UpdateAddressAsync(customerAddress);
+        }
+
+
+        bool areAddressesEqual()
+        {
+            var bothAreNull = customerAddress == null && address == null;
+            if (bothAreNull)
+                return bothAreNull;
+
+
+            return customerAddress.FirstName == address.FirstName &&
+            customerAddress.LastName == address.LastName &&
+            customerAddress.Email == address.Email &&
+            customerAddress.Company == address.Company &&
+            customerAddress.CountryId == address.CountryId &&
+            customerAddress.StateProvinceId == address.StateProvinceId &&
+            customerAddress.County == address.County &&
+            customerAddress.City == address.City &&
+            customerAddress.Address1 == address.Address1 &&
+            customerAddress.Address2 == address.Address2 &&
+            customerAddress.ZipPostalCode == address.ZipPostalCode &&
+            customerAddress.PhoneNumber == address.PhoneNumber &&
+            customerAddress.FaxNumber == address.FaxNumber;
+        }
     }
 
     private async Task<(IList<ShoppingCartItem> approvedShoppingCartItems, IList<ShoppingCartItem> disapprovedShoppingCartItems)> ExtractShoppingCart(IEnumerable<ShoppingCartItem> items)

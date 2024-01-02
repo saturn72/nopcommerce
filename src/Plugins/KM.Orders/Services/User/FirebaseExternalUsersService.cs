@@ -1,7 +1,4 @@
 ﻿using Google.Apis.Auth.OAuth2;
-using Nop.Services.Common;
-using Nop.Services.Customers;
-using Org.BouncyCastle.Ocsp;
 
 namespace KM.Orders.Services.User;
 
@@ -13,8 +10,6 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
     private readonly IRepository<CustomerCustomerRoleMapping> _customerRoleMapRepository;
     private readonly IStaticCacheManager _cache;
     private readonly IUserProfileDocumentStore _userProfileStore;
-    private readonly ICustomerService _customerService;
-    private readonly IAddressService _addressService;
 
     public FirebaseExternalUsersService(
         IRepository<KmUserCustomerMap> userCustomerMapRepository,
@@ -23,8 +18,6 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         IRepository<CustomerRole> customerRoleRepository,
         IRepository<CustomerCustomerRoleMapping> customerRoleMapRepository,
         IUserProfileDocumentStore userProfileStore,
-        ICustomerService customerService,
-        IAddressService addressService,
         IStaticCacheManager cache
         )
     {
@@ -33,9 +26,7 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         _customerRepository = customerRepository;
         _customerRoleRepository = customerRoleRepository;
         _customerRoleMapRepository = customerRoleMapRepository;
-        _addressService = addressService;
         _userProfileStore = userProfileStore;
-        _customerService = customerService;
         _cache = cache;
     }
 
@@ -107,9 +98,6 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
             LastName = names.Length > 0 ? names[1] : null,
             PhoneNumber = ba.phoneNumber,
         };
-
-        var req = new UpdateBillingInfoRequest(map.KmUserId, address);
-        await ProvisionBillingInfosAsync(new[] { req });
     }
 
     private CacheKey BuildUserCacheKey(string uid)
@@ -224,130 +212,5 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
     public async Task<KmUserCustomerMap> GetUserIdCustomerMapByUserId(string userId)
     {
         return await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(x => x.KmUserId == userId);
-    }
-
-    public async Task ProvisionBillingInfosAsync(IEnumerable<UpdateBillingInfoRequest> requests)
-    {
-        foreach (var req in requests)
-        {
-            var maps = from m in _kmUserCustomerMapRepository.Table
-                       where m.KmUserId == req.UserId
-                       select m;
-
-            var cId = maps.FirstOrDefault()?.CustomerId;
-            if (cId == default || !cId.HasValue)
-                continue;
-
-            var customer = await _customerService.GetCustomerByIdAsync(cId.Value);
-            if (customer == default)
-                continue;
-
-            var cba = await _customerService.GetCustomerBillingAddressAsync(customer);
-
-            if (cba == default)
-            {
-                await _addressService.InsertAddressAsync(req.BillingAddress);
-                customer.BillingAddressId = req.BillingAddress.Id;
-                await _customerRepository.UpdateAsync(customer);
-                await _customerService.InsertCustomerAddressAsync(customer, req.BillingAddress);
-                continue;
-            }
-            if (AddressesAreEqual(cba, req.BillingAddress))
-                continue;
-
-            cba.FirstName = req.BillingAddress.FirstName;
-            cba.LastName = req.BillingAddress.LastName;
-            cba.Email = req.BillingAddress.Email;
-            cba.Company = req.BillingAddress.Company;
-            cba.CountryId = req.BillingAddress.CountryId;
-            cba.StateProvinceId = req.BillingAddress.StateProvinceId;
-            cba.County = req.BillingAddress.County;
-            cba.City = req.BillingAddress.City;
-            cba.Address1 = req.BillingAddress.Address1;
-            cba.Address2 = req.BillingAddress.Address2;
-            cba.ZipPostalCode = req.BillingAddress.ZipPostalCode;
-            cba.PhoneNumber = req.BillingAddress.PhoneNumber;
-            cba.FaxNumber = req.BillingAddress.FaxNumber;
-            cba.CustomAttributes = req.BillingAddress.CustomAttributes;
-            cba.CreatedOnUtc = req.BillingAddress.CreatedOnUtc;
-
-            await _addressService.UpdateAddressAsync(cba);
-        }
-    }
-
-    public bool AddressesAreEqual(Address address1, Address address2)
-    {
-        var bothAreNull = address1 == null && address2 == null;
-        if (bothAreNull)
-            return bothAreNull;
-
-
-        return address1.FirstName == address2.FirstName &&
-        address1.LastName == address2.LastName &&
-        address1.Email == address2.Email &&
-        address1.Company == address2.Company &&
-        address1.CountryId == address2.CountryId &&
-        address1.StateProvinceId == address2.StateProvinceId &&
-        address1.County == address2.County &&
-        address1.City == address2.City &&
-        address1.Address1 == address2.Address1 &&
-        address1.Address2 == address2.Address2 &&
-        address1.ZipPostalCode == address2.ZipPostalCode &&
-        address1.PhoneNumber == address2.PhoneNumber &&
-        address1.FaxNumber == address2.FaxNumber;
-    }
-
-    public async Task ProvisionShippingAddressesAsync(IEnumerable<UpdateShippingAddressRequest> requests)
-    {
-        foreach (var req in requests)
-        {
-            if (req.ShippingAddress == default)
-                continue;
-
-            var maps = from m in _kmUserCustomerMapRepository.Table
-                       where m.KmUserId == req.UserId
-                       select m;
-
-            var cId = maps.FirstOrDefault()?.CustomerId;
-            if (cId == default || !cId.HasValue)
-                continue;
-
-            var customer = await _customerService.GetCustomerByIdAsync(cId.Value);
-            if (customer == default)
-                continue;
-
-            var csa = await _customerService.GetCustomerShippingAddressAsync(customer);
-
-            if (AddressesAreEqual(csa, req.ShippingAddress))
-                continue;
-
-            if (csa == default)
-            {
-                await _addressService.InsertAddressAsync(req.ShippingAddress);
-                customer.ShippingAddressId = req.ShippingAddress.Id;
-                await _customerRepository.UpdateAsync(customer);
-                await _customerService.InsertCustomerAddressAsync(customer, req.ShippingAddress);
-            }
-            else
-            {
-                csa.FirstName = req.ShippingAddress.FirstName;
-                csa.LastName = req.ShippingAddress.LastName;
-                csa.Email = req.ShippingAddress.Email;
-                csa.Company = req.ShippingAddress.Company;
-                csa.CountryId = req.ShippingAddress.CountryId;
-                csa.StateProvinceId = req.ShippingAddress.StateProvinceId;
-                csa.County = req.ShippingAddress.County;
-                csa.City = req.ShippingAddress.City;
-                csa.Address1 = req.ShippingAddress.Address1;
-                csa.Address2 = req.ShippingAddress.Address2;
-                csa.ZipPostalCode = req.ShippingAddress.ZipPostalCode;
-                csa.PhoneNumber = req.ShippingAddress.PhoneNumber;
-                csa.FaxNumber = req.ShippingAddress.FaxNumber;
-                csa.CustomAttributes = req.ShippingAddress.CustomAttributes;
-                csa.CreatedOnUtc = req.ShippingAddress.CreatedOnUtc;
-
-                await _addressService.UpdateAddressAsync(csa);
-            }
-        }
     }
 }

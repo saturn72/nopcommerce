@@ -4,7 +4,6 @@ namespace KM.Orders.Controllers
     [ApiController]
     [Area("api")]
     [Route("api/checkout")]
-#warning add cors for authorization policy
     public class CheckoutController : ControllerBase
     {
         private readonly IRateLimiter _rateLimiter;

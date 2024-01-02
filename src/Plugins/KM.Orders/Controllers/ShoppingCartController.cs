@@ -4,7 +4,6 @@ namespace KM.Orders.Controllers
     [ApiController]
     [Area("api")]
     [Route("api/shopping-cart")]
-#warning add cors for authorization policy
     public class ShoppingCartController : ControllerBase
     {
         private readonly IExternalUsersService _userService;

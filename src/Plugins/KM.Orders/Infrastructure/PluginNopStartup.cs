@@ -1,4 +1,7 @@
 ﻿
+using Nop.Services.Common;
+using Nop.Services.Customers;
+
 namespace KM.Orders.Infrastructure
 {
     public class PluginNopStartup : INopStartup
@@ -33,6 +36,8 @@ namespace KM.Orders.Infrastructure
                 sp.GetRequiredService<IWorkContext>(),
                 sp.GetRequiredService<IStoreService>(),
                 sp.GetRequiredService<KmStoreContext>(),
+                sp.GetRequiredService<ICustomerService>(),
+                sp.GetRequiredService<IAddressService>(),
                 sp.GetRequiredService<IPaymentService>(),
                 sp.GetRequiredService<IOrderProcessingService>(),
                 sp.GetRequiredService<IProductService>(),
