@@ -1,7 +1,4 @@
 ﻿
-using Nop.Services.Common;
-using Nop.Services.Customers;
-
 namespace KM.Orders.Infrastructure
 {
     public class PluginNopStartup : INopStartup

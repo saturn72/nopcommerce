@@ -50,6 +50,11 @@ public class KmOrderService : IKmOrderService
     }
     public async Task<IEnumerable<CreateOrderResponse>> CreateOrdersAsync(IEnumerable<CreateOrderRequest> requests)
     {
+        if(requests == null)
+            throw new ArgumentNullException(nameof(requests));
+        if(!requests.Any())
+            return Array.Empty<CreateOrderResponse>();  
+
         await _logger.InformationAsync($"Start processing orders");
 
         var jso = new JsonSerializerOptions

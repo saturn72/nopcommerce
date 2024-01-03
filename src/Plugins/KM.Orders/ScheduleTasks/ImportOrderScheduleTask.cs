@@ -53,6 +53,9 @@ namespace KM.Orders.ScheduleTasks
                     pageSize: pageSize,
                     offset: offset);
 
+                if (!newOrders.Any())
+                    continue;
+
                 totalOrders += newOrders.Count();
                 var requests = new List<CreateOrderRequest>();
                 foreach (var no in newOrders)
@@ -116,7 +119,7 @@ namespace KM.Orders.ScheduleTasks
                 {
                     ProductId = pId,
                     Quantity = item.orderedQuantity,
-                    CustomerEnteredPrice = fcd.customerEnteredPrice,
+                    CustomerEnteredPrice = (decimal)fcd.customerEnteredPrice,
                 };
                 scis.Add(sci);
             };

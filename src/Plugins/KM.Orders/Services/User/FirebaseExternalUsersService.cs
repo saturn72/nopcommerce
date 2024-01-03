@@ -69,35 +69,14 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
             if (!user.Uid.HasValue())
                 return null;
 
-            var map = await GetOrCreateCustomerAndMap(user);
+            var map = await CreateOrUpdateCustomerAndMap(user);
             await ProvisionUserRoles(map, user, customerRoles);
-            await ProvisionUserProfile(map);
-            // await ProvisionCustomAttributes(map.Customer, user, customerAttributes);
 
             maps.Add(map);
             var ck = BuildUserCacheKey(map.KmUserId);
             await _cache.SetAsync(ck, map);
         }
         return maps;
-    }
-
-    private async Task ProvisionUserProfile(KmUserCustomerMap map)
-    {
-        var userProfile = await _userProfileStore.GetByUserId(map.KmUserId);
-        if (userProfile == default)
-            return;
-
-        var ba = userProfile.billingInfo;
-        var names = ba.fullName.Split(' ');
-        var address = new Address
-        {
-            Address1 = ba.address,
-            City = ba.city,
-            Email = ba.email,
-            FirstName = names.Length >= 0 ? names[0] : null,
-            LastName = names.Length > 0 ? names[1] : null,
-            PhoneNumber = ba.phoneNumber,
-        };
     }
 
     private CacheKey BuildUserCacheKey(string uid)
@@ -107,14 +86,15 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         return _cache.PrepareKeyForShortTermCache(ck);
     }
 
-    private async Task<KmUserCustomerMap> GetOrCreateCustomerAndMap(UserRecord user)
+    private async Task<KmUserCustomerMap> CreateOrUpdateCustomerAndMap(UserRecord user)
     {
         Customer customer;
         var map = await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(c => c.KmUserId == user.Uid);
+        customer = await _customerRepository.GetByIdAsync(map.CustomerId);
 
-        if (map != null)
+        //map already exist and customer is not deleted- update customer and return
+        if (map != null && !customer.Deleted)
         {
-            customer = await _customerRepository.GetByIdAsync(map.CustomerId);
             if (map.ShouldProvisionBasicClaims)
             {
                 setBasicClaims();
@@ -124,29 +104,37 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
             return map;
         }
 
-        //if map is null then either customer exist and not mapped, or customer not exists and not mapped
-        //try to find customer by email
-        customer = await _customerRepository.Table.FirstOrDefaultAsync(c => c.Email == user.Email);
-        //if customer exist and not mapped, it is managed in nop dashboard
-        if (customer != default)
-            return await createNewMap(customer, false);
+        //map is null then either customer exist and not mapped, or customer not exists and not mapped
+        //check 
+        if (customer == default || customer.Deleted)
+            //try to find customer by email
+            customer = await _customerRepository.Table.FirstOrDefaultAsync(c => c.Email == user.Email);
 
-        //last option - customer not exist, create map and always copy firebase claims
-        customer = new Customer();
-        setBasicClaims();
+        var shouldProvisionBasicClaims = customer == default || customer.Deleted;
+        //customer not exist, create customer and set claims
+        if (shouldProvisionBasicClaims)
+        {
+            customer = new Customer();
+            setBasicClaims();
+            await _customerRepository.InsertAsync(customer, false);
+            await _customerRepository.UpdateAsync(customer, false);
+        }
 
-        await _customerRepository.InsertAsync(customer, false);
-        return await createNewMap(customer, true);
+        return await createNewMap(customer, shouldProvisionBasicClaims);
 
         void setBasicClaims()
         {
+            var names = user.DisplayName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var fName = names.Length > 0 ? names[0].Trim() : user.DisplayName;
+            var lName = names.Length > 1 ? user.DisplayName.Substring(names[0].Length).Trim() : user.DisplayName;
+
             customer.Active = !user.Disabled;
             customer.Email = user.Email;
             customer.Username = user.DisplayName;
             customer.SystemName = user.DisplayName;
             customer.Phone = user.PhoneNumber;
-            customer.FirstName = user.DisplayName;
-            customer.LastName = user.DisplayName;
+            customer.FirstName = fName;
+            customer.LastName = lName;
         }
         async Task<KmUserCustomerMap> createNewMap(Customer customer, bool shouldProvisionBasicClaims)
         {
