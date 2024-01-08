@@ -1,8 +1,9 @@
-﻿namespace Km.Catalog.ScheduledTasks;
+﻿namespace KM.Catalog.ScheduledTasks;
 
 public partial class UpdateCatalogTask : IScheduleTask
 {
     #region fields
+
     private readonly IStoreService _storeService;
     private readonly IVendorService _vendorService;
     private readonly IManufacturerService _manufacturerService;
@@ -308,20 +309,13 @@ public partial class UpdateCatalogTask : IScheduleTask
         var pictures = await _pictureService.GetPicturesByProductIdAsync(product.Id);
         var productPictures = await _productService.GetProductPicturesByProductIdAsync(product.Id);
 
-        //create thumb
-        var thumb = productPictures.OrderBy(x => x.DisplayOrder).FirstOrDefault();
-        if (thumb != default)
-        {
-            var thumbCmi = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, pictures.First(x => x.Id == thumb.PictureId), thumb.DisplayOrder);
-            cmis.Add(thumbCmi);
-        }
-
-        //create images
         foreach (var pic in pictures)
         {
             var displayOrder = productPictures.FirstOrDefault(x => x.PictureId == pic.Id)?.DisplayOrder ?? 0;
+            var thumbCmi = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, pic, displayOrder);
             var cmi = await ToCatalogMediaInfo(Consts.MediaTypes.Image, pic, displayOrder);
-            cmis.Add(cmi);
+
+            cmis.AddRange(new[] { thumbCmi, cmi });
         }
 
         var videos = await _videoService.GetVideosByProductIdAsync(product.Id);

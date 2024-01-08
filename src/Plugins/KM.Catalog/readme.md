@@ -4,6 +4,17 @@ This must be done PER SERVICE, following this specific method: https://cloud.goo
 
 ONLY cash payment is supportted. install "Cash on delivery" payment module from nop commerce marketplace
 
+for `Km.Catalog` plugin, add this element to `appsettings.json`:
+```json
+
+  "gcpOptions": {
+    "bucketName": "kedem-market.appspot.com"
+  }
+```
+
+for `Km.Catalog` all products *must* have a vendor
+
+
 settings:
 - Order Settings --> Advanced --> Checkout
  - Uncheck `Terms of Service (shopping cart page)`

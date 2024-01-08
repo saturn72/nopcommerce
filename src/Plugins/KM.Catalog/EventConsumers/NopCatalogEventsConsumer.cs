@@ -2,7 +2,7 @@
 using Nop.Core.Domain.Discounts;
 using Nop.Core.Domain.Localization;
 
-namespace Km.Catalog.EventConsumers;
+namespace KM.Catalog.EventConsumers;
 
 public class NopCatalogEventsConsumer :
 

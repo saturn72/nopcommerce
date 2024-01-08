@@ -1,5 +1,5 @@
 ﻿
-namespace Km.Catalog.Services;
+namespace KM.Catalog.Services;
 
 public class GcpStorageManager : IStorageManager
 {

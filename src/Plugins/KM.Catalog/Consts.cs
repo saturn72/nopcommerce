@@ -1,4 +1,4 @@
-﻿namespace Km.Catalog;
+﻿namespace KM.Catalog;
 
 internal sealed class Consts
 {

@@ -1,6 +1,6 @@
 ﻿using Nop.Data.Mapping;
 
-namespace Km.Catalog.Mapping;
+namespace KM.Catalog.Mapping;
 
 public partial class NameCompatibility : INameCompatibility
 {

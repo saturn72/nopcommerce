@@ -1,7 +1,7 @@
 ﻿using FluentMigrator.Builders.Create.Table;
 using Nop.Data.Mapping.Builders;
 
-namespace Km.Catalog.Mapping.Builders;
+namespace KM.Catalog.Mapping.Builders;
 
 public class KmStoresSnapshotPluginBuilder : NopEntityBuilder<KmStoresSnapshot>
 {

@@ -1,6 +1,4 @@
-﻿using KM.Catalog.Documents;
-
-namespace Km.Catalog.Services;
+﻿namespace KM.Catalog.Services;
 
 public class MediaItemInfoService : IMediaItemInfoService
 {
@@ -50,10 +48,8 @@ public class MediaItemInfoService : IMediaItemInfoService
     }
     #endregion
 
-
     public async Task<KmMediaItemInfo> GetOrCreateMediaItemInfoAsync(string type, Picture picture, int displayOrder)
     {
-
         var pb = await _pictureBinaryRepository.Table
             .FirstOrDefaultAsync(pb => pb.PictureId == picture.Id);
         KmMediaItemInfo e = null;

@@ -1,6 +1,6 @@
 ﻿using KM.Catalog.Documents;
 
-namespace Km.Catalog.Services;
+namespace KM.Catalog.Services;
 
 public interface IMediaItemInfoService
 {

@@ -1,5 +1,7 @@
 ﻿
-namespace Km.Catalog.Infrastructure;
+using KM.Catalog.Factories;
+
+namespace KM.Catalog.Infrastructure;
 
 public class PluginNopStartup : INopStartup
 {
@@ -40,6 +42,7 @@ public class PluginNopStartup : INopStartup
             options.BucketName = bn;
         });
 
+        services.AddScoped<IKmCatalogModelFactory, KmCatalogModelFactory>();
         services.AddSignalR();
     }
 
