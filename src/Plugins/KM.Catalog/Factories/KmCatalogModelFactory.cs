@@ -25,14 +25,13 @@ public class KmCatalogModelFactory : IKmCatalogModelFactory
         //prepare available product templates
         var vendors = (await _vendorService.GetAllVendorsAsync()).OrderBy(v => v.Name);
 
+
         foreach (var vendor in vendors)
         {
             var item = new SelectListItem
             {
                 Value = vendor.Id.ToString(),
                 Text = vendor.Name,
-                Selected = vendor.Id == _kmCatalogSettings.DefaultVendorId,
-                Disabled = vendor.Id == _kmCatalogSettings.DefaultVendorId
             };
 
             if (item.Selected)
@@ -41,5 +40,7 @@ public class KmCatalogModelFactory : IKmCatalogModelFactory
             }
             model.Vendors.Add(item);
         }
+        if (vendors.Count() == 1)
+            model.Vendors.RemoveAt(1);
     }
 }

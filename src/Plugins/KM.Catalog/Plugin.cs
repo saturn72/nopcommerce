@@ -27,7 +27,10 @@ public class Plugin : BasePlugin
     public override async Task InstallAsync()
     {
         await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
-        {{    "KM.Catalog.DefaultVendor", "Default Vendor" } });
+        {
+            { "KM.Catalog.DefaultVendor", "Default Vendor" },
+            { "KM.Catalog.Configuration", "Kedem Market Configuration" },
+        });
         await _settingService.SaveSettingAsync(new KmCatalogSettings());
 
         var catalogTask = new ScheduleTask
