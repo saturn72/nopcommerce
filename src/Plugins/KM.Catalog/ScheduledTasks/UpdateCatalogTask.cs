@@ -13,6 +13,8 @@ public partial class UpdateCatalogTask : IScheduleTask
     private readonly IVideoService _videoService;
     private readonly IMediaItemInfoService _mediaItemInfoService;
     private readonly ISettingService _settingService;
+    private readonly IUrlRecordService _urlRecordService;
+    private readonly ILanguageService _languageService;
     private readonly IRepository<KmStoresSnapshot> _storeSnapshotRepository;
     private readonly ILogger _logger;
 
@@ -34,6 +36,8 @@ public partial class UpdateCatalogTask : IScheduleTask
         ICategoryService categoryService,
         IRepository<KmStoresSnapshot> storeSnapshotRepository,
         ISettingService settingService,
+        IUrlRecordService urlRecordService,
+        ILanguageService languageService,
         ILogger logger)
     {
         _storeService = storeService;
@@ -50,6 +54,8 @@ public partial class UpdateCatalogTask : IScheduleTask
         _categoryService = categoryService;
         _storeSnapshotRepository = storeSnapshotRepository;
         _settingService = settingService;
+        _urlRecordService = urlRecordService;
+        _languageService = languageService;
         _logger = logger;
     }
 
@@ -70,8 +76,13 @@ public partial class UpdateCatalogTask : IScheduleTask
         while (_updateRequestQueue.TryPeek(out var result) && cur - result <= iteration)
             _updateRequestQueue.Dequeue();
 
+        //move to settings
         await _logger.InformationAsync("Start catalog updating process");
-        var storeInfos = await GetStoresSnapshot();
+        var languageId = _languageService.GetAllLanguages(showHidden: true)
+            .Where(l => l.Published)
+            .OrderBy(l => l.DisplayOrder).First().Id;
+
+        var storeInfos = await GetStoresSnapshot(languageId);
 
         var l = await _storeSnapshotRepository.GetAllAsync(q => q.OrderByDescending(x => x.Version).Take(1));
         var last = l?.FirstOrDefault();
@@ -96,7 +107,7 @@ public partial class UpdateCatalogTask : IScheduleTask
         await _storeSnapshotRepository.InsertAsync(storeSnapshot);
     }
 
-    private async Task<IEnumerable<StoreInfo>> GetStoresSnapshot()
+    private async Task<IEnumerable<StoreInfo>> GetStoresSnapshot(int languageId)
     {
         var stores = await _storeService.GetAllStoresAsync();
         var mis = await GetManufacturerInfos();
@@ -114,7 +125,7 @@ public partial class UpdateCatalogTask : IScheduleTask
             var thumb = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, logoPicture, 0);
             var pic = await ToCatalogMediaInfo(Consts.MediaTypes.Image, logoPicture, 0);
 
-            var storeProducts = await GetProductsByStoreId(store.Id, mis, vis);
+            var storeProducts = await GetProductsByStoreId(store.Id, languageId, mis, vis);
             var storeVendors = storeProducts
                 .Select(p => p.Vendor).DistinctBy(v => v.Id)
                 .ToList();
@@ -169,6 +180,7 @@ public partial class UpdateCatalogTask : IScheduleTask
 
     private async Task<IEnumerable<ProductInfoDocument>> GetProductsByStoreId(
         int storeId,
+        int languageId,
         IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)> productManufacturerInfos,
         IEnumerable<VendorInfo> vendorInfos)
     {
@@ -218,6 +230,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                     categories.Add(bc);
                 }
 
+                var slug = await _urlRecordService.GetSeNameAsync(p, languageId: languageId);
 
                 var pi = new ProductInfoDocument
                 {
@@ -252,6 +265,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                     VisibleIndividually = p.VisibleIndividually,
                     Weight = (float)p.Weight,
                     Width = (float)p.Width,
+                    Slug = slug,
                 };
                 pis.Add(pi);
             }
@@ -261,6 +275,7 @@ public partial class UpdateCatalogTask : IScheduleTask
 
         return pis;
     }
+
 
     private async Task<IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)>> GetManufacturerInfos()
     {
@@ -352,7 +367,6 @@ public partial class UpdateCatalogTask : IScheduleTask
         }
         return name;
     }
-
 
     private async Task<CatalogMediaInfo> ToCatalogMediaInfo(string type, Picture picture, int displayOrder)
     {
