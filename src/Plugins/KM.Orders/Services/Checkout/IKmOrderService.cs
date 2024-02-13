@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Orders.Services.Checkout;
+namespace Km.Orders.Services.Checkout;
 
 public interface IKmOrderService
 {

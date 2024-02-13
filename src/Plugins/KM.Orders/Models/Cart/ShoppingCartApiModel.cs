@@ -1,4 +1,4 @@
-﻿namespace KM.Orders.Models.Cart
+﻿namespace Km.Orders.Models.Cart
 {
     public record ShoppingCartApiModel
     {

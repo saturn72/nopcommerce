@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Orders.Services;
+namespace Km.Orders.Services;
 
 public class UserProfileDocumentStore : FirebaseDocumentStore<UserProfileDocument>, IUserProfileDocumentStore
 {

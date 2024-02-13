@@ -16,11 +16,11 @@ public partial class UpdateCatalogTask : IScheduleTask
     private readonly IUrlRecordService _urlRecordService;
     private readonly ILanguageService _languageService;
     private readonly IRepository<KmStoresSnapshot> _storeSnapshotRepository;
+    private readonly IStructuredDataService _structuredDataService;
     private readonly ILogger _logger;
 
     private readonly Dictionary<ProductType, string> _productTypeNames;
     private static Queue<DateTime> _updateRequestQueue = new();
-
     #endregion
 
     #region ctor
@@ -38,7 +38,9 @@ public partial class UpdateCatalogTask : IScheduleTask
         ISettingService settingService,
         IUrlRecordService urlRecordService,
         ILanguageService languageService,
-        ILogger logger)
+        IStructuredDataService structuredDataService,
+        ILogger logger
+        )
     {
         _storeService = storeService;
         _vendorService = vendorService;
@@ -56,6 +58,7 @@ public partial class UpdateCatalogTask : IScheduleTask
         _settingService = settingService;
         _urlRecordService = urlRecordService;
         _languageService = languageService;
+        _structuredDataService = structuredDataService;
         _logger = logger;
     }
 
@@ -130,6 +133,11 @@ public partial class UpdateCatalogTask : IScheduleTask
                 .Select(p => p.Vendor).DistinctBy(v => v.Id)
                 .ToList();
 
+            var sdObj = await _structuredDataService.GenerateStoreStructuredDataAsync(store);
+            var sd = Array.Empty<string>();
+            if (sdObj != default)
+                sd = new[] { JsonSerializer.Serialize(sdObj) };
+
             res.Add(new StoreInfo
             {
                 Id = store.Id.ToString(),
@@ -137,7 +145,8 @@ public partial class UpdateCatalogTask : IScheduleTask
                 LogoThumb = thumb,
                 LogoPicture = pic,
                 Products = storeProducts,
-                Vendors = storeVendors
+                StructuredData = sd,
+                Vendors = storeVendors,
             });
         }
 
@@ -232,6 +241,11 @@ public partial class UpdateCatalogTask : IScheduleTask
 
                 var slug = await _urlRecordService.GetSeNameAsync(p, languageId: languageId);
 
+                var sdObj = await _structuredDataService.GenerateProductStructuredDataAsync(p);
+                var sd = Array.Empty<string>();
+                if (sdObj != default)
+                    sd = new[] { JsonSerializer.Serialize(sdObj) };
+
                 var pi = new ProductInfoDocument
                 {
                     Id = p.Id.ToString(),
@@ -259,6 +273,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                     ShippingCost = p.IsFreeShipping ? 0 : (float)p.AdditionalShippingCharge,
                     Sku = p.Sku,
                     ShortDescription = p.ShortDescription,
+                    StructuredData = sd,
                     Tags = tags,
                     TierPrices = tierPrices,
                     Vendor = vendorInfos.FirstOrDefault(x => x.Id == p.VendorId.ToString()),

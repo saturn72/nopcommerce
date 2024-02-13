@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Orders.Consumer;
+namespace Km.Orders.Consumer;
 
 public class CustomerUpdateConsumer : IConsumer<EntityUpdatedEvent<Customer>>
 {

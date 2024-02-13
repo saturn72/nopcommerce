@@ -1,4 +1,4 @@
-﻿namespace KM.Orders;
+﻿namespace Km.Orders;
 
 public class OrderHub : Hub
 {

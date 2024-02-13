@@ -1,4 +1,4 @@
-﻿namespace KM.Catalog.Documents;
+﻿namespace Km.Catalog.Documents;
 
 public partial class KmMediaItemInfo
 {

@@ -1,4 +1,4 @@
-﻿namespace KM.Orders.Services;
+﻿namespace Km.Orders.Services;
 
 public interface IRateLimiter
 {

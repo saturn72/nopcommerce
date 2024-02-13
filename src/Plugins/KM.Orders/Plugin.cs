@@ -1,7 +1,7 @@
 ﻿
-using KM.Orders.ScheduleTasks;
+using Km.Orders.ScheduleTasks;
 
-namespace KM.Orders;
+namespace Km.Orders;
 
 public class Plugin : BasePlugin
 {

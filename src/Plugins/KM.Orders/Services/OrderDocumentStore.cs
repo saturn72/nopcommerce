@@ -1,4 +1,4 @@
-﻿namespace KM.Orders.Services;
+﻿namespace Km.Orders.Services;
 public class OrderDocumentStore : FirebaseDocumentStore<FirestoreCartDocument>, IOrderDocumentStore
 {
     public OrderDocumentStore(IConfiguration configuration) : base(configuration, "orders")

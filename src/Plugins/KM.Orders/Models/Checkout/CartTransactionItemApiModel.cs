@@ -1,4 +1,4 @@
-﻿namespace KM.Orders.Models.Checkout
+﻿namespace Km.Orders.Models.Checkout
 {
     public record CartTransactionItemApiModel
     {

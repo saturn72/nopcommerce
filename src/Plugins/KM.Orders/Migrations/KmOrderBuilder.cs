@@ -2,7 +2,7 @@
 using FluentMigrator.Builders.Create.Table;
 using Nop.Data.Mapping.Builders;
 
-namespace KM.Orders.Migrations
+namespace Km.Orders.Migrations
 {
     public class KmOrderBuilder : NopEntityBuilder<KmOrder>
     {

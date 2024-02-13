@@ -29,6 +29,7 @@ public record ProductInfoDocument
     public float Height { get; init; }
     public int DisplayOrder { get; init; }
     public string Slug { get; init; }
+    public IEnumerable<string> StructuredData { get; internal set; }
     public VendorInfo Vendor { get; set; }
     public IEnumerable<CatalogMediaInfo> Media { get; init; }
     public IEnumerable<ManufacturerInfo> Manufacturers { get; init; }

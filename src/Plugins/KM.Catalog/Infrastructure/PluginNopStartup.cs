@@ -1,4 +1,7 @@
 ﻿
+using KM.Catalog.EventConsumers;
+using SimpleScheduler;
+
 namespace Km.Catalog.Infrastructure;
 
 public class PluginNopStartup : INopStartup
@@ -30,6 +33,8 @@ public class PluginNopStartup : INopStartup
         //register services and interfaces
         services.AddScoped<IMediaItemInfoService, MediaItemInfoService>();
         services.AddSingleton<IStorageManager, GcpStorageManager>();
+
+        services.AddScoped<IStructuredDataService, StructuredDataService>();
         //services.AddScoped(typeof(IStore<>), typeof(FirestoreStore<>));
 
         services.Configure<GcpOptions>(options =>
@@ -41,10 +46,19 @@ public class PluginNopStartup : INopStartup
         });
 
         services.AddSignalR();
+        services.AddSimpleScheduler();
+        services.AddScoped<ProductActivationHandler>();
     }
 
     public void Configure(IApplicationBuilder application)
     {
+        _ = Task.Run(async () =>
+        {
+            var services = application.ApplicationServices;
+            var pah = services.GetService<ProductActivationHandler>();
+            await pah.SetNextPageAsync(DateTime.UtcNow);
+        });
+
         application.UseCors(CatalogWSCorsPolicy);
     }
 

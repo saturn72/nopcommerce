@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Orders.Infrastructure
+namespace Km.Orders.Infrastructure
 {
     public class KmStoreContext : IStoreContext
     {

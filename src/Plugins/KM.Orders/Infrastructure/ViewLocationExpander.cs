@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
 
-namespace KM.Orders.Infrastructure
+namespace Km.Orders.Infrastructure
 {
     public class ViewLocationExpander : IViewLocationExpander
     {

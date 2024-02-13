@@ -1,0 +1,13 @@
+﻿@model StoreModel
+
+@{
+    const string hideAddressBlockAttributeName = "StoreDetails.HideAddress";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideAddressBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideAddressBlockAttributeName);
+}
+
+
+<nop-card asp-name="store-item-address" asp-icon="fas fa-search-plus" asp-title="@T("Admin.Common.Address")"
+          asp-hide-block-attribute-name="hideAddressBlockAttributeName" asp-advanced="false" asp-hide="@hideAddressBlock">
+    dadada
+</nop-card>

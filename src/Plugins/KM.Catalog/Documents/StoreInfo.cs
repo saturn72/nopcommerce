@@ -7,5 +7,6 @@ public record StoreInfo
     public CatalogMediaInfo LogoThumb { get; init; }
     public CatalogMediaInfo LogoPicture { get; init; }
     public IEnumerable<ProductInfoDocument> Products { get; init; }
+    public IEnumerable<string> StructuredData { get; init; }
     public IEnumerable<VendorInfo> Vendors { get; init; }
 }

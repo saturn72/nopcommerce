@@ -1,6 +1,6 @@
 ﻿
 
-namespace KM.Orders.ScheduleTasks
+namespace Km.Orders.ScheduleTasks
 {
     public class ImportOrderScheduleTask : IScheduleTask
     {

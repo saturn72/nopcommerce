@@ -1,6 +1,6 @@
 ﻿global using Google.Apis.Auth.OAuth2;
-global using Google.Cloud.Firestore;
 global using Google.Cloud.Storage.V1;
+global using KM.Catalog;
 global using Km.Catalog.Documents;
 global using Km.Catalog.Domain;
 global using Km.Catalog.ScheduledTasks;

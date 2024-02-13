@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Orders.Controllers
+namespace Km.Orders.Controllers
 {
     [ApiController]
     [Area("api")]

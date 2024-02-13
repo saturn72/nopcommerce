@@ -1,6 +1,6 @@
 ﻿using Google.Apis.Auth.OAuth2;
 
-namespace KM.Orders.Services.User;
+namespace Km.Orders.Services.User;
 
 public partial class FirebaseExternalUsersService : IExternalUsersService
 {

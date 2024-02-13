@@ -1,4 +1,4 @@
-﻿namespace KM.Orders.Services.User;
+﻿namespace Km.Orders.Services.User;
 
 public interface IExternalUsersService
 {

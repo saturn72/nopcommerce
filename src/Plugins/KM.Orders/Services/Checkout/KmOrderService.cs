@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Orders.Services.Checkout;
+namespace Km.Orders.Services.Checkout;
 public class KmOrderService : IKmOrderService
 {
     private readonly IRepository<KmOrder> _kmOrderRepository;

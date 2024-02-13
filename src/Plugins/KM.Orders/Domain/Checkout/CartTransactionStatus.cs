@@ -1,4 +1,4 @@
-﻿namespace KM.Orders.Domain.Checkout
+﻿namespace Km.Orders.Domain.Checkout
 {
     public sealed class CartTransactionStatus
     {

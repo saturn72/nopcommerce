@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Orders.Documents
+namespace Km.Orders.Documents
 {
     [FirestoreData]
     public record AddressDocument : IDocument
