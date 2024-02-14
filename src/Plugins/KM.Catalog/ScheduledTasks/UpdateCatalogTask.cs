@@ -1,4 +1,7 @@
-﻿namespace Km.Catalog.ScheduledTasks;
+﻿using Nop.Core.Domain.Directory;
+using Nop.Services.Directory;
+
+namespace Km.Catalog.ScheduledTasks;
 
 public partial class UpdateCatalogTask : IScheduleTask
 {
@@ -8,6 +11,8 @@ public partial class UpdateCatalogTask : IScheduleTask
     private readonly IManufacturerService _manufacturerService;
     private readonly IProductService _productService;
     private readonly ICategoryService _categoryService;
+    private readonly CurrencySettings _currencySettings;
+    private readonly ICurrencyService _currencyService;
     private readonly IProductTagService _productTagService;
     private readonly IPictureService _pictureService;
     private readonly IVideoService _videoService;
@@ -40,7 +45,8 @@ public partial class UpdateCatalogTask : IScheduleTask
         ILanguageService languageService,
         IStructuredDataService structuredDataService,
         ILogger logger
-        )
+,
+        CurrencySettings currencySettings)
     {
         _storeService = storeService;
         _vendorService = vendorService;
@@ -60,6 +66,7 @@ public partial class UpdateCatalogTask : IScheduleTask
         _languageService = languageService;
         _structuredDataService = structuredDataService;
         _logger = logger;
+        _currencySettings = currencySettings;
     }
 
     #endregion
@@ -240,8 +247,8 @@ public partial class UpdateCatalogTask : IScheduleTask
                 }
 
                 var slug = await _urlRecordService.GetSeNameAsync(p, languageId: languageId);
-
-                var sdObj = await _structuredDataService.GenerateProductStructuredDataAsync(p);
+                var currency = await getPrimaryCurrency();
+                var sdObj = await _structuredDataService.GenerateProductStructuredDataAsync(p, null);
                 var sd = Array.Empty<string>();
                 if (sdObj != default)
                     sd = new[] { JsonSerializer.Serialize(sdObj) };
@@ -289,8 +296,13 @@ public partial class UpdateCatalogTask : IScheduleTask
         } while (page.HasNextPage);
 
         return pis;
-    }
 
+        Task<Currency> getPrimaryCurrency()
+        {
+            var primaryStoreCurrencyId = _currencySettings.PrimaryStoreCurrencyId;
+            return _currencyService.GetCurrencyByIdAsync(primaryStoreCurrencyId);
+        }
+    }
 
     private async Task<IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)>> GetManufacturerInfos()
     {
