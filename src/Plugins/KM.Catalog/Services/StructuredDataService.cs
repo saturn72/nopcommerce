@@ -1,7 +1,5 @@
-﻿using Nop.Core.Caching;
-using Nop.Core.Domain.Directory;
+﻿using Nop.Core.Domain.Directory;
 using Nop.Services.Customers;
-using Nop.Services.Directory;
 
 namespace Km.Catalog.Services;
 public class StructuredDataService : IStructuredDataService
@@ -10,19 +8,27 @@ public class StructuredDataService : IStructuredDataService
     private readonly IProductTagService _productTagService;
     private readonly ICategoryService _categoryService;
     private readonly ICustomerService _customerService;
-    private readonly ICurrencyService _currencyService;
     private readonly IProductAttributeService _productAttributeService;
-    private readonly IStaticCacheManager _staticCacheManager;
     private readonly IManufacturerService _manufacturerService;
     private readonly IVendorService _vendorService;
 
+    private static readonly string[] ProductAdultConsidirationKeys = new[]{
+                "AlcoholConsideration",
+                "DangerousGoodConsideration",
+                "HealthcareConsideration",
+                "NarcoticConsideration",
+                "ReducedRelevanceForChildrenConsideration",
+                "SexualContentConsideration",
+                "TobaccoNicotineConsideration",
+                "UnclassifiedAdultConsideration",
+                "ViolenceConsideration",
+                "WeaponConsideration"
+            };
     public StructuredDataService(
         IProductService productService,
         IProductTagService productTagService,
         ICategoryService categoryService,
         ICustomerService customerService,
-        ICurrencyService currencyService,
-        IStaticCacheManager staticCacheManager,
         IProductAttributeService productAttributeService,
         IManufacturerService manufacturerService,
         IVendorService vendorService)
@@ -31,52 +37,82 @@ public class StructuredDataService : IStructuredDataService
         _productTagService = productTagService;
         _categoryService = categoryService;
         _customerService = customerService;
-        _currencyService = currencyService;
         _productAttributeService = productAttributeService;
-        _staticCacheManager = staticCacheManager;
         _manufacturerService = manufacturerService;
         _vendorService = vendorService;
     }
     public async Task<object> GenerateProductStructuredDataAsync(Product product, Currency currency)
     {
-        var review = await GenerateProductReviewsStructuredDataAsync(product, currency);
+        var (reviews, positiveNotes, negativeNotes) = await GenerateProductReviewsStructuredDataAsync(product, currency);
 
         var productTags = await _productTagService.GetAllProductTagsByProductIdAsync(product.Id);
         var tags = string.Join(',', productTags.Select(x => x.Name).ToArray());
         var manufacturerOrVendor = await GetManufacturerAsync(product);
 
+        var allProductAttributes = await GetAllProductAttributesWithValuesAsync(product);
         return new
         {
             @context = "https://schema.org/",
             @type = "Product",
-            additionalProperty = await GetAllProductAttributesWithValuesAsync(product),
+            additionalProperty = allProductAttributes,
             aggregateRating = product.ApprovedRatingSum,
-            award = await GetProductAttributeValueAsync("award", product),
-            brand = await GetProductAttributeValueAsync("brand", product),
+            alternateName = getAttributeValue("alias"),
+            award = getAttributeValue("award"),
+            brand = getAttributeValue("brand"),
             category = await GetProductCategoriesAsync(product.Id),
-            color = await GetProductAttributeValueAsync("color", product),
+            color = getAttributeValue("color"),
             depth = GetMeasurementUnit(product.Length),
-            description = product.ShortDescription ?? product.ShortDescription,
+            description = product.ShortDescription ?? product.FullDescription,
             gtin = product.Gtin,
-            //hasMerchantReturnPolicy = return policy
+            hasAdultConsideration = getAdultConsidiration(),
             height = GetMeasurementUnit(product.Height),
-            itemCondition = await getItemCondition(),
+            //hasCeritication = TBD
+            //hasMerchantReturnPolicy = return policy
+            identifier = product.Id,
+            isFamilyFriendly = getAttributeValue("family friendly"),
+            itemCondition = getItemCondition(),
             keywords = tags,
             manufacturer = manufacturerOrVendor,
-            material = await GetProductAttributeValueAsync("material", product),
+            material = getAttributeValue("material"),
+            model = getAttributeValue("model"),
             mpn = product.ManufacturerPartNumber,
             name = product.Name,
+            negativeNotes = negativeNotes,
             offers = await GenerateProductOfferStructuredDataAsync(product, currency),
-            productId = product.Id,
-            review = review,
+            pattern = getAttributeValue("pattern"),
+            positiveNotes = positiveNotes,
+            productID = product.Id,
+            review = reviews,
+            size = getAttributeValue("size"),
             sku = product.Sku,
             weight = GetMeasurementUnit(product.Weight),
             width = GetMeasurementUnit(product.Width),
+
         };
 
-        async Task<string?> getItemCondition()
+        string? getAttributeValue(string attributeName)
         {
-            var (_, condition) = await GetProductAttributeValueAsync("condition", product);
+            var (_, value) = allProductAttributes
+                .FirstOrDefault(x => x.name.Equals(attributeName, StringComparison.InvariantCultureIgnoreCase));
+
+            return value;
+        }
+
+        IEnumerable<string>? getAdultConsidiration()
+        {
+            var res = new List<string>();
+            foreach (var c in ProductAdultConsidirationKeys)
+            {
+                if (getAttributeValue(c) != default)
+                    res.Add(c);
+            }
+
+            return res.NotNullAndNotEmpty() ? res : default;
+        }
+
+        string? getItemCondition()
+        {
+            var condition = getAttributeValue("condition");
 
             switch (condition)
             {
@@ -117,18 +153,25 @@ public class StructuredDataService : IStructuredDataService
         return (await _vendorService.GetVendorByIdAsync(product.VendorId))?.Name;
     }
 
-    private async Task<IEnumerable<object>> GenerateProductReviewsStructuredDataAsync(Product product, Currency currency)
+    private async Task<(IEnumerable<object> reviews, object positiveNotes, object negativeNotes)> GenerateProductReviewsStructuredDataAsync(Product product, Currency currency)
     {
-        var reviews = await _productService.GetAllProductReviewsAsync(
+        var allReviews = await _productService.GetAllProductReviewsAsync(
             productId: product.Id,
             approved: true,
             pageSize: int.MaxValue);
 
+        var reviews = new List<object>();
+        var negativeNotesItems = new List<object>();
+        var positiveNotesItems = new List<object>();
 
-        return reviews.Select(async r =>
+        for (var i = 0; i < allReviews.Count; i++)
         {
+            var r = allReviews.ElementAt(i);
+            if (r.Rating == 0)
+                continue;
+
             var customer = await _customerService.GetCustomerByIdAsync(r.CustomerId);
-            return new
+            var reviewSD = new
             {
                 @context = "https://schema.org",
                 @type = "Review",
@@ -151,7 +194,31 @@ public class StructuredDataService : IStructuredDataService
                     worstRating = 1,
                 }
             };
-        });
+
+            var col = r.Rating >= 3 ? positiveNotesItems : negativeNotesItems;
+            var item = new
+            {
+                @type = "ListItem",
+                position = col.Count + 1,
+                name = r.ReviewText,
+            };
+            col.Add(item);
+            reviews.Add(r);
+        }
+
+        var negativeNotes = new
+        {
+            type = "ItemList",
+            itemListElement = negativeNotesItems.ToArray(),
+        };
+
+        var positiveNotes = new
+        {
+            type = "ItemList",
+            itemListElement = positiveNotesItems.ToArray(),
+        };
+
+        return (reviews, positiveNotes, negativeNotes);
     }
 
     private async Task<object> GenerateProductOfferStructuredDataAsync(Product product, Currency currency)
@@ -183,11 +250,10 @@ public class StructuredDataService : IStructuredDataService
             gtin = product.Gtin,
             mpn = product.ManufacturerPartNumber,
             price = product.Price,
-            priceCurrenty = currency.CurrencyCode,
+            priceCurrenty = currency?.CurrencyCode,
             sku = await GetProductAttributeValueAsync("sku", product),
             validFrom = product.AvailableStartDateTimeUtc.ToIso8601(),
             validThrough = product.AvailableStartDateTimeUtc.ToIso8601(),
-
         };
 
         IEnumerable<string> getBusinessFunction()
@@ -236,7 +302,7 @@ public class StructuredDataService : IStructuredDataService
         return result;
     }
 
-    private async Task<IEnumerable<(string, string?)>> GetAllProductAttributesWithValuesAsync(Product product)
+    private async Task<IEnumerable<(string name, string? value)>> GetAllProductAttributesWithValuesAsync(Product product)
     {
         var allProductAttributes = await _productAttributeService.GetAllProductAttributesAsync();
         var res = new List<(string, string?)>();
@@ -281,30 +347,45 @@ public class StructuredDataService : IStructuredDataService
         var sds = new
         {
             @context = "https://schema.org",
+            //this field should be added to store/vendor configuration
+            //list is located here: https://schema.org/LocalBusiness#subtypes
             @type = new[] { "FoodEstablishment", "Store" },
+            //currenciesAccepted = use _storeMappingService to extract supported currencies,
+            address = store.CompanyAddress,
+            openingHoursSpecification = getOpeningHoursSpecification(),
         };
 
-        return Task.FromResult(sds);
+        return Task.FromResult(sds as object);
 
-        //        o["address"] = new Dictionary<string, string> {
-        //            { "@type", "Text" },
-        //        store.CompanyAddress
-        //            {"streetAddress", "148 W 51st St Suit 42 Unit 7" },
-        //  {"addressLocality", "New York"},
-        // { "addressRegion", "NY"},
-        //{  "postalCode", "10019"},
-        //  {"addressCountry", "US"}
-        //};
-
-        //local business
-        //image
-        //video??
-        //Profile page
-        //FAQ
-        //Review
-        //Sitelink search box
-        //Video
-        //specify products: https://developers.google.com/search/docs/appearance/structured-data/carousel
-        throw new NotImplementedException();
+        static object getOpeningHoursSpecification()
+        {
+            return new[]
+            {
+                new
+                {
+                    @type = "OpeningHoursSpecification",
+                    dayOfWeek = new[]
+                    {
+                        "Sunday",
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                    },
+                    opens = "09:00",
+                    closes = "23:00"
+                },
+                new
+                {
+                    @type = "OpeningHoursSpecification",
+                    dayOfWeek = new[]
+                    {
+                        "Friday",
+                    },
+                    opens = "09:00",
+                    closes = "13:30"
+                },
+            };
+        }
     }
 }

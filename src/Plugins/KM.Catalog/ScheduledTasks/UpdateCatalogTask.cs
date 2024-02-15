@@ -6,67 +6,66 @@ namespace Km.Catalog.ScheduledTasks;
 public partial class UpdateCatalogTask : IScheduleTask
 {
     #region fields
-    private readonly IStoreService _storeService;
-    private readonly IVendorService _vendorService;
-    private readonly IManufacturerService _manufacturerService;
-    private readonly IProductService _productService;
-    private readonly ICategoryService _categoryService;
+
+    private readonly Dictionary<ProductType, string> _productTypeNames = new();
     private readonly CurrencySettings _currencySettings;
+    private readonly ICategoryService _categoryService;
     private readonly ICurrencyService _currencyService;
-    private readonly IProductTagService _productTagService;
-    private readonly IPictureService _pictureService;
-    private readonly IVideoService _videoService;
+    private readonly IManufacturerService _manufacturerService;
     private readonly IMediaItemInfoService _mediaItemInfoService;
-    private readonly ISettingService _settingService;
-    private readonly IUrlRecordService _urlRecordService;
     private readonly ILanguageService _languageService;
+    private readonly IPictureService _pictureService;
+    private readonly IProductService _productService;
+    private readonly IProductTagService _productTagService;
+    private readonly IUrlRecordService _urlRecordService;
     private readonly IRepository<KmStoresSnapshot> _storeSnapshotRepository;
+    private readonly ISettingService _settingService;
+    private readonly IStoreService _storeService;
     private readonly IStructuredDataService _structuredDataService;
+    private readonly IVendorService _vendorService;
+    private readonly IVideoService _videoService;
     private readonly ILogger _logger;
 
-    private readonly Dictionary<ProductType, string> _productTypeNames;
     private static Queue<DateTime> _updateRequestQueue = new();
     #endregion
 
     #region ctor
     public UpdateCatalogTask(
-        IStoreService storeService,
-        IVendorService vendorService,
+        CurrencySettings currencySettings,
+        ICategoryService categoryService,
+        ICurrencyService currencyService,
         IManufacturerService manufacturerService,
+        IMediaItemInfoService mediaItemInfoService,
+        ILanguageService languageService,
+        IPictureService pictureService,
         IProductService productService,
         IProductTagService productTagService,
-        IPictureService pictureService,
-        IVideoService videoService,
-        IMediaItemInfoService mediaItemInfoService,
-        ICategoryService categoryService,
+        IUrlRecordService urlRecordService,
         IRepository<KmStoresSnapshot> storeSnapshotRepository,
         ISettingService settingService,
-        IUrlRecordService urlRecordService,
-        ILanguageService languageService,
+        IStoreService storeService,
         IStructuredDataService structuredDataService,
-        ILogger logger
-,
-        CurrencySettings currencySettings)
+        IVendorService vendorService,
+        IVideoService videoService,
+        ILogger logger)
     {
-        _storeService = storeService;
-        _vendorService = vendorService;
+        _currencySettings = currencySettings;
+        _categoryService = categoryService;
+        _currencyService = currencyService;
         _manufacturerService = manufacturerService;
+        _mediaItemInfoService = mediaItemInfoService;
+        _languageService = languageService;
+        _pictureService = pictureService;
         _productService = productService;
         _productTagService = productTagService;
-        _pictureService = pictureService;
-        _videoService = videoService;
-
-        _productTypeNames = new Dictionary<ProductType, string>();
-
-        _mediaItemInfoService = mediaItemInfoService;
-        _categoryService = categoryService;
+        _urlRecordService = urlRecordService;
         _storeSnapshotRepository = storeSnapshotRepository;
         _settingService = settingService;
-        _urlRecordService = urlRecordService;
-        _languageService = languageService;
+        _storeService = storeService;
         _structuredDataService = structuredDataService;
+        _vendorService = vendorService;
+        _videoService = videoService;
         _logger = logger;
-        _currencySettings = currencySettings;
     }
 
     #endregion
@@ -135,15 +134,15 @@ public partial class UpdateCatalogTask : IScheduleTask
             var thumb = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, logoPicture, 0);
             var pic = await ToCatalogMediaInfo(Consts.MediaTypes.Image, logoPicture, 0);
 
-            var storeProducts = await GetProductsByStoreId(store.Id, languageId, mis, vis);
-            var storeVendors = storeProducts
-                .Select(p => p.Vendor).DistinctBy(v => v.Id)
-                .ToList();
-
             var sdObj = await _structuredDataService.GenerateStoreStructuredDataAsync(store);
             var sd = Array.Empty<string>();
             if (sdObj != default)
                 sd = new[] { JsonSerializer.Serialize(sdObj) };
+
+            var storeProducts = await GetProductsByStoreId(store.Id, languageId, mis, vis);
+            var storeVendors = storeProducts
+                .Select(p => p.Vendor).DistinctBy(v => v.Id)
+                .ToList();
 
             res.Add(new StoreInfo
             {
@@ -248,7 +247,7 @@ public partial class UpdateCatalogTask : IScheduleTask
 
                 var slug = await _urlRecordService.GetSeNameAsync(p, languageId: languageId);
                 var currency = await getPrimaryCurrency();
-                var sdObj = await _structuredDataService.GenerateProductStructuredDataAsync(p, null);
+                var sdObj = await _structuredDataService.GenerateProductStructuredDataAsync(p, currency);
                 var sd = Array.Empty<string>();
                 if (sdObj != default)
                     sd = new[] { JsonSerializer.Serialize(sdObj) };
@@ -273,7 +272,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                     OrderMinimumQuantity = p.OrderMinimumQuantity,
                     ParentGroupedProductId = p.ParentGroupedProductId,
                     Price = (float)p.Price,
-                    ProductType = GetProductTypeName(p.ProductType),
+                    ProductType = getProductTypeName(p.ProductType),
                     Quantity = p.StockQuantity,
                     Rating = p.ApprovedRatingSum,
                     Reviews = p.ApprovedTotalReviews,
@@ -301,6 +300,16 @@ public partial class UpdateCatalogTask : IScheduleTask
         {
             var primaryStoreCurrencyId = _currencySettings.PrimaryStoreCurrencyId;
             return _currencyService.GetCurrencyByIdAsync(primaryStoreCurrencyId);
+        }
+
+        string getProductTypeName(ProductType productType)
+        {
+            if (!_productTypeNames.TryGetValue(productType, out var name))
+            {
+                name = Enum.GetName(typeof(ProductType), productType);
+                _productTypeNames[productType] = name;
+            }
+            return name;
         }
     }
 
@@ -385,15 +394,6 @@ public partial class UpdateCatalogTask : IScheduleTask
             product.MarkAsNewStartDateTimeUtc < DateTime.UtcNow && product.MarkAsNewEndDateTimeUtc == null);
     }
 
-    private string GetProductTypeName(ProductType productType)
-    {
-        if (!_productTypeNames.TryGetValue(productType, out var name))
-        {
-            name = Enum.GetName(typeof(ProductType), productType);
-            _productTypeNames[productType] = name;
-        }
-        return name;
-    }
 
     private async Task<CatalogMediaInfo> ToCatalogMediaInfo(string type, Picture picture, int displayOrder)
     {
