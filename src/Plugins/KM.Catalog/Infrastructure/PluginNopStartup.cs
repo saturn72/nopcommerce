@@ -35,7 +35,7 @@ public class PluginNopStartup : INopStartup
         services.AddSingleton<IStorageManager, GcpStorageManager>();
 
         services.AddScoped<IStructuredDataService, StructuredDataService>();
-        //services.AddScoped(typeof(IStore<>), typeof(FirestoreStore<>));
+        services.AddScoped<IDocumentStore, FirestoreDocumentStore>();
 
         services.Configure<GcpOptions>(options =>
         {

@@ -141,7 +141,7 @@ public partial class UpdateCatalogTask : IScheduleTask
 
             var storeProducts = await GetProductsByStoreId(store.Id, languageId, mis, vis);
             var storeVendors = storeProducts
-                .Select(p => p.Vendor).DistinctBy(v => v.Id)
+                .Select(p => p.Vendor).DistinctBy(v => v?.Id)
                 .ToList();
 
             res.Add(new StoreInfo

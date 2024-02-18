@@ -6,29 +6,26 @@ public class KmStoresSnapshotInsertedEventConsumer :
     IConsumer<EntityInsertedEvent<KmStoresSnapshot>>
 {
     private readonly IHubContext<CatalogHub> _hub;
-    private readonly IStorageManager _storageManager;
+    private readonly IDocumentStore _documentStore;
 
     public KmStoresSnapshotInsertedEventConsumer(
         IHubContext<CatalogHub> hub,
-        IStorageManager storageManager)
+        IDocumentStore documentStore)
     {
         _hub = hub;
-        _storageManager = storageManager;
+        _documentStore = documentStore;
     }
 
     public async Task HandleEventAsync(EntityInsertedEvent<KmStoresSnapshot> eventMessage)
     {
         var e = eventMessage.Entity;
-
-        var json = JsonSerializer.Deserialize<object>(e.Json);
         var o = new
         {
             version = e.Version,
-            createdOnUtc = e.CreatedOnUtc,
-            stores = json
+            stores = e.Json
         };
 
-        await _storageManager.UploadAsync("catalog/index.json", "application/json", o);
+        await _documentStore.InsertAsync("catalog", o);
         await _hub.Clients.All.SendAsync("updated");
     }
 }
