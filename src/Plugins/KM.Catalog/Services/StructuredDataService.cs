@@ -87,7 +87,6 @@ public class StructuredDataService : IStructuredDataService
             sku = product.Sku,
             weight = GetMeasurementUnit(product.Weight),
             width = GetMeasurementUnit(product.Width),
-
         };
 
         string? getAttributeValue(string attributeName)
@@ -208,13 +207,13 @@ public class StructuredDataService : IStructuredDataService
 
         var negativeNotes = new
         {
-            type = "ItemList",
+            @type = "ItemList",
             itemListElement = negativeNotesItems.ToArray(),
         };
 
         var positiveNotes = new
         {
-            type = "ItemList",
+            @type = "ItemList",
             itemListElement = positiveNotesItems.ToArray(),
         };
 
@@ -225,7 +224,7 @@ public class StructuredDataService : IStructuredDataService
     {
         return new
         {
-            @type = new[] { "Offer" },
+            @type = "Offer",
             acceptedPaymentMethod = new[]
             {
                 "http://purl.org/goodrelations/v1#ByBankTransferInAdvance",
