@@ -19,10 +19,20 @@ public class KmStoresSnapshotInsertedEventConsumer :
     public async Task HandleEventAsync(EntityInsertedEvent<KmStoresSnapshot> eventMessage)
     {
         var e = eventMessage.Entity;
+
+        var options = new JsonSerializerOptions
+        {
+            AllowTrailingCommas = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false,
+        };
+
+        var stores = JsonSerializer.Deserialize<List<StoreInfo>>(e.Data, options);
+
         var o = new
         {
             version = e.Version,
-            stores = e.Json
+            stores
         };
 
         await _documentStore.InsertAsync("catalog", o);

@@ -107,10 +107,10 @@ public partial class UpdateCatalogTask : IScheduleTask
             WriteIndented = false,
         };
 
-        var json = JsonSerializer.Serialize(storeInfos, options);
+        var data = JsonSerializer.Serialize(storeInfos, options);
         var storeSnapshot = new KmStoresSnapshot
         {
-            Json = json,
+            Data = data,
             Version = v,
         };
         await _storeSnapshotRepository.InsertAsync(storeSnapshot);

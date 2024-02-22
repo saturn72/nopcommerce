@@ -12,6 +12,6 @@ public class KmStoresSnapshotBuilder : NopEntityBuilder<KmStoresSnapshot>
         table
             .WithColumn(nameof(KmStoresSnapshot.CreatedOnUtc)).AsDateTime2().Nullable().WithDefault(SystemMethods.CurrentUTCDateTime)
             .WithColumn(nameof(KmStoresSnapshot.Version)).AsInt32()
-            .WithColumn(nameof(KmStoresSnapshot.Json)).AsString().NotNullable();
+            .WithColumn(nameof(KmStoresSnapshot.Data)).AsString().NotNullable();
     }
 }
