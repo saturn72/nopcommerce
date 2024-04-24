@@ -1,4 +1,8 @@
-﻿using System.IO.Compression;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
@@ -388,10 +392,23 @@ namespace Nop.Services.Media.RoxyFileman
                 .Where(f => !f.IsDirectory && isMatchType(f.Name))
                 .Select(f =>
                 {
-                    using var skData = SKData.Create(f.PhysicalPath);
-                    var image = SKBitmap.DecodeBounds(skData);
+                    var width = 0;
+                    var height = 0;
 
-                    return new RoxyImageInfo(getRelativePath(f.Name), f.LastModified, f.Length, image.Width, image.Height);
+                    if (GetFileType(f.Name) == "image")
+                    {
+                        using var skData = SKData.Create(f.PhysicalPath);
+                        
+                        if (skData != null)
+                        {
+                            var image = SKBitmap.DecodeBounds(skData);
+
+                            width = image.Width;
+                            height = image.Height;
+                        }
+                    }
+
+                    return new RoxyImageInfo(getRelativePath(f.Name), f.LastModified, f.Length, width, height);
                 });
 
             bool isMatchType(string name) => string.IsNullOrEmpty(type) || GetFileType(name) == type;
