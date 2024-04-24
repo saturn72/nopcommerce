@@ -106,5 +106,6 @@ public record ProductInfoDocument
 
     [FirestoreProperty("categories")]
     public IEnumerable<string> Categories { get; init; }
+    [FirestoreProperty("options")]
+    public IEnumerable<ProductOption> Options { get; init; }
 }
-

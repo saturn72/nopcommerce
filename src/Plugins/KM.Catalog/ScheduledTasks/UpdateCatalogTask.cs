@@ -91,7 +91,7 @@ public partial class UpdateCatalogTask : IScheduleTask
             .Where(l => l.Published)
             .OrderBy(l => l.DisplayOrder).First().Id;
 
-        var storeInfos = await GetStoresSnapshot(languageId);
+        var storeInfos = await GetStoresSnapshots(languageId);
 
         var l = await _storeSnapshotRepository.GetAllAsync(q => q.OrderByDescending(x => x.Version).Take(1));
         var last = l?.FirstOrDefault();
@@ -116,11 +116,13 @@ public partial class UpdateCatalogTask : IScheduleTask
         await _storeSnapshotRepository.InsertAsync(storeSnapshot);
     }
 
-    private async Task<IEnumerable<StoreInfo>> GetStoresSnapshot(int languageId)
+    private async Task<IEnumerable<StoreInfo>> GetStoresSnapshots(int languageId)
     {
         var stores = await _storeService.GetAllStoresAsync();
         var mis = await GetManufacturerInfos();
         var vis = await GetVendorInfos();
+        
+        var categories = await _categoryService.GetAllCategoriesAsync(showHidden: false);
 
         var res = new List<StoreInfo>();
 
@@ -139,10 +141,12 @@ public partial class UpdateCatalogTask : IScheduleTask
             if (sdObj != default)
                 sd = new[] { JsonSerializer.Serialize(sdObj) };
 
-            var storeProducts = await GetProductsByStoreId(store.Id, languageId, mis, vis);
+            var storeProducts = await GetStoreCatalog(store.Id, languageId, mis, vis);
             var storeVendors = storeProducts
                 .Select(p => p.Vendor).DistinctBy(v => v?.Id)
                 .ToList();
+
+            var storeCategories = await GetCategoriesByStoreId(store.Id, storeProducts);
 
             res.Add(new StoreInfo
             {
@@ -151,6 +155,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                 LogoThumb = thumb,
                 LogoPicture = pic,
                 Products = storeProducts,
+                Categories = storeCategories,
                 StructuredData = sd,
                 Vendors = storeVendors,
             });
@@ -193,16 +198,42 @@ public partial class UpdateCatalogTask : IScheduleTask
         return res;
     }
 
-    private async Task<IEnumerable<ProductInfoDocument>> GetProductsByStoreId(
+    private async Task<IEnumerable<CategoryInfoDocument>> GetCategoriesByStoreId(
+        int storeId,
+        IEnumerable<ProductInfoDocument> productInfos)
+    {
+        var storeCategories = await _categoryService.GetAllCategoriesAsync(storeId: storeId);
+
+        return storeCategories.Select(async sc =>
+        {
+            //not most efficient, but does the job for now
+            var pcs = await _categoryService.GetProductCategoriesByCategoryIdAsync(sc.Id);
+            var catProductIds = pcs.Select(pc => pc.ProductId);
+
+            var products = productInfos.Where(p => catProductIds.Contains(int.Parse(p.Id)));
+
+            return new CategoryInfoDocument
+            {
+                Id = sc.Id,
+                Name = sc.Name,
+                Products = products,
+                Media = GetCategoryMedia(sc),
+            };
+        });
+    }
+
+    private async Task<(IEnumerable<ProductInfoDocument>, IEnumerable<CategoryInfoDocument>)> GetStoreCatalog(
         int storeId,
         int languageId,
         IEnumerable<(IEnumerable<int> productIds, ManufacturerInfo info)> productManufacturerInfos,
-        IEnumerable<VendorInfo> vendorInfos)
+        IEnumerable<VendorInfo> vendorInfos
+        )
     {
         var pageIndex = 0;
         var pageSize = 50;
         IPagedList<Product> page;
         var pis = new List<ProductInfoDocument>();
+        var cis = new List<CategoryInfoDocument>();
 
         do
         {
@@ -255,7 +286,7 @@ public partial class UpdateCatalogTask : IScheduleTask
                 var pi = new ProductInfoDocument
                 {
                     Id = p.Id.ToString(),
-
+                    Options = productAttributes,
                     Categories = categories,
                     DisplayOrder = p.DisplayOrder,
                     Name = p.Name,
@@ -350,6 +381,23 @@ public partial class UpdateCatalogTask : IScheduleTask
     {
         var tags = await _productTagService.GetAllProductTagsByProductIdAsync(productId);
         return tags.Select(t => t.Name);
+    }
+
+    private async Task<IEnumerable<CatalogMediaInfo>> GetCategoryMedia(Category category)
+    {
+        var cmis = new List<CatalogMediaInfo>();
+        var pic = await _pictureService.GetPictureByIdAsync(category.PictureId);
+        
+        if (pic == default)
+            return cmis;
+
+        var thumbCmi = await ToCatalogMediaInfo(Consts.MediaTypes.Thumbnail, pic, 0);
+        cmis.Add(thumbCmi);
+
+        var cmi = await ToCatalogMediaInfo(Consts.MediaTypes.Image, pic, 0);
+        cmis.Add(cmi);
+
+        return cmis;
     }
 
     private async Task<IEnumerable<CatalogMediaInfo>> GetProductMedia(Product product)

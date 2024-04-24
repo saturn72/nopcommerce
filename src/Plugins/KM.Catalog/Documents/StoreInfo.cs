@@ -16,10 +16,13 @@ public record StoreInfo
     
     [FirestoreProperty("logoPicture")]
     public CatalogMediaInfo LogoPicture { get; init; }
-    
+
     [FirestoreProperty("products")]
     public IEnumerable<ProductInfoDocument> Products { get; init; }
-    
+
+    [FirestoreProperty("categories")]
+    public IEnumerable<CategoryInfoDocument> Categories { get; init; }
+
     [FirestoreProperty("structuredData")]
     public IEnumerable<string> StructuredData { get; init; }
     
