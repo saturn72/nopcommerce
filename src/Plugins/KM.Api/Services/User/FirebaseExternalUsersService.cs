@@ -83,7 +83,7 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
     {
         var key = string.Format("external-user:kedemmarket:uid:{0}", uid);
         var ck = new CacheKey(key, "external-user:kedemmarket:uid", "external-user:kedemmarket", "external-user");
-        return _cache.PrepareKeyForShortTermCache(ck);
+        return _cache.PrepareKeyForDefaultCache(ck);
     }
 
     private async Task<KmUserCustomerMap> CreateOrUpdateCustomerAndMap(UserRecord user)

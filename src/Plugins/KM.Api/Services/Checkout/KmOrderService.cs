@@ -113,7 +113,7 @@ public class KmOrderService : IKmOrderService
             }
 
             var processPaymentRequest = new ProcessPaymentRequest();
-            _paymentService.GenerateOrderGuid(processPaymentRequest);
+            await _paymentService.GenerateOrderGuidAsync(processPaymentRequest);
             processPaymentRequest.StoreId = store.Id;
             processPaymentRequest.CustomerId = customer.Id;
             processPaymentRequest.PaymentMethodSystemName = r.Request.PaymentMethod;
