@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Kedem Market",
+  "FriendlyName": "Kedem Market API plugin",
+  "SystemName": "KM.Api",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.60", "4.70" ],
+  "Author": "Saturn72",
+  "DisplayOrder": 1,
+  "FileName": "KM.Api.dll",
+  "Description": "Api for kedemmarket's"
+}
