@@ -69,7 +69,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KM.Catalog", "Plugins\KM.Ca
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KM.Orders", "Plugins\KM.Orders\KM.Orders.csproj", "{94346E16-C1ED-4CEA-836B-D833C7F4CF33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleScheduler", "Plugins\SimpleScheduler\SimpleScheduler.csproj", "{5301E056-2F29-4106-AA20-F5565C6FB10A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleScheduler", "Plugins\SimpleScheduler\SimpleScheduler.csproj", "{5301E056-2F29-4106-AA20-F5565C6FB10A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nop.Plugin.ExternalAuth.Firebase", "Plugins\Nop.Plugin.ExternalAuth.Firebase\Nop.Plugin.ExternalAuth.Firebase.csproj", "{FA98FA2A-D649-4CA7-A913-127A942E7A1D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -419,6 +421,18 @@ Global
 		{5301E056-2F29-4106-AA20-F5565C6FB10A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5301E056-2F29-4106-AA20-F5565C6FB10A}.Release|x86.ActiveCfg = Release|Any CPU
 		{5301E056-2F29-4106-AA20-F5565C6FB10A}.Release|x86.Build.0 = Release|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Debug|x86.Build.0 = Debug|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Release|x86.ActiveCfg = Release|Any CPU
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -454,6 +468,7 @@ Global
 		{4620B4D7-5C0C-45F9-A4F6-D68519A94911} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 		{94346E16-C1ED-4CEA-836B-D833C7F4CF33} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 		{5301E056-2F29-4106-AA20-F5565C6FB10A} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
+		{FA98FA2A-D649-4CA7-A913-127A942E7A1D} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EE72A8B2-332A-4175-9319-6726D36E9D25}

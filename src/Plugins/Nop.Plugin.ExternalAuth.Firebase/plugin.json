@@ -1,0 +1,11 @@
+﻿{
+  "Group": "ExternalAuth methods",
+  "FriendlyName": "Firebase authentication",
+  "SystemName": "ExternalAuth.Firebase",
+  "Version": "4.70.1",
+  "SupportedVersions": [ "4.70" ],
+  "Author": "Saturn Technologies",
+  "DisplayOrder": 5,
+  "FileName": "Nop.Plugin.ExternalAuth.Firebase.dll",
+  "Description": "This plugin enables Firebase authentication"
+}
