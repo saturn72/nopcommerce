@@ -1148,6 +1148,52 @@ public partial class WorkflowMessageService : IWorkflowMessageService
     }
 
     /// <summary>
+    /// Sends an order cancelled notification to a vendor
+    /// </summary>
+    /// <param name="order">Order instance</param>
+    /// <param name="vendor">Vendor instance</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation
+    /// The task result contains the queued email identifier
+    /// </returns>
+    public virtual async Task<IList<int>> SendOrderCancelledVendorNotificationAsync(Order order, Vendor vendor, int languageId)
+    {
+        ArgumentNullException.ThrowIfNull(order);
+
+        ArgumentNullException.ThrowIfNull(vendor);
+
+        var store = await _storeService.GetStoreByIdAsync(order.StoreId) ?? await _storeContext.GetCurrentStoreAsync();
+        languageId = await EnsureLanguageIsActiveAsync(languageId, store.Id);
+
+        var messageTemplates = await GetActiveMessageTemplatesAsync(MessageTemplateSystemNames.ORDER_CANCELLED_VENDOR_NOTIFICATION, store.Id);
+        if (!messageTemplates.Any())
+            return new List<int>();
+
+        //tokens
+        var commonTokens = new List<Token>();
+        await _messageTokenProvider.AddOrderTokensAsync(commonTokens, order, languageId, vendor.Id);
+        await _messageTokenProvider.AddCustomerTokensAsync(commonTokens, order.CustomerId);
+
+        return await messageTemplates.SelectAwait(async messageTemplate =>
+        {
+            //email account
+            var emailAccount = await GetEmailAccountOfMessageTemplateAsync(messageTemplate, languageId);
+
+            var tokens = new List<Token>(commonTokens);
+            await _messageTokenProvider.AddStoreTokensAsync(tokens, store, emailAccount);
+
+            //event notification
+            await _eventPublisher.MessageTokensAddedAsync(messageTemplate, tokens);
+
+            var toEmail = vendor.Email;
+            var toName = vendor.Name;
+
+            return await SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, toEmail, toName);
+        }).ToListAsync();
+    }
+
+    /// <summary>
     /// Sends an order refunded notification to a store owner
     /// </summary>
     /// <param name="order">Order instance</param>
@@ -2597,10 +2643,7 @@ public partial class WorkflowMessageService : IWorkflowMessageService
         //event notification
         await _eventPublisher.MessageTokensAddedAsync(messageTemplate, tokens);
 
-        //force sending
-        messageTemplate.DelayBeforeSend = null;
-
-        return await SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, sendToEmail, null);
+        return await SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, sendToEmail, null, ignoreDelayBeforeSend: true);
     }
 
     #endregion
@@ -2623,6 +2666,7 @@ public partial class WorkflowMessageService : IWorkflowMessageService
     /// <param name="fromEmail">Sender email. If specified, then it overrides passed "emailAccount" details</param>
     /// <param name="fromName">Sender name. If specified, then it overrides passed "emailAccount" details</param>
     /// <param name="subject">Subject. If specified, then it overrides subject of a message template</param>
+    /// <param name="ignoreDelayBeforeSend">A value indicating whether to ignore the delay before sending message</param>
     /// <returns>
     /// A task that represents the asynchronous operation
     /// The task result contains the queued email identifier
@@ -2632,7 +2676,8 @@ public partial class WorkflowMessageService : IWorkflowMessageService
         string toEmailAddress, string toName,
         string attachmentFilePath = null, string attachmentFileName = null,
         string replyToEmailAddress = null, string replyToName = null,
-        string fromEmail = null, string fromName = null, string subject = null)
+        string fromEmail = null, string fromName = null, string subject = null,
+        bool ignoreDelayBeforeSend = false)
     {
         ArgumentNullException.ThrowIfNull(messageTemplate);
 
@@ -2669,7 +2714,7 @@ public partial class WorkflowMessageService : IWorkflowMessageService
             AttachedDownloadId = messageTemplate.AttachedDownloadId,
             CreatedOnUtc = DateTime.UtcNow,
             EmailAccountId = emailAccount.Id,
-            DontSendBeforeDateUtc = !messageTemplate.DelayBeforeSend.HasValue ? null
+            DontSendBeforeDateUtc = ignoreDelayBeforeSend || !messageTemplate.DelayBeforeSend.HasValue ? null
                 : (DateTime?)(DateTime.UtcNow + TimeSpan.FromHours(messageTemplate.DelayPeriod.ToHours(messageTemplate.DelayBeforeSend.Value)))
         };
 

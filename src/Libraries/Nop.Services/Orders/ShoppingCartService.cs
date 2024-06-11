@@ -864,7 +864,7 @@ public partial class ShoppingCartService : IShoppingCartService
 
                     var attributeValuesStr = _productAttributeParser.ParseValues(attributesXml, a1.Id);
 
-                    if (productAttributeValues.Any() && !productAttributeValues.Any(x => attributeValuesStr.Contains(x.Id.ToString())))
+                    if (a2.ShouldHaveValues() && productAttributeValues.Any() && !productAttributeValues.Any(x => attributeValuesStr.Contains(x.Id.ToString())))
                         break;
 
                     foreach (var str1 in attributeValuesStr)
@@ -1688,6 +1688,9 @@ public partial class ShoppingCartService : IShoppingCartService
 
         async Task addRequiredProductsToCartAsync(int qty = 0)
         {
+            if (!product.RequireOtherProducts)
+                return;
+
             //get these required products
             var requiredProducts = await _productService.GetProductsByIdsAsync(_productService.ParseRequiredProductIds(product));
             if (!requiredProducts.Any())
