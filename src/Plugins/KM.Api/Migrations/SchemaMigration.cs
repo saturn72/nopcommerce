@@ -2,7 +2,7 @@
 using Nop.Data.Extensions;
 using Nop.Data.Migrations;
 
-namespace Km.Api.Migrations
+namespace KM.Api.Migrations
 {
     [NopMigration("2023/10/25 09:36:08:9037677", "Nop.Plugin.Misc.KM.Orders schema", MigrationProcessType.Installation)]
     public class SchemaMigration : AutoReversingMigration

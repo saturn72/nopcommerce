@@ -1,4 +1,4 @@
-﻿namespace Km.Api.Services;
+﻿namespace KM.Api.Services;
 
 public interface IDocumentStore<TDocument> where TDocument : IDocument
 {

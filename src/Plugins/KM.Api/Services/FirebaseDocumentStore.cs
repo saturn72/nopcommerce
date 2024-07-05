@@ -1,5 +1,5 @@
 ﻿
-namespace Km.Api.Services
+namespace KM.Api.Services
 {
     public class FirebaseDocumentStore<TDocument> : IDocumentStore<TDocument> where TDocument : IDocument
     {

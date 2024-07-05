@@ -3,7 +3,7 @@ using FluentMigrator.Builders.Create.Table;
 using Nop.Data.Extensions;
 using Nop.Data.Mapping.Builders;
 
-namespace Km.Api.Migrations
+namespace KM.Api.Migrations
 {
     public class KmUserCustomerMapInfoBuilder : NopEntityBuilder<KmUserCustomerMap>
     {

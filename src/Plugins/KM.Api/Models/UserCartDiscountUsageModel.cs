@@ -1,4 +1,4 @@
-﻿namespace Km.Api.Models
+﻿namespace KM.Api.Models
 {
     public record UserCartDiscountUsageModel
     {

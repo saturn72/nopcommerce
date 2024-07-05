@@ -1,12 +1,11 @@
-﻿namespace Km.Api.Models.Checkout
+﻿namespace KM.Api.Models.Checkout;
+
+public record CartTransactionApiModel
 {
-    public record CartTransactionApiModel
-    {
-        public IEnumerable<CartTransactionItemApiModel> Items { get; init; }
-        public string PaymentMethod { get; init; }
-        public string Status { get; init; }
-        public int StoreId { get; init; }
-        public string KmOrderId { get; init; }
-        public string UserId { get; init; }
-    }
+    public IEnumerable<CartTransactionItemApiModel> Items { get; init; }
+    public string PaymentMethod { get; init; }
+    public string Status { get; init; }
+    public int StoreId { get; init; }
+    public bool StorePickup { get; init; }
+    public string UserId { get; init; }
 }

@@ -1,4 +1,4 @@
-﻿namespace Km.Catalog.Infrastructure;
+﻿namespace KM.Catalog.Infrastructure;
 
 public class ViewLocationExpander : IViewLocationExpander
 {

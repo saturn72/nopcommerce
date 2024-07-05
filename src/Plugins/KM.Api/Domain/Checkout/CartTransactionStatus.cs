@@ -1,7 +1,6 @@
-﻿namespace Km.Api.Domain.Checkout
+﻿namespace KM.Api.Domain.Checkout;
+
+public sealed class CartTransactionStatus
 {
-    public sealed class CartTransactionStatus
-    {
-        public const string Paid = "paid";
-    }
+    public const string Paid = "paid";
 }

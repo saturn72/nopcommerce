@@ -1,4 +1,4 @@
-﻿namespace Km.Api.Domains
+﻿namespace KM.Api.Domains
 {
     public record Order
     {

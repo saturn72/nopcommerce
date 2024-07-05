@@ -1,6 +1,6 @@
 ﻿using Nop.Core.Domain.Directory;
 
-namespace Km.Catalog.Services;
+namespace KM.Catalog.Services;
 
 public interface IStructuredDataService
 {

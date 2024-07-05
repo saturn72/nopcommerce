@@ -1,5 +1,5 @@
 ﻿
-namespace Km.Api.Consumer;
+namespace KM.Api.Consumer;
 
 public class CustomerUpdateConsumer : IConsumer<EntityUpdatedEvent<Customer>>
 {

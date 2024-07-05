@@ -1,5 +1,5 @@
 ﻿
-namespace Km.Api.Services.Checkout;
+namespace KM.Api.Services.Checkout;
 public class KmOrderService : IKmOrderService
 {
     private readonly IRepository<KmOrder> _kmOrderRepository;
@@ -50,10 +50,10 @@ public class KmOrderService : IKmOrderService
     }
     public async Task<IEnumerable<CreateOrderResponse>> CreateOrdersAsync(IEnumerable<CreateOrderRequest> requests)
     {
-        if(requests == null)
+        if (requests == null)
             throw new ArgumentNullException(nameof(requests));
-        if(!requests.Any())
-            return Array.Empty<CreateOrderResponse>();  
+        if (!requests.Any())
+            return Array.Empty<CreateOrderResponse>();
 
         await _logger.InformationAsync($"Start processing orders");
 
@@ -63,25 +63,15 @@ public class KmOrderService : IKmOrderService
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = false,
         };
-        var res = requests.Select(r => new CreateOrderResponse { Request = r });
+        var res = requests.Select(r => new CreateOrderResponse { Request = r }).ToList();
 
         //provision users
         var userIds = requests.Select(x => x.KmUserId).Distinct().ToList();
         userIds.ThrowIfNullOrEmpty(nameof(userIds));
         var maps = await _externalUserService.ProvisionUsersAsync(userIds);
 
-        //check if already exists
-        var existKmOrderIds = (from k in _kmOrderRepository.Table
-                               select k.KmOrderId).ToList();
-
         foreach (var r in res)
         {
-            if (existKmOrderIds.Any(x => x == r.Request.KmOrderId))
-            {
-                r.Error = "duplicated";
-                continue;
-            }
-
             var m = maps.FirstOrDefault(x => x.KmUserId == r.Request.KmUserId);
             if (m == default || m.Customer == default)
                 continue;
@@ -120,9 +110,10 @@ public class KmOrderService : IKmOrderService
 
             var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
             if (placeOrderResult.Errors.NotNullAndNotNotEmpty())
+            {
                 r.Error = string.Join('\n', placeOrderResult.Errors);
-
-            if (!r.IsError)
+            }
+            else
             {
                 var kmOrder = new KmOrder
                 {
@@ -130,19 +121,13 @@ public class KmOrderService : IKmOrderService
                     Data = JsonSerializer.Serialize(r.Request, jso),
                     NopOrderId = placeOrderResult.PlacedOrder.Id,
                     NopOrder = placeOrderResult.PlacedOrder,
-                    KmOrderId = r.Request.KmOrderId,
+                    //KmOrderId = r.Request.KmOrderId,
                     KmUserId = r.Request.KmUserId,
                     Status = placeOrderResult.Success ? "success" : "failed",
                     Errors = string.Join("\n\n", placeOrderResult.Errors),
                 };
                 await _kmOrderRepository.InsertAsync(kmOrder);
-                await _logger.InformationAsync($"order added to the database. " +
-                    $"{nameof(kmOrder.NopOrderId)}=\'{kmOrder.NopOrderId}\', {nameof(kmOrder.KmOrderId)}=\'{kmOrder.KmOrderId}\'");
-            }
-            else
-            {
-                await _logger.InformationAsync($"Failed to import {nameof(r.Request.KmOrderId)}=\'{r.Request.KmOrderId}\'. " +
-                    $"{nameof(r.Error)}={r.Error}");
+                await _logger.InformationAsync($"order added to the database. {nameof(kmOrder.NopOrderId)}=\'{kmOrder.NopOrderId}\'");
             }
         }
 

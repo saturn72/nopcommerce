@@ -1,4 +1,4 @@
-﻿namespace Km.Api;
+﻿namespace KM.Api;
 
 public class OrderHub : Hub
 {

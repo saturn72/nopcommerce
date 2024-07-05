@@ -1,4 +1,4 @@
-﻿namespace Km.Catalog.Domain;
+﻿namespace KM.Catalog.Domain;
 
 public class KmStoresSnapshot : BaseEntity
 {

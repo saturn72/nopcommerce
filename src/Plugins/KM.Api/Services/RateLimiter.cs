@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace Km.Api.Services
+namespace KM.Api.Services
 {
     public class RateLimiter : IRateLimiter
     {

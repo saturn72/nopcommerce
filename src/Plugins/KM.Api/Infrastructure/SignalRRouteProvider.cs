@@ -1,5 +1,5 @@
 ﻿
-namespace Km.Api.Infrastructure
+namespace KM.Api.Infrastructure
 {
     public class SignalRRouteProvider : IRouteProvider
     {

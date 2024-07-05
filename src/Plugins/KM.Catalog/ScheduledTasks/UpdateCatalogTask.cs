@@ -1,7 +1,7 @@
 ﻿using Nop.Core.Domain.Directory;
 using Nop.Services.Directory;
 
-namespace Km.Catalog.ScheduledTasks;
+namespace KM.Catalog.ScheduledTasks;
 
 public partial class UpdateCatalogTask : IScheduleTask
 {

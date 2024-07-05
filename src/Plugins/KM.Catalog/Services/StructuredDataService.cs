@@ -1,7 +1,7 @@
 ﻿using Nop.Core.Domain.Directory;
 using Nop.Services.Customers;
 
-namespace Km.Catalog.Services;
+namespace KM.Catalog.Services;
 public class StructuredDataService : IStructuredDataService
 {
     private readonly IProductService _productService;

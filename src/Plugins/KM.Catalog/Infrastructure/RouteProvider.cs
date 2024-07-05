@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Routing;
 using Nop.Web.Framework.Mvc.Routing;
 
-namespace Km.Catalog.Infrastructure;
+namespace KM.Catalog.Infrastructure;
 
 public class RouteProvider : IRouteProvider
 {

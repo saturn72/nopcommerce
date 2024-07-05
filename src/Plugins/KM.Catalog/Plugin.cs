@@ -5,7 +5,7 @@ using Nop.Services.Cms;
 using Nop.Services.Plugins;
 using Nop.Web.Framework.Infrastructure;
 
-namespace Km.Catalog;
+namespace KM.Catalog;
 
 public class Plugin : BasePlugin, IWidgetPlugin
 {

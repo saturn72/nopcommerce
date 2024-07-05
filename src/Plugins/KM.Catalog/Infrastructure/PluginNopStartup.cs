@@ -2,7 +2,7 @@
 using KM.Catalog.EventConsumers;
 using SimpleScheduler;
 
-namespace Km.Catalog.Infrastructure;
+namespace KM.Catalog.Infrastructure;
 
 public class PluginNopStartup : INopStartup
 {

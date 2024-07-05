@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Km.Api.Models
+namespace KM.Api.Models
 {
     public record UserCartModel
     {

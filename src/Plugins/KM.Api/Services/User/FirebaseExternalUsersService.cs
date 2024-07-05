@@ -1,6 +1,6 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
 
-namespace Km.Api.Services.User;
+namespace KM.Api.Services.User;
 
 public partial class FirebaseExternalUsersService : IExternalUsersService
 {
@@ -8,6 +8,7 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
     private readonly IRepository<Customer> _customerRepository;
     private readonly IRepository<CustomerRole> _customerRoleRepository;
     private readonly IRepository<CustomerCustomerRoleMapping> _customerRoleMapRepository;
+    private readonly FirebaseAdapter _adapter;
     private readonly IStaticCacheManager _cache;
     private readonly IUserProfileDocumentStore _userProfileStore;
 
@@ -18,28 +19,19 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         IRepository<CustomerRole> customerRoleRepository,
         IRepository<CustomerCustomerRoleMapping> customerRoleMapRepository,
         IUserProfileDocumentStore userProfileStore,
-        IStaticCacheManager cache
-        )
+        FirebaseAdapter adapter,
+        IStaticCacheManager cache)
     {
         _kmUserCustomerMapRepository = userCustomerMapRepository;
-        // _customerAttributeValueRepository = customerAttributeValueRepository;
         _customerRepository = customerRepository;
         _customerRoleRepository = customerRoleRepository;
         _customerRoleMapRepository = customerRoleMapRepository;
+        _adapter = adapter;
         _userProfileStore = userProfileStore;
         _cache = cache;
     }
 
-    private FirebaseAuth GetAuth()
-    {
-        var app = FirebaseApp.GetInstance("user-service") ?? FirebaseApp.Create(new AppOptions()
-        {
-            Credential = GoogleCredential.GetApplicationDefault(),
-            ProjectId = "kedem-market",
-        }, "user-service");
 
-        return FirebaseAuth.GetAuth(app);
-    }
 
     public async Task<IEnumerable<KmUserCustomerMap>> ProvisionUsersAsync(IEnumerable<string> userIds)
     {
@@ -47,7 +39,7 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         userIds.ThrowIfNullOrEmpty(nameof(userIds));
 
         var uids = userIds.Select(uid => new UidIdentifier(uid)).ToArray();
-        var getUsersResponse = await GetAuth().GetUsersAsync(uids);
+        var getUsersResponse = await _adapter.GetAuth().GetUsersAsync(uids);
 
         var maps = new List<KmUserCustomerMap>();
 
@@ -88,13 +80,13 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
 
     private async Task<KmUserCustomerMap> CreateOrUpdateCustomerAndMap(UserRecord user)
     {
-        Customer customer;
+        Customer customer = default;
         var map = await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(c => c.KmUserId == user.Uid);
-        customer = await _customerRepository.GetByIdAsync(map.CustomerId);
 
         //map already exist and customer is not deleted- update customer and return
-        if (map != null && !customer.Deleted)
+        if (map != null)
         {
+            customer = await _customerRepository.GetByIdAsync(map.CustomerId);
             if (map.ShouldProvisionBasicClaims)
             {
                 setBasicClaims();
@@ -106,9 +98,9 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
 
         //map is null then either customer exist and not mapped, or customer not exists and not mapped
         //check 
-        if (customer == default || customer.Deleted)
-            //try to find customer by email
-            customer = await _customerRepository.Table.FirstOrDefaultAsync(c => c.Email == user.Email);
+        //if (customer == default || customer.Deleted)
+        //try to find customer by email
+        customer = await _customerRepository.Table.FirstOrDefaultAsync(c => c.Email == user.Email);
 
         var shouldProvisionBasicClaims = customer == default || customer.Deleted;
         //customer not exist, create customer and set claims
@@ -197,8 +189,16 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         }
     }
 
-    public async Task<KmUserCustomerMap> GetUserIdCustomerMapByUserId(string userId)
+    public async Task<KmUserCustomerMap> GetUserIdCustomerMapByExternalUserId(string userId)
     {
-        return await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(x => x.KmUserId == userId);
+        var key = BuildUserCacheKey(userId);
+        return await _cache.GetAsync(key, async () =>
+        {
+            var map = await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(x => x.KmUserId == userId);
+            if (map != default)
+                map.Customer = await _customerRepository.Table.FirstOrDefaultAsync(x => x.Id == map.CustomerId);
+
+            return map;
+        });
     }
 }

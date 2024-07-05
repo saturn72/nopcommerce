@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace Km.Catalog.Documents;
+namespace KM.Catalog.Documents;
 
 [FirestoreData]
 public record CatalogMediaInfo

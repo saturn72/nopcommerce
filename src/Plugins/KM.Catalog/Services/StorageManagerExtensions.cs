@@ -1,4 +1,4 @@
-﻿namespace Km.Catalog.Services;
+﻿namespace KM.Catalog.Services;
 
 public static class StorageManagerExtensions
 {

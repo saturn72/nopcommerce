@@ -1,4 +1,4 @@
-namespace Km.Api.Models.Checkout;
+﻿namespace KM.Api.Models.Checkout;
 
 public class CartTransactionApiModelValidator : AbstractValidator<CartTransactionApiModel>
 {
@@ -12,8 +12,6 @@ public class CartTransactionApiModelValidator : AbstractValidator<CartTransactio
 
         RuleFor(x => x.StoreId).GreaterThan(0);
         
-        RuleFor(x => x.KmOrderId).Must(x => x.HasValue());
-
         RuleFor(x => x.UserId).Must(x => x.HasValue());
     }
 }

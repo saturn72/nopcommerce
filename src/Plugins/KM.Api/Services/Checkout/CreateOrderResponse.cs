@@ -1,4 +1,4 @@
-﻿namespace Km.Api.Services.Checkout;
+﻿namespace KM.Api.Services.Checkout;
 
 public class CreateOrderResponse
 {

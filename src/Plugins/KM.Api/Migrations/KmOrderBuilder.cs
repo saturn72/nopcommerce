@@ -2,7 +2,7 @@
 using FluentMigrator.Builders.Create.Table;
 using Nop.Data.Mapping.Builders;
 
-namespace Km.Api.Migrations
+namespace KM.Api.Migrations
 {
     public class KmOrderBuilder : NopEntityBuilder<KmOrder>
     {
@@ -20,9 +20,6 @@ namespace Km.Api.Migrations
 
                     .WithColumn(nameof(KmOrder.Status))
                         .AsString(128).NotNullable()
-
-                    .WithColumn(nameof(KmOrder.KmOrderId))
-                    .AsString(256).NotNullable()
 
                     .WithColumn(nameof(KmOrder.KmUserId))
                         .AsString(256).NotNullable()

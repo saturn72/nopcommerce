@@ -1,8 +1,8 @@
-namespace Km.Api.Models.Cart;
+﻿namespace KM.Api.Models.Cart;
 
-public class ShoppingCartApiModelValidator : AbstractValidator<ShoppingCartApiModel>
+public class CartApiModelValidator : AbstractValidator<ShoppingCartApiModel>
 {
-    public ShoppingCartApiModelValidator()
+    public CartApiModelValidator()
     {
         RuleFor(x => x.StoreId).GreaterThan(0);
 

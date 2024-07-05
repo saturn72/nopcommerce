@@ -1,7 +1,7 @@
 ﻿
-using Km.Api.ScheduleTasks;
+using KM.Api.ScheduleTasks;
 
-namespace Km.Api;
+namespace KM.Api;
 
 public class Plugin : BasePlugin
 {

@@ -1,6 +1,6 @@
 ﻿
 
-namespace Km.Api.Domain.User
+namespace KM.Api.Domain.User
 {
     public class KmUserCustomerMap : BaseEntity
     {

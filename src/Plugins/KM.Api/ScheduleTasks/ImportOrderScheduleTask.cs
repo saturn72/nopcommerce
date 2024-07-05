@@ -1,6 +1,6 @@
 ﻿
 
-namespace Km.Api.ScheduleTasks
+namespace KM.Api.ScheduleTasks
 {
     public class ImportOrderScheduleTask : IScheduleTask
     {
@@ -34,11 +34,11 @@ namespace Km.Api.ScheduleTasks
         {
             await _logger.InformationAsync($"Starting {nameof(ImportOrderScheduleTask)} execution");
 
-            List<string> existIds;
-            lock (ImportOrderLock)
-            {
-                existIds = _kmOrderRepository.Table?.Select(c => c.KmOrderId)?.ToList() ?? new();
-            }
+            List<string> existIds = new();
+            //lock (ImportOrderLock)
+            //{
+            //    existIds = _kmOrderRepository.Table?.Select(c => c.KmOrderId)?.ToList() ?? new();
+            //}
 
             var offset = 0;
             var pageSize = 100;
@@ -72,7 +72,6 @@ namespace Km.Api.ScheduleTasks
 
                     requests.Add(new CreateOrderRequest
                     {
-                        KmOrderId = no.id,
                         KmUserId = no.userId,
                         StoreId = no.storeId,
                         CartItems = ToCartItems(no),
