@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace KM.Api.Controllers;
 
@@ -50,12 +49,18 @@ public class ShoppingCartController : KmApiControllerBase
             {
                 case EvictionReason.None:
                 case EvictionReason.Replaced:
-                    break;
                 case EvictionReason.Removed:
+                    break;
                 case EvictionReason.Expired:
                 case EvictionReason.TokenExpired:
                 case EvictionReason.Capacity:
-                    _ = UpdateShoppingCartAsync(t);
+
+                    var items = t.Items.Select(i => new ShoppingCartItem
+                    {
+                        ProductId = i.ProductId,
+                        Quantity = i.Quantity,
+                    });
+                    _ = UpdateShoppingCartAsync(t.StoreId, t.UserId, items);
                     break;
                 default:
                     break;
@@ -66,82 +71,83 @@ public class ShoppingCartController : KmApiControllerBase
 
         _mceo.PostEvictionCallbacks.Add(_onCacheEntryEvicted);
     }
-    private async Task UpdateShoppingCartAsync(ShoppingCartApiModel data)
+    private async Task UpdateShoppingCartAsync(int storeId, string userId, IEnumerable<ShoppingCartItem> items)
     {
-        var customer = await _userService.GetCustomerByExternalUserIdAsync(data.UserId);
+        var customer = await _userService.GetCustomerByExternalUserIdAsync(userId);
         if (customer == null)
             return;
 
-        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, storeId: data.StoreId);
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, storeId: storeId);
         var tasks = new List<Task>();
 
-        var newProducts = new List<ShoppingCartItemApiModel>();
-        foreach (var ci in data.Items)
+        var productIds = items.Select(x => x.ProductId).ToArray();
+        var products = await _productService.GetProductsByIdsAsync(productIds);
+
+        var toDelete = cart.Where(c => !productIds.Contains(c.ProductId)).ToList();
+        foreach (var td in toDelete)
+        {
+            tasks.Add(_shoppingCartService.DeleteShoppingCartItemAsync(td));
+            cart.Remove(td);
+        }
+
+        foreach (var ci in items)
         {
             var a = cart.FirstOrDefault(x => x.ProductId == ci.ProductId);
+            //added
+            if (a == null)
+            {
+                if (ci.Quantity > 0)
+                {
+                    var product = products.First(p => p.Id == ci.ProductId);
+                    var at = _shoppingCartService.AddToCartAsync(
+                        customer,
+                        product,
+                        ShoppingCartType.ShoppingCart,
+                        storeId,
+                        quantity: ci.Quantity);
+                    tasks.Add(at);
+                }
+                continue;
+            }
 
-            //product removed 
-            if (a != null && ci.Quantity == 0)
+            //no change
+            if (a.Quantity == ci.Quantity)
+                continue;
+            //removed
+            if (ci.Quantity <= 0)
             {
                 tasks.Add(_shoppingCartService.DeleteShoppingCartItemAsync(a));
                 continue;
             }
 
-            //product added
-            if (a == null)
-            {
-                newProducts.Add(ci);
-                continue;
-            }
-
-            a.Quantity = ci.Quantity;
-            var t = _shoppingCartService.UpdateShoppingCartItemAsync(
+            //updated
+            var ut = _shoppingCartService.UpdateShoppingCartItemAsync(
                 customer,
                 a.Id,
                 a.AttributesXml,
                 a.CustomerEnteredPrice,
                 a.RentalStartDateUtc,
                 a.RentalEndDateUtc,
-                a.Quantity);
-            tasks.Add(t);
-        }
-
-        if (newProducts.Any())
-        {
-            var ids = newProducts.Select(c => c.ProductId).ToArray();
-            var products = await _productService.GetProductsByIdsAsync(ids);
-
-            foreach (var np in newProducts)
-            {
-                var p = products.First(c => c.Id == np.ProductId);
-                if (p.LimitedToStores)
-                {
-                    var storeMap = await _storeMappingService.GetStoreMappingsAsync(p);
-                    if (storeMap.All(sm => sm.StoreId != data.StoreId))
-                        continue;
-                }
-
-                tasks.Add(_shoppingCartService.AddToCartAsync(
-                    customer,
-                    p,
-                    ShoppingCartType.ShoppingCart,
-                    data.StoreId,
-                    quantity: np.Quantity));
-            }
+                ci.Quantity);
+            tasks.Add(ut);
         }
         await Task.WhenAll(tasks);
     }
+    private static string GetUserCartCacheKey(int storeId, string userId) => $"cart-{storeId}:{userId}";
 
     [HttpPut]
-    public IActionResult AddOrCreateShoppingCart([FromBody] ShoppingCartApiModel model)
+    public async Task<IActionResult> AddOrCreateShoppingCart([FromBody] ShoppingCartApiModel model)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || !await ValidateShoppingCartModelAsync(model))
             return BadRequest();
 
-        var key = $"cart-{model.StoreId}:{model.UserId}";
+        var customer = await _userService.GetCustomerByExternalUserIdAsync(model.UserId);
+        if (customer == default)
+            return BadRequest();
+
+        var key = GetUserCartCacheKey(model.StoreId, model.UserId);
         _cache.Set(key, model, _mceo);
 
-        _ = _userService.GetCustomerByExternalUserIdAsync(model.UserId);
         return Accepted();
     }
 
@@ -149,80 +155,78 @@ public class ShoppingCartController : KmApiControllerBase
     [HttpGet("{storeId}/{userId}")]
     public async Task<IActionResult> GetCartByStoreIdAndUserIdAsync(int storeId, string userId)
     {
-        var customer = await _userService.GetCustomerByExternalUserIdAsync(userId);
-        var cartItems = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: storeId);
-
-        var items = cartItems.Select(i => new
+        var key = GetUserCartCacheKey(storeId, userId);
+        var res = await _cache.GetOrCreateAsync(key, async ce =>
         {
-            productId = i.ProductId,
-            quantity = i.Quantity,
-            updatedOnUtc = new DateTimeOffset(i.UpdatedOnUtc).ToUnixTimeSeconds(),
-            createdOnUtc = new DateTimeOffset(i.CreatedOnUtc).ToUnixTimeSeconds()
+            ce.SlidingExpiration = _mceo.SlidingExpiration;
+            ce.AbsoluteExpirationRelativeToNow = _mceo.AbsoluteExpirationRelativeToNow;
+
+            var customer = await _userService.GetCustomerByExternalUserIdAsync(userId);
+            var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: storeId);
+
+            var items = cart.Select(ci => new
+            {
+                productId = ci.ProductId,
+                quantity = ci.Quantity,
+                updatedOnUtc = new DateTimeOffset(ci.UpdatedOnUtc).ToUnixTimeSeconds(),
+                createdOnUtc = new DateTimeOffset(ci.CreatedOnUtc).ToUnixTimeSeconds()
+            }).ToArray();
+
+            ce.Value = new { items };
+            return ce.Value;
         });
 
-        var body = new
-        {
-            items
-        };
-
-        return ToJsonResult(body);
+        return ToJsonResult(res);
     }
 
     [HttpPost("calculate")]
-    public async Task<IActionResult> CalculateShoppingCartAsync([FromBody] ShoppingCartApiModel incomingCart)
+    public async Task<IActionResult> CalculateShoppingCartAsync([FromBody] ShoppingCartApiModel model)
     {
-        List<ShoppingCartItemApiModel> exist = new();
-        if (!ModelState.IsValid || !await validateModelAsync())
+        if (!ModelState.IsValid || !await ValidateShoppingCartModelAsync(model))
             return BadRequest();
 
-        var maps = await _userService.ProvisionUsersAsync(new[] { incomingCart.UserId });
-        if (maps.IsNullOrEmpty())
+        var customer = await _userService.GetCustomerByExternalUserIdAsync(model.UserId);
+        if (customer == default)
             return BadRequest();
-        var map = maps.First();
 
-        var cart = exist.Select(i =>
-                        new ShoppingCartItem
-                        {
-                            ProductId = i.ProductId,
-                            Quantity = i.Quantity,
-                            CustomerId = map.CustomerId,
-                            StoreId = incomingCart.StoreId,
-                            ShoppingCartType = ShoppingCartType.ShoppingCart,
-                        }).ToList();
+        //prevent update in background
+        _cache.Remove(GetUserCartCacheKey(model.StoreId, model.UserId));
+        var items = model.Items.Select(i => new ShoppingCartItem { ProductId = i.ProductId, Quantity = i.Quantity });
+        await UpdateShoppingCartAsync(model.StoreId, model.UserId, items);
 
-        var model = new ShoppingCartModel();
-        model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: model.StoreId);
+        var scm = new ShoppingCartModel();
+        scm = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(scm, cart);
 
         var body = new
         {
-            items = model.Items
+            items = scm.Items
         };
         return ToJsonResult(body);
+    }
+    private async Task<bool> ValidateShoppingCartModelAsync(ShoppingCartApiModel model)
+    {
+        var store = await _storeService.GetStoreByIdAsync(model.StoreId);
+        if (store == default)
+            return false;
 
-        async Task<bool> validateModelAsync()
+        var productIds = model.Items.Select(p => p.ProductId).ToArray();
+        if (productIds.Any(pId => pId <= 0))
+            return false;
+
+        var products = (await _productService.GetProductsByIdsAsync(productIds)).Where(p => !p.Deleted);
+
+        foreach (var product in products)
         {
-            var store = await _storeService.GetStoreByIdAsync(incomingCart.StoreId);
-            if (store == default)
-                return false;
-
-            var productIds = incomingCart.Items.Select(p => p.ProductId).ToArray();
-            var products = (await _productService.GetProductsByIdsAsync(productIds)).Where(p => !p.Deleted);
-
-            foreach (var product in products)
+            if (product.LimitedToStores)
             {
-                if (product.LimitedToStores)
-                {
-                    var storeMap = await _storeMappingService.GetStoreMappingsAsync(product);
-                    if (storeMap.All(sm => sm.StoreId != incomingCart.StoreId))
-                        return false;
-                }
-                var cur = incomingCart.Items.FirstOrDefault(s => s.ProductId == product.Id);
-                if (cur == default)
-                    continue;
-                exist.Add(cur);
+                var storeMap = await _storeMappingService.GetStoreMappingsAsync(product);
+                if (storeMap.All(sm => sm.StoreId != model.StoreId))
+                    return false;
             }
-
-            return true;
         }
+
+        var customer = await _userService.GetCustomerByExternalUserIdAsync(model.UserId);
+        return true;
     }
 }

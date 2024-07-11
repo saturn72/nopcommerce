@@ -10,6 +10,7 @@
 *.user
 *.sln.docstates
 
+artifacts/
 # Build results
 
 .vs/

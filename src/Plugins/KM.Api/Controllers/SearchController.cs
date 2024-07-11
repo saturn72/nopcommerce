@@ -99,16 +99,16 @@ public class SearchController : KmApiControllerBase
 
         return ToJsonResult(m);
 
-        static string getBanner(Product product, long epoch)
+        async Task<string> getBanner(Product product, long epoch)
         {
             if (product.MarkAsNew &&
                     (product.MarkAsNewEndDateTimeUtc == null ||
                     (epoch - new DateTimeOffset(product.MarkAsNewEndDateTimeUtc.Value).ToUnixTimeSeconds() > 0)))
                 return "new";
 
-            if (product.HasDiscountsApplied)
-                return "sale";
-            return "none";
+            var pd = await _productService.GetAllDiscountsAppliedToProductAsync(product.Id);
+
+            return pd.Any() ? "sale" : "none";
         }
     }
 

@@ -50,7 +50,7 @@ public class ProductController : KmApiControllerBase
         var key = $"product_query-{nameof(storeId).ToLower()}:{storeId}-{nameof(offset)}:{offset}-{nameof(pageSize).ToLower()}:{pageSize}-{nameof(keywords)}:{keywords}";
         var ck = new CacheKey(key, "product_query");
         var data = await _cache.GetAsync(ck, aquireProductQuery);
-        return ToJsonResult(data);
+        return ToJsonResult(new { products =  data });
 
         async Task<object> aquireProductQuery()
         {
@@ -82,10 +82,11 @@ public class ProductController : KmApiControllerBase
 
                 var gallery = await GetProductGalleryAsync(p);
                 var reviews = await GetProductReviewsAsync(p);
+                var banner = await getBanner(p, epoch);
                 var i = new
                 {
                     id = p.Id,
-                    banner = getBanner(p, epoch),
+                    banner = banner,
                     name = p.Name,
                     productPrice = p.Price,
                     currentPrice = p.OldPrice > 0 ? p.OldPrice : p.Price,
@@ -106,19 +107,19 @@ public class ProductController : KmApiControllerBase
 
                 m.Add(i);
             }
-
             return m;
         }
-        static string getBanner(Product product, long epoch)
+
+        async Task<string> getBanner(Product product, long epoch)
         {
             if (product.MarkAsNew &&
                     (product.MarkAsNewEndDateTimeUtc == null ||
                     (epoch - new DateTimeOffset(product.MarkAsNewEndDateTimeUtc.Value).ToUnixTimeSeconds() > 0)))
                 return "new";
 
-            if (product.HasDiscountsApplied)
-                return "sale";
-            return "none";
+            var pd = await _productService.GetAllDiscountsAppliedToProductAsync(product.Id);
+
+            return pd?.Any() == false ? "sale" : "none";
         }
     }
 
