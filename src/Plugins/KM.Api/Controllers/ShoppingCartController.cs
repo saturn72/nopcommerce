@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-namespace KM.Api.Controllers;
+﻿namespace KM.Api.Controllers;
 
 
 [Route("api/shopping-cart")]
@@ -12,14 +10,6 @@ public class ShoppingCartController : KmApiControllerBase
     private readonly IStoreService _storeService;
     private readonly IProductService _productService;
     private readonly IStoreMappingService _storeMappingService;
-    private readonly IMemoryCache _cache;
-
-    private readonly MemoryCacheEntryOptions _mceo = new()
-    {
-        SlidingExpiration = TimeSpan.FromSeconds(3),
-        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10),
-    };
-    private readonly PostEvictionCallbackRegistration _onCacheEntryEvicted;
 
     public ShoppingCartController(
             IShoppingCartService shoppingCartService,
@@ -27,8 +17,7 @@ public class ShoppingCartController : KmApiControllerBase
             IShoppingCartModelFactory shoppingCartModelFactory,
             IStoreService storeService,
             IProductService productService,
-            IStoreMappingService storeMappingService,
-            IMemoryCache cache)
+            IStoreMappingService storeMappingService)
     {
         _shoppingCartService = shoppingCartService;
         _userService = userService;
@@ -36,44 +25,11 @@ public class ShoppingCartController : KmApiControllerBase
         _storeService = storeService;
         _productService = productService;
         _storeMappingService = storeMappingService;
-        _cache = cache;
-
-        _onCacheEntryEvicted = new()
-        {
-            EvictionCallback = (object key, object value, EvictionReason reason, object state) =>
-        {
-            if (value is not ShoppingCartApiModel t)
-                return;
-
-            switch (reason)
-            {
-                case EvictionReason.None:
-                case EvictionReason.Replaced:
-                case EvictionReason.Removed:
-                    break;
-                case EvictionReason.Expired:
-                case EvictionReason.TokenExpired:
-                case EvictionReason.Capacity:
-
-                    var items = t.Items.Select(i => new ShoppingCartItem
-                    {
-                        ProductId = i.ProductId,
-                        Quantity = i.Quantity,
-                    });
-                    _ = UpdateShoppingCartAsync(t.StoreId, t.UserId, items);
-                    break;
-                default:
-                    break;
-            }
-        },
-            State = null
-        };
-
-        _mceo.PostEvictionCallbacks.Add(_onCacheEntryEvicted);
     }
-    private async Task UpdateShoppingCartAsync(int storeId, string userId, IEnumerable<ShoppingCartItem> items)
+    private async Task UpdateShoppingCartAsync(int storeId, Customer customer, IEnumerable<ShoppingCartItem> items)
     {
-        var customer = await _userService.GetCustomerByExternalUserIdAsync(userId);
+        //var customer = await _userService.GetCustomerByExternalUserIdAsync(userId);
+        //var customer = await _customerService .GetCustomerByExternalUserIdAsync(userId);
         if (customer == null)
             return;
 
@@ -132,9 +88,8 @@ public class ShoppingCartController : KmApiControllerBase
             tasks.Add(ut);
         }
         await Task.WhenAll(tasks);
-    }
-    private static string GetUserCartCacheKey(int storeId, string userId) => $"cart-{storeId}:{userId}";
 
+    }
     [HttpPut]
     public async Task<IActionResult> AddOrCreateShoppingCart([FromBody] ShoppingCartApiModel model)
     {
@@ -145,38 +100,32 @@ public class ShoppingCartController : KmApiControllerBase
         if (customer == default)
             return BadRequest();
 
-        var key = GetUserCartCacheKey(model.StoreId, model.UserId);
-        _cache.Set(key, model, _mceo);
+        var items = model.Items.Select(i => new ShoppingCartItem
+        {
+            ProductId = i.ProductId,
+            Quantity = i.Quantity,
+        });
+        await UpdateShoppingCartAsync(model.StoreId, customer, items);
 
-        return Accepted();
+        return Ok();
     }
 
 
     [HttpGet("{storeId}/{userId}")]
     public async Task<IActionResult> GetCartByStoreIdAndUserIdAsync(int storeId, string userId)
     {
-        var key = GetUserCartCacheKey(storeId, userId);
-        var res = await _cache.GetOrCreateAsync(key, async ce =>
+        var customer = await _userService.GetCustomerByExternalUserIdAsync(userId);
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: storeId);
+
+        var items = cart.Select(ci => new
         {
-            ce.SlidingExpiration = _mceo.SlidingExpiration;
-            ce.AbsoluteExpirationRelativeToNow = _mceo.AbsoluteExpirationRelativeToNow;
+            productId = ci.ProductId,
+            quantity = ci.Quantity,
+            updatedOnUtc = new DateTimeOffset(ci.UpdatedOnUtc).ToUnixTimeSeconds(),
+            createdOnUtc = new DateTimeOffset(ci.CreatedOnUtc).ToUnixTimeSeconds()
+        }).ToArray();
 
-            var customer = await _userService.GetCustomerByExternalUserIdAsync(userId);
-            var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: storeId);
-
-            var items = cart.Select(ci => new
-            {
-                productId = ci.ProductId,
-                quantity = ci.Quantity,
-                updatedOnUtc = new DateTimeOffset(ci.UpdatedOnUtc).ToUnixTimeSeconds(),
-                createdOnUtc = new DateTimeOffset(ci.CreatedOnUtc).ToUnixTimeSeconds()
-            }).ToArray();
-
-            ce.Value = new { items };
-            return ce.Value;
-        });
-
-        return ToJsonResult(res);
+        return ToJsonResult(new { items });
     }
 
     [HttpPost("calculate")]
@@ -190,9 +139,9 @@ public class ShoppingCartController : KmApiControllerBase
             return BadRequest();
 
         //prevent update in background
-        _cache.Remove(GetUserCartCacheKey(model.StoreId, model.UserId));
+        //_cache.Remove(GetUserCartCacheKey(model.StoreId, model.UserId));
         var items = model.Items.Select(i => new ShoppingCartItem { ProductId = i.ProductId, Quantity = i.Quantity });
-        await UpdateShoppingCartAsync(model.StoreId, model.UserId, items);
+        await UpdateShoppingCartAsync(model.StoreId, customer, items);
 
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: model.StoreId);
         var scm = new ShoppingCartModel();

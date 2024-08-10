@@ -77,7 +77,7 @@ namespace KM.Api.ScheduleTasks
                         CartItems = ToCartItems(no),
                         PaymentMethod = (no.paymentMethod ?? DefaultPaymentMethod).ToSystemPaymentMethod(),
                         BillingInfo = ToAddress(no.user.billingInfo),
-                        ShippingAddress = ToAddress(no.shippingAddress),
+                        ShippingInfo = ToAddress(no.shippingAddress),
                     });
                 }
 

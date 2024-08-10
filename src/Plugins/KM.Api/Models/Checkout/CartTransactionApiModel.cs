@@ -8,4 +8,7 @@ public record CartTransactionApiModel
     public int StoreId { get; init; }
     public bool StorePickup { get; init; }
     public string UserId { get; init; }
+    public ContactInfoModel BillingInfo { get; init; }
+    public ContactInfoModel ShippingInfo { get; init; }
+    public bool SubscribeToEMarketing { get; init; }
 }

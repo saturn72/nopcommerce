@@ -72,15 +72,17 @@ public class KmOrderService : IKmOrderService
 
         foreach (var r in res)
         {
-            var m = maps.FirstOrDefault(x => x.KmUserId == r.Request.KmUserId);
-            if (m == default || m.Customer == default)
+            var customer = maps.FirstOrDefault(x => x.KmUserId == r.Request.KmUserId)?.Customer;
+            if (customer == default)
                 continue;
 
-            var customer = m.Customer;
-
             await _workContext.SetCurrentCustomerAsync(customer);
-            await CreateOrUpdateCustomerAddress(customer, r.Request.BillingInfo, AddressType.BillingAddress);
-            await CreateOrUpdateCustomerAddress(customer, r.Request.ShippingAddress, AddressType.ShippingAddress);
+
+#warning - do not update if all fields are equal
+            if (r.Request.UpdateBillingInfo|| customer.BillingAddressId == 0)
+                await CreateOrUpdateCustomerAddress(customer, r.Request.BillingInfo, AddressType.BillingAddress);
+            if (r.Request.UpdateShippingInfo|| customer.ShippingAddressId == 0)
+                await CreateOrUpdateCustomerAddress(customer, r.Request.ShippingInfo, AddressType.ShippingAddress);
 
             //set default store;
             if (r.Request.StoreId == 0)

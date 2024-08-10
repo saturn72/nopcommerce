@@ -33,12 +33,15 @@ public class CheckoutController : KmApiControllerBase
 
         var co = new CreateOrderRequest
         {
-            //KmOrderId = model.KmOrderId,
             KmUserId = model.UserId,
             StoreId = model.StoreId,
             CartItems = toCartItems(),
             PaymentMethod = model.PaymentMethod.ToSystemPaymentMethod(),
             StorePickup = model.StorePickup,
+            BillingInfo = toAddress(model.BillingInfo),
+            UpdateBillingInfo = model.BillingInfo.UpdateUserInfo,
+            ShippingInfo = toAddress(model.ShippingInfo),
+            UpdateShippingInfo=  model.ShippingInfo.UpdateUserInfo,
         };
 
         var created = await _kmOrderService.CreateOrdersAsync(new[] { co });
@@ -49,6 +52,22 @@ public class CheckoutController : KmApiControllerBase
         await clearCustomerCart();
         return Accepted();
 
+        Address toAddress(ContactInfoModel ci)
+        {
+            var names = ci.Fullname.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var lastName = ci.Fullname[names[0].Length..].Trim();
+            return new Address
+            {
+                FirstName = names[0],
+                LastName = lastName,
+                Email = ci.Email,
+                PhoneNumber = ci.Phone,
+                Address1 = ci.Address.Street,
+                City = ci.Address.City,
+                ZipPostalCode = ci.Address.PostalCode,
+                //CountryId == need to add countryId
+            };
+        }
         async Task clearCustomerCart()
         {
             var customer = await _workContext.GetCurrentCustomerAsync();
@@ -56,6 +75,6 @@ public class CheckoutController : KmApiControllerBase
         }
 
         IEnumerable<ShoppingCartItem> toCartItems() =>
-            model.Items.Select(s => new ShoppingCartItem { ProductId = s.ProductId, Quantity = s.OrderedQuantity, CustomerEnteredPrice = s.CustomerEnteredPrice });
+            model.Items.Select(s => new ShoppingCartItem { ProductId = s.ProductId, Quantity = s.Quantity, CustomerEnteredPrice = s.CustomerEnteredPrice });
     }
 }

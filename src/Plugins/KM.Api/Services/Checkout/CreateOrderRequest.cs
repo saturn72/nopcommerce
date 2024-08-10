@@ -5,7 +5,9 @@ public record CreateOrderRequest
     public int StoreId { get; set; }
     public IEnumerable<ShoppingCartItem> CartItems { get; init; }
     public string PaymentMethod { get; init; }
-    public bool StorePickup { get;init; }
+    public bool StorePickup { get; init; }
     public Address BillingInfo { get; init; }
-    public Address ShippingAddress { get; init; }
+    public bool UpdateBillingInfo{ get; init; }
+    public Address ShippingInfo { get; init; }
+    public bool UpdateShippingInfo { get; init; }
 }
