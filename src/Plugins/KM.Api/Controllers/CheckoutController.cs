@@ -1,4 +1,6 @@
-﻿namespace KM.Api.Controllers;
+﻿using KM.Api.Models.Directory;
+
+namespace KM.Api.Controllers;
 
 [Route("api/checkout")]
 public class CheckoutController : KmApiControllerBase

@@ -1,5 +1,4 @@
-﻿
-using Nop.Core.Domain.Catalog;
+﻿using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
@@ -152,20 +151,8 @@ public class ProductController : KmApiControllerBase
             if (picture == null)
                 continue;
 
-            var (url, _) = await _pictureService.GetPictureUrlAsync(picture);
+            var item = await picture.ToMediaItemAsync(pp.DisplayOrder);
 
-            var item = new
-            {
-                alt = picture.AltAttribute,
-                type = "image",
-                index = pp.DisplayOrder,
-                url = url,
-                mimeType = picture.MimeType,
-#warning - optimize for thumb
-                thumb = picture.VirtualPath,
-                seoFilename = picture.SeoFilename,
-                title = picture.TitleAttribute,
-            };
             cmis.Add(item);
         }
 
@@ -177,13 +164,7 @@ public class ProductController : KmApiControllerBase
             if (video == null)
                 continue;
 
-            var item = new
-            {
-                type = "video",
-                index = v.DisplayOrder,
-                url = video.VideoUrl,
-            };
-            cmis.Add(item);
+            cmis.Add(video.ToMediaItem(v.DisplayOrder));
         }
         return cmis.ToList();
     }

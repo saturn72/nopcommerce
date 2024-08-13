@@ -64,7 +64,6 @@ public class SearchController : KmApiControllerBase
             .Where(l => l.Published)
             .OrderBy(l => l.DisplayOrder).First().Id;
 
-
         var m = new List<object>();
         foreach (var p in products)
         {
@@ -141,20 +140,7 @@ public class SearchController : KmApiControllerBase
             if (picture == null)
                 continue;
 
-            var (url, _) = await _pictureService.GetPictureUrlAsync(picture);
-
-            var item = new
-            {
-                alt = picture.AltAttribute,
-                type = "image",
-                index = pp.DisplayOrder,
-                url = url,
-                mimeType = picture.MimeType,
-#warning - optimize for thumb
-                thumb = picture.VirtualPath,
-                seoFilename = picture.SeoFilename,
-                title = picture.TitleAttribute,
-            };
+            var item = await picture.ToMediaItemAsync(pp.DisplayOrder); 
             cmis.Add(item);
         }
 
@@ -166,13 +152,7 @@ public class SearchController : KmApiControllerBase
             if (video == null)
                 continue;
 
-            var item = new
-            {
-                type = "video",
-                index = v.DisplayOrder,
-                url = video.VideoUrl,
-            };
-            cmis.Add(item);
+            cmis.Add(video.ToMediaItem(v.DisplayOrder));
         }
         return cmis.ToList();
     }

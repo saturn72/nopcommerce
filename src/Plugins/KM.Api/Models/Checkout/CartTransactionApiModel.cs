@@ -1,4 +1,6 @@
-﻿namespace KM.Api.Models.Checkout;
+﻿using KM.Api.Models.Directory;
+
+namespace KM.Api.Models.Checkout;
 
 public record CartTransactionApiModel
 {

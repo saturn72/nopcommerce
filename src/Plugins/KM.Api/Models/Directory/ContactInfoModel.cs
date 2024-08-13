@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Models.Checkout;
+﻿namespace KM.Api.Models.Directory;
 
 public record ContactInfoModel
 {
@@ -8,11 +8,4 @@ public record ContactInfoModel
     public string Fullname { get; init; }
     public string Phone { get; init; }
     public bool UpdateUserInfo { get; init; }
-}
-
-public record AddressApiModel
-{
-    public string City { get; init; }
-    public string PostalCode { get; init; }
-    public string Street { get; init; }
 }

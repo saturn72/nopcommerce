@@ -78,7 +78,6 @@ public class KmOrderService : IKmOrderService
 
             await _workContext.SetCurrentCustomerAsync(customer);
 
-#warning - do not update if all fields are equal
             if (r.Request.UpdateBillingInfo|| customer.BillingAddressId == 0)
                 await CreateOrUpdateCustomerAddress(customer, r.Request.BillingInfo, AddressType.BillingAddress);
             if (r.Request.UpdateShippingInfo|| customer.ShippingAddressId == 0)
