@@ -9,41 +9,46 @@ public class CheckoutController : KmApiControllerBase
     private readonly IKmOrderService _kmOrderService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IWorkContext _workContext;
+    private readonly IStoreContext _storeContext;
 
     public CheckoutController(
         IRateLimiter rateLimiter,
         IKmOrderService kmOrderService,
         IShoppingCartService shoppingCartService,
-        IWorkContext workContext)
+        IWorkContext workContext,
+        IStoreContext storeContext)
     {
         _rateLimiter = rateLimiter;
         _kmOrderService = kmOrderService;
         _shoppingCartService = shoppingCartService;
         _workContext = workContext;
+        _storeContext = storeContext;
     }
 
     [HttpPost]
     public async Task<IActionResult> SubmitOrder([FromBody] CartTransactionApiModel model)
     {
         //block user from submitting 2 orders in 2000 milisec timeframe
-        var v = await _rateLimiter.Limit($"cart-transfer-{model.UserId}", 2000);
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var v = await _rateLimiter.Limit($"cart-transfer-{customer.Id}", 2000);
         if (!v)
             return Forbid();
-
         if (!ModelState.IsValid)
             return BadRequest();
 
+        var kmUSerId = Request.Headers[KmApiConsts.USER_ID];
+        var store = await _storeContext.GetCurrentStoreAsync();
         var co = new CreateOrderRequest
         {
-            KmUserId = model.UserId,
-            StoreId = model.StoreId,
+            KmUserId = kmUSerId,
+            StoreId = store.Id,
             CartItems = toCartItems(),
             PaymentMethod = model.PaymentMethod.ToSystemPaymentMethod(),
             StorePickup = model.StorePickup,
             BillingInfo = toAddress(model.BillingInfo),
             UpdateBillingInfo = model.BillingInfo.UpdateUserInfo,
             ShippingInfo = toAddress(model.ShippingInfo),
-            UpdateShippingInfo=  model.ShippingInfo.UpdateUserInfo,
+            UpdateShippingInfo = model.ShippingInfo.UpdateUserInfo,
         };
 
         var created = await _kmOrderService.CreateOrdersAsync(new[] { co });
@@ -73,7 +78,7 @@ public class CheckoutController : KmApiControllerBase
         async Task clearCustomerCart()
         {
             var customer = await _workContext.GetCurrentCustomerAsync();
-            await _shoppingCartService.ClearShoppingCartAsync(customer, model.StoreId);
+            await _shoppingCartService.ClearShoppingCartAsync(customer, store.Id);
         }
 
         IEnumerable<ShoppingCartItem> toCartItems() =>

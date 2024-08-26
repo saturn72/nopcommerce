@@ -5,8 +5,7 @@ public class KmOrderService : IKmOrderService
     private readonly IRepository<KmOrder> _kmOrderRepository;
     private readonly IExternalUsersService _externalUserService;
     private readonly IWorkContext _workContext;
-    private readonly IStoreService _storeService;
-    private readonly KmStoreContext _storeContext;
+    private readonly IStoreContext _storeContext;
     private readonly ICustomerService _customerService;
     private readonly IAddressService _addressService;
     private readonly IPaymentService _paymentService;
@@ -21,7 +20,6 @@ public class KmOrderService : IKmOrderService
         IRepository<KmOrder> kmOrderRepository,
         IExternalUsersService externalUserService,
         IWorkContext workContext,
-        IStoreService storeService,
         IStoreContext storeContext,
         ICustomerService customerService,
         IAddressService addressService,
@@ -36,8 +34,7 @@ public class KmOrderService : IKmOrderService
         _kmOrderRepository = kmOrderRepository;
         _externalUserService = externalUserService;
         _workContext = workContext;
-        _storeService = storeService;
-        _storeContext = (storeContext as KmStoreContext) ?? throw new ArgumentNullException();
+        _storeContext = storeContext;
         _customerService = customerService;
         _addressService = addressService;
         _paymentService = paymentService;
@@ -78,20 +75,16 @@ public class KmOrderService : IKmOrderService
 
             await _workContext.SetCurrentCustomerAsync(customer);
 
-            if (r.Request.UpdateBillingInfo|| customer.BillingAddressId == 0)
+            if (r.Request.UpdateBillingInfo || customer.BillingAddressId == 0)
                 await CreateOrUpdateCustomerAddress(customer, r.Request.BillingInfo, AddressType.BillingAddress);
-            if (r.Request.UpdateShippingInfo|| customer.ShippingAddressId == 0)
+            if (r.Request.UpdateShippingInfo || customer.ShippingAddressId == 0)
                 await CreateOrUpdateCustomerAddress(customer, r.Request.ShippingInfo, AddressType.ShippingAddress);
 
             //set default store;
             if (r.Request.StoreId == 0)
                 r.Request.StoreId = 1;
 
-            var store = await _storeService.GetStoreByIdAsync(r.Request.StoreId);
-            if (store == default)
-                continue;
 
-            _storeContext.SetStore(store);
 
             var (cart, disapproved) = await ExtractShoppingCart(r.Request.CartItems);
             r.ApprovedShoppingCartItems = cart;
@@ -105,7 +98,7 @@ public class KmOrderService : IKmOrderService
 
             var processPaymentRequest = new ProcessPaymentRequest();
             await _paymentService.GenerateOrderGuidAsync(processPaymentRequest);
-            processPaymentRequest.StoreId = store.Id;
+            processPaymentRequest.StoreId = (await _storeContext.GetCurrentStoreAsync()).Id;
             processPaymentRequest.CustomerId = customer.Id;
             processPaymentRequest.PaymentMethodSystemName = r.Request.PaymentMethod;
 

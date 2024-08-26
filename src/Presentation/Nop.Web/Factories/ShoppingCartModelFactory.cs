@@ -854,7 +854,8 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
     /// The task result contains the shopping cart model
     /// </returns>
     public virtual async Task<ShoppingCartModel> PrepareShoppingCartModelAsync(ShoppingCartModel model,
-        IList<ShoppingCartItem> cart, bool isEditable = true,
+        IList<ShoppingCartItem> cart, 
+        bool isEditable = true,
         bool validateCheckoutAttributes = false,
         bool prepareAndDisplayOrderReviewData = false)
     {

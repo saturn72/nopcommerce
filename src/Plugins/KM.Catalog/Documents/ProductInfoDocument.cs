@@ -87,7 +87,7 @@ public record ProductInfoDocument
     public string Slug { get; init; }
 
     [FirestoreProperty("structuredData")]
-    public IEnumerable<string> StructuredData { get; internal set; }
+    public IEnumerable<string> StructuredData { get; init; }
 
     [FirestoreProperty("vendor")]
     public VendorInfo Vendor { get; set; }

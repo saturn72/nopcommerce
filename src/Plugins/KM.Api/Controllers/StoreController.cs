@@ -10,37 +10,39 @@ namespace KM.Api.Controllers;
 [Route("api/store")]
 public class StoreController : KmApiControllerBase
 {
-    private readonly IStoreService _storeService;
+    private readonly IStoreContext _storeContext;
     private readonly IVendorService _vendorService;
     private readonly IAddressService _addressService;
     private readonly IAttributeParser<AddressAttribute, AddressAttributeValue> _addressAttributeParser;
     private readonly IAttributeService<AddressAttribute, AddressAttributeValue> _addressAttributeService;
     private readonly IPictureService _pictureService;
+    private readonly MediaPreperar _mediaPreperar;
 
     public StoreController(
-        IStoreService storeService,
+        IStoreContext storeContext,
         IVendorService vendorService,
         IAddressService addressService,
         IAttributeParser<AddressAttribute, AddressAttributeValue> addressAttributeParser,
         IAttributeService<AddressAttribute, AddressAttributeValue> addressAttributeService,
-        IPictureService pictureService)
+        IPictureService pictureService,
+        MediaPreperar mediaPreperar)
     {
-        _storeService = storeService;
+        _storeContext = storeContext;
         _vendorService = vendorService;
         _addressService = addressService;
         _addressAttributeParser = addressAttributeParser;
         _addressAttributeService = addressAttributeService;
         _pictureService = pictureService;
+        _mediaPreperar = mediaPreperar;
     }
 
-    [HttpGet("{storeId}")]
-    public async Task<IActionResult> GetStoreInfoByStoreIdAsync(int storeId)
+    [HttpGet]
+    public async Task<IActionResult> GetStoreInfoByStoreIdAsync()
     {
-        if (storeId <= 0)
+        var store = await _storeContext.GetCurrentStoreAsync();
+        if (store == default)
             return BadRequest();
 
-        var store = await _storeService.GetStoreByIdAsync(storeId);
-        
         var phone = ProcessPhoneNumber(store.CompanyPhoneNumber);
         var data = new
         {
@@ -93,7 +95,7 @@ public class StoreController : KmApiControllerBase
     private async Task<object> ToVendorApiModel(Vendor vendor)
     {
         var address = await _addressService.GetAddressByIdAsync(vendor.AddressId);
-        var  picture = await _pictureService.GetPictureByIdAsync(vendor.PictureId);
+        var picture = await _pictureService.GetPictureByIdAsync(vendor.PictureId);
 
         return new
         {
@@ -105,7 +107,7 @@ public class StoreController : KmApiControllerBase
             metaKeywords = vendor.MetaKeywords,
             metaDescription = vendor.MetaDescription,
             metaTitle = vendor.MetaTitle,
-            image = picture.ToMediaItemAsync()
+            image = _mediaPreperar.ToMediaItemAsync(picture)
         };
         //PictureId,
     }

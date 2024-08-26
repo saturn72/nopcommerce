@@ -12,10 +12,6 @@ public class CartTransactionApiModelValidator : AbstractValidator<CartTransactio
 
         RuleFor(x => x.Status).Must(x => x.IsPaidStatus());
 
-        RuleFor(x => x.StoreId).GreaterThan(0);
-
-        RuleFor(x => x.UserId).Must(x => x.HasValue());
-
         RuleFor(x => x.BillingInfo.Email).IsEmailAddress();
         RuleFor(x => x.BillingInfo.Fullname).Must(x => x.HasValue());
         RuleFor(x => x.BillingInfo.Phone).IsPhoneNumber(customerSettings);

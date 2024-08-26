@@ -1,4 +1,8 @@
 ﻿
+using KM.Api.Controllers;
+using KM.Api.Factories;
+using KM.Api.Middlewares;
+
 namespace KM.Api.Infrastructure;
 
 public class PluginNopStartup : INopStartup
@@ -21,42 +25,31 @@ public class PluginNopStartup : INopStartup
         });
 
         services.AddMemoryCache();
-        services.AddScoped<WebStoreContext>();
-        services.AddScoped<KmStoreContext>();
+        services.AddSingleton<MediaPreperar>();
 
         services.AddScoped<IExternalUsersService, FirebaseExternalUsersService>();
         services.AddTransient<IValidator<CartTransactionApiModel>, CartTransactionApiModelValidator>();
         services.AddSingleton<IRateLimiter, RateLimiter>();
-        services.AddScoped<IKmOrderService>(sp => new KmOrderService(
-            sp.GetRequiredService<IRepository<KmOrder>>(),
-            sp.GetRequiredService<IExternalUsersService>(),
-            sp.GetRequiredService<IWorkContext>(),
-            sp.GetRequiredService<IStoreService>(),
-            sp.GetRequiredService<KmStoreContext>(),
-            sp.GetRequiredService<ICustomerService>(),
-            sp.GetRequiredService<IAddressService>(),
-            sp.GetRequiredService<IPaymentService>(),
-            sp.GetRequiredService<IOrderProcessingService>(),
-            sp.GetRequiredService<IProductService>(),
-            sp.GetRequiredService<IStoreMappingService>(),
-            sp.GetRequiredService<IShoppingCartService>(),
-            sp.GetRequiredService<ISystemClock>(),
-            sp.GetRequiredService<ILogger>()));
+        services.AddScoped<IKmOrderService, KmOrderService>();
 
         services.AddScoped<IOrderDocumentStore, OrderDocumentStore>();
         services.AddScoped<IUserProfileDocumentStore, UserProfileDocumentStore>();
         services.AddScoped(typeof(IDocumentStore<>), typeof(FirebaseDocumentStore<>));
         services.AddSingleton<FirebaseAdapter>();
-
+        services.AddScoped<IProductApiFactory, ProductApiFactory>();
+        services.AddScoped<ICheckoutCartApiFactory, CheckoutCartApiFactory>();
         services.AddSignalR();
     }
 
     public void Configure(IApplicationBuilder application)
     {
         application.UseCors(CorsPolicy);
-        //application.UseWhen(x => x.Request.Path.StartsWithSegments("/api"),
-        //    app => app.UseMiddleware<FirebaseAuthenticationMiddleware>())
+        application.UseWhen(
+            ctx => ctx.Request.Path.StartsWithSegments("/api"),
+            appBuilder => appBuilder.UseMiddleware<KmAuthenticationMiddleware>());
+
     }
+
 
     public int Order => 10;
 }

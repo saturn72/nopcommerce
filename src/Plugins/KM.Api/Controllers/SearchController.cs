@@ -18,6 +18,7 @@ public class SearchController : KmApiControllerBase
     private readonly CurrencySettings _currencySettings;
     private readonly IPictureService _pictureService;
     private readonly IVideoService _videoService;
+    private readonly MediaPreperar _mediaPreperar;
 
     public SearchController(
         IProductService productService,
@@ -26,7 +27,8 @@ public class SearchController : KmApiControllerBase
         ICurrencyService currencyService,
         CurrencySettings currencySettings,
         IPictureService pictureService,
-        IVideoService videoService)
+        IVideoService videoService,
+        MediaPreperar mediaPreperar)
     {
         _productService = productService;
         _urlRecordService = urlRecordService;
@@ -35,6 +37,7 @@ public class SearchController : KmApiControllerBase
         _pictureService = pictureService;
         _videoService = videoService;
         _currencySettings = currencySettings;
+        _mediaPreperar = mediaPreperar;
     }
 
     [HttpGet]
@@ -140,7 +143,7 @@ public class SearchController : KmApiControllerBase
             if (picture == null)
                 continue;
 
-            var item = await picture.ToMediaItemAsync(pp.DisplayOrder); 
+            var item = await _mediaPreperar.ToMediaItemAsync(picture, pp.DisplayOrder);
             cmis.Add(item);
         }
 
@@ -152,7 +155,7 @@ public class SearchController : KmApiControllerBase
             if (video == null)
                 continue;
 
-            cmis.Add(video.ToMediaItem(v.DisplayOrder));
+            cmis.Add(_mediaPreperar.ToMediaItem(video, v.DisplayOrder));
         }
         return cmis.ToList();
     }

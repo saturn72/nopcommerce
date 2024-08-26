@@ -25,8 +25,8 @@ namespace KM.Api.Models
             public string ShortDescription { get; set; }
             public IEnumerable<object> AllowedQuantities { get; set; }
             public string RecurringInfo { get; set; }
-            public DateTime? RentalStartDateUtc { get; internal set; }
-            public DateTime? RentalEndDateUtc { get; internal set; }
+            public DateTime? RentalStartDateUtc { get; init; }
+            public DateTime? RentalEndDateUtc { get; init; }
         }
     }
 }

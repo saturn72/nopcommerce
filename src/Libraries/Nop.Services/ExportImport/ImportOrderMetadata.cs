@@ -6,15 +6,15 @@ namespace Nop.Services.ExportImport;
 
 public partial class ImportOrderMetadata
 {
-    public int EndRow { get; internal set; }
+    public int EndRow { get; init; }
 
-    public PropertyManager<Order, Language> Manager { get; internal set; }
+    public PropertyManager<Order, Language> Manager { get; init; }
 
     public IList<PropertyByName<Order, Language>> Properties { get; set; }
 
     public int CountOrdersInFile { get; set; }
 
-    public PropertyManager<OrderItem, Language> OrderItemManager { get; internal set; }
+    public PropertyManager<OrderItem, Language> OrderItemManager { get; init; }
 
     public List<Guid> AllOrderGuids { get; set; }
 

@@ -25,7 +25,7 @@ namespace KM.Api.Documents
         [FirestoreProperty]
         public string submitterUserId { get; set; }
         [FirestoreProperty]
-        public float totalDiscounts { get; internal set; } 
+        public float totalDiscounts { get; init; } 
         [FirestoreProperty]
         public UserProfileDocument user { get; set; }
         [FirestoreProperty]
@@ -33,7 +33,7 @@ namespace KM.Api.Documents
         [FirestoreProperty]
         public IEnumerable<string> couponCodes { get; set; }
         [FirestoreProperty]
-        public float customerEnteredPrice { get; internal set; }
+        public float customerEnteredPrice { get; init; }
         [FirestoreProperty]
         public string rentalEndDateUtc { get; set; }
         [FirestoreProperty]
