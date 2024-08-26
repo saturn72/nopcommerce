@@ -5,20 +5,17 @@ namespace KM.Api.Controllers;
 [Route("api/checkout")]
 public class CheckoutController : KmApiControllerBase
 {
-    private readonly IRateLimiter _rateLimiter;
     private readonly IKmOrderService _kmOrderService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IWorkContext _workContext;
     private readonly IStoreContext _storeContext;
 
     public CheckoutController(
-        IRateLimiter rateLimiter,
         IKmOrderService kmOrderService,
         IShoppingCartService shoppingCartService,
         IWorkContext workContext,
         IStoreContext storeContext)
     {
-        _rateLimiter = rateLimiter;
         _kmOrderService = kmOrderService;
         _shoppingCartService = shoppingCartService;
         _workContext = workContext;
@@ -28,11 +25,6 @@ public class CheckoutController : KmApiControllerBase
     [HttpPost]
     public async Task<IActionResult> SubmitOrder([FromBody] CartTransactionApiModel model)
     {
-        //block user from submitting 2 orders in 2000 milisec timeframe
-        var customer = await _workContext.GetCurrentCustomerAsync();
-        var v = await _rateLimiter.Limit($"cart-transfer-{customer.Id}", 2000);
-        if (!v)
-            return Forbid();
         if (!ModelState.IsValid)
             return BadRequest();
 

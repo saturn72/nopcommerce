@@ -29,7 +29,6 @@ public class PluginNopStartup : INopStartup
 
         services.AddScoped<IExternalUsersService, FirebaseExternalUsersService>();
         services.AddTransient<IValidator<CartTransactionApiModel>, CartTransactionApiModelValidator>();
-        services.AddSingleton<IRateLimiter, RateLimiter>();
         services.AddScoped<IKmOrderService, KmOrderService>();
 
         services.AddScoped<IOrderDocumentStore, OrderDocumentStore>();
