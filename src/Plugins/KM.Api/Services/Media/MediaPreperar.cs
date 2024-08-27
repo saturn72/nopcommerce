@@ -1,7 +1,7 @@
 ﻿using Nop.Core.Domain.Media;
 using Nop.Services.Media;
 
-namespace KM.Api.Controllers;
+namespace KM.Api.Services.Media;
 public class MediaPreperar
 {
     public async Task<object> ToMediaItemAsync(Picture picture, int displayOrder = 0)

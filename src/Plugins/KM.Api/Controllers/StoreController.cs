@@ -1,4 +1,5 @@
 ﻿using KM.Api.Models.Directory;
+using KM.Api.Services.Media;
 using Nop.Core.Domain.Vendors;
 using Nop.Services.Attributes;
 using Nop.Services.Media;

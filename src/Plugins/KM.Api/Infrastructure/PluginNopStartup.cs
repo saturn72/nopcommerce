@@ -1,7 +1,6 @@
-﻿
-using KM.Api.Controllers;
-using KM.Api.Factories;
+﻿using KM.Api.Factories;
 using KM.Api.Middlewares;
+using KM.Api.Services.Media;
 
 namespace KM.Api.Infrastructure;
 
@@ -36,6 +35,7 @@ public class PluginNopStartup : INopStartup
         services.AddScoped(typeof(IDocumentStore<>), typeof(FirebaseDocumentStore<>));
         services.AddSingleton<FirebaseAdapter>();
         services.AddScoped<IProductApiFactory, ProductApiFactory>();
+        services.AddScoped<IShoppingCartFactory, ShoppingCartFactory>();
         services.AddScoped<ICheckoutCartApiFactory, CheckoutCartApiFactory>();
         services.AddSignalR();
     }

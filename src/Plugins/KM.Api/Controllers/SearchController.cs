@@ -1,4 +1,4 @@
-﻿
+﻿using KM.Api.Services.Media;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Services.Directory;

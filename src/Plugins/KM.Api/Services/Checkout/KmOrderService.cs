@@ -1,9 +1,10 @@
 ﻿
+using Microsoft.AspNetCore.Http;
+
 namespace KM.Api.Services.Checkout;
 public class KmOrderService : IKmOrderService
 {
     private readonly IRepository<KmOrder> _kmOrderRepository;
-    private readonly IExternalUsersService _externalUserService;
     private readonly IWorkContext _workContext;
     private readonly IStoreContext _storeContext;
     private readonly ICustomerService _customerService;
@@ -14,11 +15,11 @@ public class KmOrderService : IKmOrderService
     private readonly IStoreMappingService _storeMappingService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly ISystemClock _systemClock;
+    private readonly IHttpContextAccessor _httpAccessor;
     private readonly ILogger _logger;
 
     public KmOrderService(
         IRepository<KmOrder> kmOrderRepository,
-        IExternalUsersService externalUserService,
         IWorkContext workContext,
         IStoreContext storeContext,
         ICustomerService customerService,
@@ -29,10 +30,11 @@ public class KmOrderService : IKmOrderService
         IStoreMappingService storeMappingService,
         IShoppingCartService shoppingCartService,
         ISystemClock systemClock,
-        ILogger logger)
+        IHttpContextAccessor httpAccessor,
+        ILogger logger
+        )
     {
         _kmOrderRepository = kmOrderRepository;
-        _externalUserService = externalUserService;
         _workContext = workContext;
         _storeContext = storeContext;
         _customerService = customerService;
@@ -43,86 +45,67 @@ public class KmOrderService : IKmOrderService
         _storeMappingService = storeMappingService;
         _shoppingCartService = shoppingCartService;
         _systemClock = systemClock;
+        _httpAccessor = httpAccessor;
         _logger = logger;
     }
-    public async Task<IEnumerable<CreateOrderResponse>> CreateOrdersAsync(IEnumerable<CreateOrderRequest> requests)
+    public async Task<CreateOrderResponse> CreateOrderAsync(CreateOrderRequest request)
     {
-        if (requests == null)
-            throw new ArgumentNullException(nameof(requests));
-        if (!requests.Any())
-            return Array.Empty<CreateOrderResponse>();
+        ArgumentNullException.ThrowIfNull(request);
 
         await _logger.InformationAsync($"Start processing orders");
+        var res = new CreateOrderResponse { Request = request };
 
-        var jso = new JsonSerializerOptions
+        var cart = request.CartItems;
+        //var (cart, disapproved) = await ExtractShoppingCart(request.CartItems);
+        //res.DisapprovedShoppingCartItems = disapproved;
+        res.ApprovedShoppingCartItems = cart;
+        res.DisapprovedShoppingCartItems = Array.Empty<ShoppingCartItem>();
+
+        if (cart == default || !cart.Any())
         {
-            AllowTrailingCommas = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = false,
-        };
-        var res = requests.Select(r => new CreateOrderResponse { Request = r }).ToList();
+            res.Error = "no-cart-items";
+            return res;
+        }
+        var customer = await _workContext.GetCurrentCustomerAsync();
 
-        //provision users
-        var userIds = requests.Select(x => x.KmUserId).Distinct().ToList();
-        userIds.ThrowIfNullOrEmpty(nameof(userIds));
-        var maps = await _externalUserService.ProvisionUsersAsync(userIds);
+        if (request.UpdateBillingInfo || customer.BillingAddressId == 0)
+            await CreateOrUpdateCustomerAddress(customer, request.BillingInfo, AddressType.BillingAddress);
+        if (request.UpdateShippingInfo || customer.ShippingAddressId == 0)
+            await CreateOrUpdateCustomerAddress(customer, request.ShippingInfo, AddressType.ShippingAddress);
 
-        foreach (var r in res)
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var processPaymentRequest = new ProcessPaymentRequest();
+        await _paymentService.GenerateOrderGuidAsync(processPaymentRequest);
+        processPaymentRequest.StoreId = store.Id;
+        processPaymentRequest.CustomerId = customer.Id;
+        processPaymentRequest.PaymentMethodSystemName = request.PaymentMethod;
+        
+        var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
+        if (placeOrderResult.Errors.NotNullAndNotNotEmpty())
         {
-            var customer = maps.FirstOrDefault(x => x.KmUserId == r.Request.KmUserId)?.Customer;
-            if (customer == default)
-                continue;
-
-            await _workContext.SetCurrentCustomerAsync(customer);
-
-            if (r.Request.UpdateBillingInfo || customer.BillingAddressId == 0)
-                await CreateOrUpdateCustomerAddress(customer, r.Request.BillingInfo, AddressType.BillingAddress);
-            if (r.Request.UpdateShippingInfo || customer.ShippingAddressId == 0)
-                await CreateOrUpdateCustomerAddress(customer, r.Request.ShippingInfo, AddressType.ShippingAddress);
-
-            //set default store;
-            if (r.Request.StoreId == 0)
-                r.Request.StoreId = 1;
-
-
-
-            var (cart, disapproved) = await ExtractShoppingCart(r.Request.CartItems);
-            r.ApprovedShoppingCartItems = cart;
-            r.DisapprovedShoppingCartItems = disapproved;
-
-            if (cart == default || !cart.Any())
+            res.Error = string.Join('\n', placeOrderResult.Errors);
+        }
+        else
+        {
+            var jso = new JsonSerializerOptions
             {
-                r.Error = "no-cart-items";
-                continue;
-            }
-
-            var processPaymentRequest = new ProcessPaymentRequest();
-            await _paymentService.GenerateOrderGuidAsync(processPaymentRequest);
-            processPaymentRequest.StoreId = (await _storeContext.GetCurrentStoreAsync()).Id;
-            processPaymentRequest.CustomerId = customer.Id;
-            processPaymentRequest.PaymentMethodSystemName = r.Request.PaymentMethod;
-
-            var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
-            if (placeOrderResult.Errors.NotNullAndNotNotEmpty())
+                AllowTrailingCommas = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = false,
+            };
+            var kmOrder = new KmOrder
             {
-                r.Error = string.Join('\n', placeOrderResult.Errors);
-            }
-            else
-            {
-                var kmOrder = new KmOrder
-                {
-                    CreatedOnUtc = _systemClock.UtcNow.DateTime,
-                    Data = JsonSerializer.Serialize(r.Request, jso),
-                    NopOrderId = placeOrderResult.PlacedOrder.Id,
-                    NopOrder = placeOrderResult.PlacedOrder,
-                    //KmOrderId = r.Request.KmOrderId,
-                    KmUserId = r.Request.KmUserId,
-                    Status = placeOrderResult.Success ? "success" : "failed",
-                    Errors = string.Join("\n\n", placeOrderResult.Errors),
-                };
-                await _kmOrderRepository.InsertAsync(kmOrder);
-                await _logger.InformationAsync($"order added to the database. {nameof(kmOrder.NopOrderId)}=\'{kmOrder.NopOrderId}\'");
-            }
+                CreatedOnUtc = _systemClock.UtcNow.DateTime,
+                Data = JsonSerializer.Serialize(request, jso),
+                NopOrderId = placeOrderResult.PlacedOrder.Id,
+                NopOrder = placeOrderResult.PlacedOrder,
+                KmUserId = _httpAccessor.HttpContext.Request.Headers[KmApiConsts.USER_ID],
+                Status = placeOrderResult.Success ? "success" : "failed",
+                Errors = string.Join("\n\n", placeOrderResult.Errors),
+            };
+            await _kmOrderRepository.InsertAsync(kmOrder);
+            await _logger.InformationAsync($"order added to the database. {nameof(kmOrder.NopOrderId)}=\'{kmOrder.NopOrderId}\'");
+            await _shoppingCartService.ClearShoppingCartAsync(customer, store.Id);
         }
 
         return res;
@@ -208,6 +191,9 @@ public class KmOrderService : IKmOrderService
 
     private async Task<(IList<ShoppingCartItem> approvedShoppingCartItems, IList<ShoppingCartItem> disapprovedShoppingCartItems)> ExtractShoppingCart(IEnumerable<ShoppingCartItem> items)
     {
+        /*
+         * this code might be redundant
+         */
         var productIds = new List<int>();
 
         var customer = await _workContext.GetCurrentCustomerAsync();
@@ -221,6 +207,7 @@ public class KmOrderService : IKmOrderService
 
             cart.Add(new ShoppingCartItem
             {
+                AttributesXml = sci.AttributesXml,
                 ProductId = sci.ProductId,
                 CreatedOnUtc = DateTime.UtcNow,
                 CustomerId = customer.Id,

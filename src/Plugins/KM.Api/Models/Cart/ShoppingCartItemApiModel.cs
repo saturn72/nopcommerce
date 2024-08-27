@@ -3,7 +3,7 @@
 namespace KM.Api.Models.Cart;
 public record ShoppingCartItemApiModel
 {
-    public ProductInfoApiModel ProductInfo { get; init; }
+    public ProductInfoApiModel? ProductInfo { get; init; }
     public int Quantity { get; init; }
     public int ProductId { get; init; }
     public int VariantId { get; init; } //product-attribute-Id

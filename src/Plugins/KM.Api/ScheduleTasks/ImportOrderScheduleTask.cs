@@ -48,6 +48,7 @@ namespace KM.Api.ScheduleTasks
             var ids = string.Join(",", existIds);
             do
             {
+                var tasks = new List<Task>();
                 await _logger.InformationAsync($"Getting store's (firebase) exist orders with parameters: {nameof(existIds)}: {ids}, {nameof(pageSize)}:{pageSize}, {nameof(offset)}: {offset}");
                 newOrders = await _orderStore.GetNewOrderPageAsync(
                     pageSize: pageSize,
@@ -70,19 +71,17 @@ namespace KM.Api.ScheduleTasks
                         existIds.Add(no.id);
                     }
 
-                    requests.Add(new CreateOrderRequest
+                    var request = new CreateOrderRequest
                     {
-                        KmUserId = no.userId,
-                        StoreId = no.storeId,
                         CartItems = ToCartItems(no),
                         PaymentMethod = (no.paymentMethod ?? DefaultPaymentMethod).ToSystemPaymentMethod(),
                         BillingInfo = ToAddress(no.user.billingInfo),
                         ShippingInfo = ToAddress(no.shippingAddress),
-                    });
+                    };
+                    tasks.Add(_kmOrderService.CreateOrderAsync(request));
                 }
 
-                _ = await _kmOrderService.CreateOrdersAsync(requests);
-
+                Task.WaitAll(tasks.ToArray());
                 offset += pageSize;
             }
             while (newOrders.Count() == pageSize);

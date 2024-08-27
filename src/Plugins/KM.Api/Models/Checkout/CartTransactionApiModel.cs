@@ -4,7 +4,7 @@ namespace KM.Api.Models.Checkout;
 
 public record CartTransactionApiModel
 {
-    public IEnumerable<CartTransactionItemApiModel> Items { get; init; }
+    public IEnumerable<ShoppingCartItemApiModel> Items { get; init; }
     public string PaymentMethod { get; init; }
     public string Status { get; init; }
     public bool StorePickup { get; init; }

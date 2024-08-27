@@ -15,6 +15,7 @@ public class ShoppingCartController : KmApiControllerBase
     private readonly IProductAttributeParser _productAttributeParser;
     private readonly IProductApiFactory _productApiFactory;
     private readonly ICheckoutCartApiFactory _checoutCartApiFactory;
+    private readonly IShoppingCartFactory _shoppingCartFactory;
 
     public ShoppingCartController(
             IShoppingCartService shoppingCartService,
@@ -24,7 +25,8 @@ public class ShoppingCartController : KmApiControllerBase
             IStoreContext storeContext,
             IProductAttributeParser productAttributeParser,
             IProductApiFactory productApiFactory,
-            ICheckoutCartApiFactory checkoutCartApiFactory)
+            ICheckoutCartApiFactory checkoutCartApiFactory,
+            IShoppingCartFactory shoppingCartFactory)
     {
         _shoppingCartService = shoppingCartService;
         _productService = productService;
@@ -34,6 +36,7 @@ public class ShoppingCartController : KmApiControllerBase
         _productAttributeParser = productAttributeParser;
         _productApiFactory = productApiFactory;
         _checoutCartApiFactory = checkoutCartApiFactory;
+        _shoppingCartFactory = shoppingCartFactory;
     }
     private async Task SaveShoppingCartAsync(
         Customer customer,
@@ -139,38 +142,10 @@ public class ShoppingCartController : KmApiControllerBase
 
         var store = await _storeContext.GetCurrentStoreAsync();
         var errors = new List<string>();
-        var items = await ToShoppingCartItems(model.Items, store.Id, errors);
+        var items = await _shoppingCartFactory.ToShoppingCartItems(model.Items, errors);
         await SaveShoppingCartAsync(customer, store, items, errors);
 
         return Ok();
-    }
-
-    private async Task<IList<ShoppingCartItem>> ToShoppingCartItems(IEnumerable<ShoppingCartItemApiModel> items, int storeId, List<string> errors)
-    {
-        var productIds = items.Select(x => x.ProductId).ToArray();
-        var products = await _productService.GetProductsByIdsAsync(productIds);
-        var res = new List<ShoppingCartItem>();
-        foreach (var i in items)
-        {
-            var product = products.FirstOrDefault(p => p.Id == i.ProductId);
-            var attributesXml = default(string);
-            if (i.VariantId != 0)
-            {
-                var form = new FormCollection(new() { { $"{NopCatalogDefaults.ProductAttributePrefix}{i.VariantId}", i.OptionId.ToString() }, });
-                attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, errors);
-            }
-
-            res.Add(new()
-            {
-                ProductId = i.ProductId,
-                AttributesXml = attributesXml,
-                Quantity = i.Quantity,
-                ShoppingCartType = ShoppingCartType.ShoppingCart,
-                StoreId = storeId,
-            });
-        }
-
-        return res;
     }
 
     [HttpGet]
@@ -200,7 +175,7 @@ public class ShoppingCartController : KmApiControllerBase
 
         var store = await _storeContext.GetCurrentStoreAsync();
         var errors = new List<string>();
-        var items = await ToShoppingCartItems(model.Items, store.Id, errors);
+        var items = await _shoppingCartFactory.ToShoppingCartItems(model.Items, errors);
         await SaveShoppingCartAsync(customer, store, items, errors);
         
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: store.Id);
