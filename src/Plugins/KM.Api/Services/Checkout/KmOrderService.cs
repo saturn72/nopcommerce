@@ -93,6 +93,7 @@ public class KmOrderService : IKmOrderService
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 WriteIndented = false,
             };
+
             var kmOrder = new KmOrder
             {
                 CreatedOnUtc = _systemClock.UtcNow.DateTime,
@@ -103,6 +104,7 @@ public class KmOrderService : IKmOrderService
                 Status = placeOrderResult.Success ? "success" : "failed",
                 Errors = string.Join("\n\n", placeOrderResult.Errors),
             };
+
             await _kmOrderRepository.InsertAsync(kmOrder);
             await _logger.InformationAsync($"order added to the database. {nameof(kmOrder.NopOrderId)}=\'{kmOrder.NopOrderId}\'");
             await _shoppingCartService.ClearShoppingCartAsync(customer, store.Id);

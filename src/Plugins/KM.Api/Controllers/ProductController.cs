@@ -1,5 +1,6 @@
 ﻿using Nop.Core.Domain.Catalog;
 using KM.Api.Factories;
+using KM.Api.Models.Catalog;
 
 namespace KM.Api.Controllers;
 
@@ -42,7 +43,7 @@ public class ProductController : KmApiControllerBase
         var data = await _staticCacheManager.GetAsync(ck, aquireProductQuery);
         return ToJsonResult(new { products = data });
 
-        async Task<object> aquireProductQuery()
+        async Task<IEnumerable<ProductInfoApiModel>> aquireProductQuery()
         {
             var products = await _productService.SearchProductsAsync(
                 offset,
@@ -56,7 +57,7 @@ public class ProductController : KmApiControllerBase
                 orderBy: ProductSortingEnum.Position
                 );
 
-            return await _productApiFactory.ToProductApiModel(products);
+            return await _productApiFactory.ToProductInfoApiModel(products);
         }
     }
 }

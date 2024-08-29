@@ -1,6 +1,5 @@
 ﻿using KM.Api.Factories;
 using KM.Api.Middlewares;
-using KM.Api.Services.Media;
 
 namespace KM.Api.Infrastructure;
 
@@ -24,7 +23,7 @@ public class PluginNopStartup : INopStartup
         });
 
         services.AddMemoryCache();
-        services.AddSingleton<MediaPreperar>();
+        services.AddSingleton<MediaConvertor>();
 
         services.AddScoped<IExternalUsersService, FirebaseExternalUsersService>();
         services.AddTransient<IValidator<CartTransactionApiModel>, CartTransactionApiModelValidator>();
@@ -35,8 +34,8 @@ public class PluginNopStartup : INopStartup
         services.AddScoped(typeof(IDocumentStore<>), typeof(FirebaseDocumentStore<>));
         services.AddSingleton<FirebaseAdapter>();
         services.AddScoped<IProductApiFactory, ProductApiFactory>();
+        services.AddSingleton<MediaConvertor>();
         services.AddScoped<IShoppingCartFactory, ShoppingCartFactory>();
-        services.AddScoped<ICheckoutCartApiFactory, CheckoutCartApiFactory>();
         services.AddSignalR();
     }
 

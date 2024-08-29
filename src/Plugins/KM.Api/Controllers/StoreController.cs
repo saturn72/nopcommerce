@@ -1,5 +1,5 @@
-﻿using KM.Api.Models.Directory;
-using KM.Api.Services.Media;
+﻿using KM.Api.Factories;
+using KM.Api.Models.Directory;
 using Nop.Core.Domain.Vendors;
 using Nop.Services.Attributes;
 using Nop.Services.Media;
@@ -17,7 +17,7 @@ public class StoreController : KmApiControllerBase
     private readonly IAttributeParser<AddressAttribute, AddressAttributeValue> _addressAttributeParser;
     private readonly IAttributeService<AddressAttribute, AddressAttributeValue> _addressAttributeService;
     private readonly IPictureService _pictureService;
-    private readonly MediaPreperar _mediaPreperar;
+    private readonly MediaConvertor _mediaPreperar;
 
     public StoreController(
         IStoreContext storeContext,
@@ -26,7 +26,7 @@ public class StoreController : KmApiControllerBase
         IAttributeParser<AddressAttribute, AddressAttributeValue> addressAttributeParser,
         IAttributeService<AddressAttribute, AddressAttributeValue> addressAttributeService,
         IPictureService pictureService,
-        MediaPreperar mediaPreperar)
+        MediaConvertor mediaPreperar)
     {
         _storeContext = storeContext;
         _vendorService = vendorService;

@@ -1,8 +1,10 @@
-﻿using Nop.Core.Domain.Media;
+﻿using KM.Api.Models.Media;
+using Nop.Core.Domain.Media;
 using Nop.Services.Media;
+using Nop.Web.Models.Media;
 
-namespace KM.Api.Services.Media;
-public class MediaPreperar
+namespace KM.Api.Factories;
+public sealed class MediaConvertor
 {
     public async Task<object> ToMediaItemAsync(Picture picture, int displayOrder = 0)
     {
@@ -31,20 +33,7 @@ public class MediaPreperar
             title = picture.TitleAttribute,
             type = "image",
             detailImage,
-            variantImage,
         };
-        //        return new
-        //        {
-        //            alt = picture.AltAttribute,
-        //            type = "image",
-        //            index = displayOrder,
-        //            url = url,
-        //            mimeType = picture.MimeType,
-        //#warning - optimize for thumb
-        //            thumb = picture.VirtualPath,
-        //            seoFilename = picture.SeoFilename,
-        //            title = picture.TitleAttribute,
-        //        };
     }
 
     public object ToMediaItem(Video video, int displayOrder = 0)
@@ -54,6 +43,30 @@ public class MediaPreperar
             type = "video",
             index = displayOrder,
             url = video.VideoUrl,
+        };
+    }
+
+    public GalleryItemModel ToGalleryItemModel(PictureModel pictureModel, int index)
+    {
+        return new()
+        {
+            Alt = pictureModel.AlternateText,
+            FullImage = pictureModel.FullSizeImageUrl,
+            Index = index,
+            ThumbImage = pictureModel.ThumbImageUrl,
+            Title = pictureModel.Title,
+            Type = "image"
+        };
+    }
+
+    public GalleryItemModel ToGalleryItemModel(VideoModel videoModel, int index)
+    {
+        return new()
+        {
+            Url = videoModel.VideoUrl,
+            Width = videoModel.Width,
+            Height = videoModel.Height,
+            Type = "video"
         };
     }
 }

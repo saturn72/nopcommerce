@@ -1,5 +1,4 @@
 ﻿using KM.Api.Factories;
-using Microsoft.AspNetCore.Http;
 
 namespace KM.Api.Controllers;
 
@@ -14,7 +13,6 @@ public class ShoppingCartController : KmApiControllerBase
     private readonly IStoreMappingService _storeMappingService;
     private readonly IProductAttributeParser _productAttributeParser;
     private readonly IProductApiFactory _productApiFactory;
-    private readonly ICheckoutCartApiFactory _checoutCartApiFactory;
     private readonly IShoppingCartFactory _shoppingCartFactory;
 
     public ShoppingCartController(
@@ -25,7 +23,6 @@ public class ShoppingCartController : KmApiControllerBase
             IStoreContext storeContext,
             IProductAttributeParser productAttributeParser,
             IProductApiFactory productApiFactory,
-            ICheckoutCartApiFactory checkoutCartApiFactory,
             IShoppingCartFactory shoppingCartFactory)
     {
         _shoppingCartService = shoppingCartService;
@@ -35,7 +32,6 @@ public class ShoppingCartController : KmApiControllerBase
         _storeContext = storeContext;
         _productAttributeParser = productAttributeParser;
         _productApiFactory = productApiFactory;
-        _checoutCartApiFactory = checkoutCartApiFactory;
         _shoppingCartFactory = shoppingCartFactory;
     }
     private async Task SaveShoppingCartAsync(
@@ -179,7 +175,7 @@ public class ShoppingCartController : KmApiControllerBase
         await SaveShoppingCartAsync(customer, store, items, errors);
         
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: store.Id);
-        var ccm = await _checoutCartApiFactory.PrepareCheckoutCartApiModelAsync(cart);
+        var ccm = await _shoppingCartFactory.PrepareCheckoutCartApiModelAsync(cart);
         return ToJsonResult(ccm);
     }
     private async Task<bool> ValidateShoppingCartModelAsync(ShoppingCartApiModel model)

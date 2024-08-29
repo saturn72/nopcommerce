@@ -1,4 +1,4 @@
-﻿using KM.Api.Services.Media;
+﻿using KM.Api.Factories;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Services.Directory;
@@ -18,7 +18,7 @@ public class SearchController : KmApiControllerBase
     private readonly CurrencySettings _currencySettings;
     private readonly IPictureService _pictureService;
     private readonly IVideoService _videoService;
-    private readonly MediaPreperar _mediaPreperar;
+    private readonly MediaConvertor _mediaPreperar;
 
     public SearchController(
         IProductService productService,
@@ -28,7 +28,7 @@ public class SearchController : KmApiControllerBase
         CurrencySettings currencySettings,
         IPictureService pictureService,
         IVideoService videoService,
-        MediaPreperar mediaPreperar)
+        MediaConvertor mediaPreperar)
     {
         _productService = productService;
         _urlRecordService = urlRecordService;
