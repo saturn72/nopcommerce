@@ -2,6 +2,7 @@
 using KM.Api.Models.Media;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Media;
@@ -16,6 +17,8 @@ public class ProductApiFactory : IProductApiFactory
     private readonly IProductAttributeFormatter _productAttributeFormatter;
     private readonly IProductModelFactory _productModelFactory;
     private readonly IPriceFormatter _priceFormatter;
+    private readonly IWorkContext _workContext;
+    private readonly IStoreContext _storeContext;
 
     public ProductApiFactory(
         IProductService productService,
@@ -23,7 +26,9 @@ public class ProductApiFactory : IProductApiFactory
         MediaConvertor mediaFactory,
         IProductAttributeFormatter productAttributeFormatter,
         IProductModelFactory productModelFactory,
-        IPriceFormatter priceFormatter)
+        IPriceFormatter priceFormatter,
+        IWorkContext workContext,
+        IStoreContext storeContext)
     {
         _productService = productService;
         _productAttributeParser = productAttributeParser;
@@ -31,6 +36,8 @@ public class ProductApiFactory : IProductApiFactory
         _productAttributeFormatter = productAttributeFormatter;
         _productModelFactory = productModelFactory;
         _priceFormatter = priceFormatter;
+        _workContext = workContext;
+        _storeContext = storeContext;
     }
 
     public async Task<IEnumerable<ProductInfoApiModel>> ToProductInfoApiModel(IEnumerable<Product> products)
@@ -123,7 +130,12 @@ public class ProductApiFactory : IProductApiFactory
                 {
                     var form = new FormCollection(new() { { $"{NopCatalogDefaults.ProductAttributePrefix}{attribute.Id}", attributeValue.Id.ToString() }, });
                     var attributesXml = await _productAttributeParser.ParseProductAttributesAsync(product, form, errors);
-                    var displayText = await _productAttributeFormatter.FormatAttributesAsync(product, attributesXml);
+                    var displayText = await _productAttributeFormatter.FormatAttributesAsync(
+                        product,
+                        attributesXml,
+                        await _workContext.GetCurrentCustomerAsync(),
+                        await _storeContext.GetCurrentStoreAsync(),
+                        renderPrices: false);
 
                     var p = await calculatePrice(
                         productDetails.ProductPrice.PriceValue,
