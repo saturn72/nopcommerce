@@ -24,15 +24,32 @@ public record ProductInfoApiModel
     public string Sku { get; init; }
     public bool ShowOnHomePage { get; init; }
     public string Slug { get; init; }
-    public ProductReviewsModel Reviews { get; init; }
+    public ProductReview Reviews { get; init; }
     public IEnumerable<Variant> Variants { get; init; }
 
-    public class ProductBanner
+    public record ProductBanner
     {
         public int Priority { get; init; }
         public string Key { get; init; }
     }
-    public class Variant
+    public record ProductReviewRecord
+    {
+        public int HelpfulNoCount { get; init; }
+        public int HelpfulYesCount { get; init; }
+        public string Reply { get; init; }
+        public string Text { get; init; }
+        public string Title { get; init; }
+        public string WriterAvatar { get; init; }
+        public string WriterName { get; init; }
+    }
+
+    public record ProductReview
+    {
+        public int Rating { get; init; }
+        public int TotalReviews { get; init; }
+        public IEnumerable<ProductReviewRecord> Records { get; init; }
+    }
+    public record Variant
     {
         public int Id { get; init; }
         public string ControlType { get; init; }

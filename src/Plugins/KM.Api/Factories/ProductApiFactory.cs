@@ -1,8 +1,6 @@
 ﻿using KM.Api.Models.Catalog;
 using KM.Api.Models.Media;
 using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Media;
@@ -55,6 +53,7 @@ public class ProductApiFactory : IProductApiFactory
         var banners = await GetBannerAsync(productDetails, product);
         var gallery = GetProductGalleryAsync(productDetails);
         var variants = await GetProductVariantsAsync(productDetails, product);
+        var reviews = GetReviews(productDetails);
         return new()
         {
             Id = productDetails.Id,
@@ -71,7 +70,7 @@ public class ProductApiFactory : IProductApiFactory
             PriceWithDiscountText = productDetails.ProductPrice.PriceWithDiscount,
             Gallery = gallery,
             Gtin = productDetails.Gtin,
-            Reviews = productDetails.ProductReviews,
+            Reviews = reviews,
             ShortDescription = productDetails.ShortDescription,
             ShowOnHomePage = product.ShowOnHomepage,
             ShowStockQuantity = product.DisplayStockQuantity,
@@ -79,6 +78,27 @@ public class ProductApiFactory : IProductApiFactory
             Sku = productDetails.Sku,
             Slug = productDetails.SeName,
             Variants = variants,
+        };
+    }
+
+    private ProductInfoApiModel.ProductReview GetReviews(ProductDetailsModel productDetails)
+    {
+        var records = productDetails.ProductReviews.Items.Select(r => new ProductInfoApiModel.ProductReviewRecord
+        {
+            HelpfulNoCount = r.Helpfulness.HelpfulNoTotal,
+            HelpfulYesCount = r.Helpfulness.HelpfulYesTotal,
+            Reply = r.ReplyText,
+            Text = r.ReviewText,
+            Title = r.Title,
+            WriterAvatar = r.CustomerAvatarUrl,
+            WriterName = r.CustomerName,
+        });
+
+        return new()
+        {
+            Rating = productDetails.ProductReviewOverview.RatingSum,
+            TotalReviews = productDetails.ProductReviewOverview.TotalReviews,
+            Records = records
         };
     }
 
