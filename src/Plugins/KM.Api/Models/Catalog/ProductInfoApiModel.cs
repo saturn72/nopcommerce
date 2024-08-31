@@ -5,8 +5,7 @@ namespace KM.Api.Models.Catalog;
 public record ProductInfoApiModel
 {
     public int Id { get; init; }
-    public IEnumerable<string> Banners { get; init; }
-    public string Currency { get; init; }
+    public IEnumerable<ProductBanner> Banners { get; init; }
     public int DisplayIndex { get; init; }
     public string Name { get; init; }
     public decimal? Price { get; init; }
@@ -28,6 +27,11 @@ public record ProductInfoApiModel
     public ProductReviewsModel Reviews { get; init; }
     public IEnumerable<Variant> Variants { get; init; }
 
+    public class ProductBanner
+    {
+        public int Priority { get; init; }
+        public string Key { get; init; }
+    }
     public class Variant
     {
         public int Id { get; init; }

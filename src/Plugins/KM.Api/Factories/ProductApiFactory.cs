@@ -52,13 +52,13 @@ public class ProductApiFactory : IProductApiFactory
     }
     private async Task<ProductInfoApiModel> ToProductInfo(ProductDetailsModel productDetails, Product product)
     {
-        var banner = await GetBannerAsync(productDetails, product);
+        var banners = await GetBannerAsync(productDetails, product);
         var gallery = GetProductGalleryAsync(productDetails);
         var variants = await GetProductVariantsAsync(productDetails, product);
         return new()
         {
             Id = productDetails.Id,
-            //Banner = banner,
+            Banners = banners,
             DisplayIndex = product.DisplayOrder,
             FullDescription = productDetails.FullDescription,
             Mpn = productDetails.ManufacturerPartNumber,
@@ -82,24 +82,26 @@ public class ProductApiFactory : IProductApiFactory
         };
     }
 
-    private async Task<IEnumerable<string>> GetBannerAsync(ProductDetailsModel productDetails, Product product)
+    private async Task<IEnumerable<ProductInfoApiModel.ProductBanner>> GetBannerAsync(ProductDetailsModel productDetails, Product product)
     {
-        var res = new List<string>();
+        var i = 0;
+        var res = new List<ProductInfoApiModel.ProductBanner>();
         //check old-price-value vs price-value
         //check price-with-discountsvalue vs price-value
         //check discounts
-        //Add "special-price" banner
+        //Add "special-offer" banner
+
         if (productDetails.ProductPrice.PriceValue < productDetails.ProductPrice.PriceWithDiscountValue)
-            res.Add("sale");
+            res.Add(new() { Priority = i++, Key = "sale" });
 
         if (product.MarkAsNew &&
             (!product.MarkAsNewStartDateTimeUtc.HasValue || product.MarkAsNewStartDateTimeUtc.Value < DateTime.UtcNow) &&
             (!product.MarkAsNewEndDateTimeUtc.HasValue || product.MarkAsNewEndDateTimeUtc.Value > DateTime.UtcNow))
-            res.Add("new");
+            res.Add(new() { Priority = i++, Key = "new" });
 
         var pd = await _productService.GetAllDiscountsAppliedToProductAsync(product.Id);
         if (pd.Count > 0)
-            res.Add("promo");
+            res.Add(new() { Priority = i++, Key = "promotion" });
 
         return res;
     }
