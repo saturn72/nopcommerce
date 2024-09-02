@@ -1,4 +1,5 @@
 ﻿using KM.Api.Services.Media;
+using Microsoft.Extensions.Caching.Memory;
 using Nop.Services.Media;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -12,15 +13,20 @@ public class PictureBinaryEventConsumer :
 {
     private readonly IStorageManager _storageManager;
     private readonly IPictureService _pictureService;
+    private readonly IMemoryCache _memoryCache;
     private readonly IReadOnlyDictionary<string, ResizeOptions> _resizeOptions;
+    private readonly MemoryCacheEntryOptions _mco;
+    private readonly PostEvictionCallbackRegistration _uploadEvioctionCallback;
 
     public PictureBinaryEventConsumer(
             IStorageManager storageManager,
-            IPictureService pictureService)
+            IPictureService pictureService,
+            IMemoryCache memoryCache
+        )
     {
         _storageManager = storageManager;
         _pictureService = pictureService;
-
+        _memoryCache = memoryCache;
         _resizeOptions = new Dictionary<string, ResizeOptions> {
             {"thumbnail", new() {
                 Size = new()
@@ -44,20 +50,42 @@ public class PictureBinaryEventConsumer :
                 }
             }
         };
+
+        _uploadEvioctionCallback = new()
+        {
+            EvictionCallback = (object key, object? value, EvictionReason reason, object? state) =>
+            {
+                if (reason == EvictionReason.Removed || reason == EvictionReason.Replaced)
+                    return;
+                _ = UploadImageAsync(value as PictureBinary);
+            }
+        };
+        _mco = new()
+        {
+            SlidingExpiration = TimeSpan.FromSeconds(2),
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(6),
+        };
+        _mco.PostEvictionCallbacks.Add(_uploadEvioctionCallback);
     }
-    private string BuildPath(int pictureId) => $"pictures/{pictureId}";
 
-    public Task HandleEventAsync(EntityInsertedEvent<PictureBinary> eventMessage) => AddOrUpdatePictureBinaries(eventMessage.Entity);
+    public Task HandleEventAsync(EntityInsertedEvent<PictureBinary> eventMessage) => AddToUploadQueue(eventMessage.Entity);
 
-    public Task HandleEventAsync(EntityUpdatedEvent<PictureBinary> eventMessage) => AddOrUpdatePictureBinaries(eventMessage.Entity);
+    public Task HandleEventAsync(EntityUpdatedEvent<PictureBinary> eventMessage) => AddToUploadQueue(eventMessage.Entity);
 
-    private async Task AddOrUpdatePictureBinaries(PictureBinary pictureBinary)
+    private async Task AddToUploadQueue(PictureBinary pictureBinary)
     {
-        var p = await _pictureService.GetPictureByIdAsync(pictureBinary.PictureId);
+        _memoryCache.Set(BuildCacheKey(pictureBinary.PictureId), pictureBinary, _mco);
+    }
 
+    private string BuildWebpPath(string type, int pictureId) => $"/{type}/{pictureId}.webp";
+
+    private async Task UploadImageAsync(PictureBinary pictureBinary)
+    {
+        var product = await _pictureService.GetPictureByIdAsync(pictureBinary.PictureId);
 
         foreach (var ro in _resizeOptions)
         {
+            var p = BuildWebpPath(ro.Key, product.Id);
             using var inStream = new MemoryStream(pictureBinary.BinaryData);
             using var image = await Image.LoadAsync(inStream);
             using var outStream = new MemoryStream();
@@ -65,12 +93,24 @@ public class PictureBinaryEventConsumer :
                 await image.SaveAsWebpAsync(outStream);
                 image.Mutate(i => i.Resize(ro.Value));
                 using var ms = new MemoryStream(outStream.GetBuffer());
-                await _storageManager.UploadAsync(
-                    $"/{ro.Key}/{pictureBinary.PictureId}.webp",
-                    "image/webp", outStream.GetBuffer());
+                await _storageManager.UploadAsync(p,
+                                    "image/webp", outStream.GetBuffer());
             }
         }
     }
 
-    public Task HandleEventAsync(EntityDeletedEvent<Picture> eventMessage) => _storageManager.DeleteAsync(BuildPath(eventMessage.Entity.Id));
+    //we use pictureId and not pictureBinaryId to enable removal on picure deletion
+    private string BuildCacheKey(int pictureId) => $"picture-binary-consumer:picture-id={pictureId}";
+
+    public Task HandleEventAsync(EntityDeletedEvent<Picture> eventMessage)
+    {
+        var tasks = new List<Task>();
+
+        _memoryCache.Remove(BuildCacheKey(eventMessage.Entity.Id));
+        foreach (var roKey in _resizeOptions.Keys)
+            tasks.Add(_storageManager.DeleteAsync(BuildWebpPath(roKey, eventMessage.Entity.Id)));
+
+        return Task.WhenAll(tasks);
+    }
+
 }
