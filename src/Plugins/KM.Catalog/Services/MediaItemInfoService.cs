@@ -53,7 +53,6 @@ public class MediaItemInfoService : IMediaItemInfoService
 
     public async Task<KmMediaItemInfo> GetOrCreateMediaItemInfoAsync(string type, Picture picture, int displayOrder)
     {
-
         var pb = await _pictureBinaryRepository.Table
             .FirstOrDefaultAsync(pb => pb.PictureId == picture.Id);
         KmMediaItemInfo e = null;

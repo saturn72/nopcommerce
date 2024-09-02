@@ -1,5 +1,7 @@
 ﻿using KM.Api.Factories;
 using KM.Api.Middlewares;
+using KM.Api.Services.Media;
+using Nop.Services.Media;
 
 namespace KM.Api.Infrastructure;
 
@@ -37,6 +39,15 @@ public class PluginNopStartup : INopStartup
         services.AddSingleton<MediaConvertor>();
         services.AddScoped<IShoppingCartFactory, ShoppingCartFactory>();
         services.AddSignalR();
+
+        services.AddScoped<IStorageManager, GcpStorageManager>();
+        services.Configure<GcpOptions>(options =>
+        {
+            var bn = configuration["gcpOptions:bucketName"];
+            if (string.IsNullOrEmpty(bn) || string.IsNullOrWhiteSpace(bn))
+                throw new ArgumentException(nameof(GcpOptions.BucketName));
+            options.BucketName = bn;
+        });
     }
 
     public void Configure(IApplicationBuilder application)

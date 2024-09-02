@@ -39,7 +39,7 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         userIds.ThrowIfNullOrEmpty(nameof(userIds));
 
         var uids = userIds.Select(uid => new UidIdentifier(uid)).ToArray();
-        var getUsersResponse = await _adapter.GetAuth().GetUsersAsync(uids);
+        var getUsersResponse = await _adapter.Auth.GetUsersAsync(uids);
 
         var maps = new List<KmUserCustomerMap>();
 

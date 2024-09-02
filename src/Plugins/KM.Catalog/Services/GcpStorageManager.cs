@@ -9,7 +9,7 @@ public class GcpStorageManager : IStorageManager
     {
        "https://www.googleapis.com/auth/cloud-platform",
        "https://www.googleapis.com/auth/firebase",
-   };
+    };
     private StorageClient _storageClient;
 
     public GcpStorageManager(
@@ -28,8 +28,8 @@ public class GcpStorageManager : IStorageManager
 
         var res = await storage.UploadObjectAsync(_options.CurrentValue.BucketName, p, contentType, stream);
 
-        await _logger.InformationAsync($"Finish uploading to bucket. Success =  {(res.Id.IsNullOrEmpty() ? "false": "true")}");
-        
+        await _logger.InformationAsync($"Finish uploading to bucket. Success =  {(res.Id.IsNullOrEmpty() ? "false" : "true")}");
+
         return new()
         {
             StorageIdentifier = res.Id,
