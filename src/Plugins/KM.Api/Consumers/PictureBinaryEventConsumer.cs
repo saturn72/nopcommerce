@@ -62,8 +62,7 @@ public class PictureBinaryEventConsumer :
         };
         _mco = new()
         {
-            SlidingExpiration = TimeSpan.FromSeconds(2),
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(6),
+            AbsoluteExpiration = DateTime.UtcNow.AddSeconds(10),
         };
         _mco.PostEvictionCallbacks.Add(_uploadEvioctionCallback);
     }
@@ -72,9 +71,10 @@ public class PictureBinaryEventConsumer :
 
     public Task HandleEventAsync(EntityUpdatedEvent<PictureBinary> eventMessage) => AddToUploadQueue(eventMessage.Entity);
 
-    private async Task AddToUploadQueue(PictureBinary pictureBinary)
+    private Task AddToUploadQueue(PictureBinary pictureBinary)
     {
         _memoryCache.Set(BuildCacheKey(pictureBinary.PictureId), pictureBinary, _mco);
+        return Task.CompletedTask;
     }
 
     private string BuildWebpPath(string type, int pictureId) => $"/{type}/{pictureId}.webp";
