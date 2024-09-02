@@ -13,32 +13,36 @@ public class PictureBinaryEventConsumer :
 {
     private readonly IStorageManager _storageManager;
     private readonly IPictureService _pictureService;
-    private readonly IMemoryCache _memoryCache;
+    private readonly IPriorityQueue _queue;
     private readonly IReadOnlyDictionary<string, ResizeOptions> _resizeOptions;
-    private readonly MemoryCacheEntryOptions _mco;
-    private readonly PostEvictionCallbackRegistration _uploadEvioctionCallback;
+
 
     public PictureBinaryEventConsumer(
             IStorageManager storageManager,
             IPictureService pictureService,
-            IMemoryCache memoryCache
+            IPriorityQueue queue
         )
     {
         _storageManager = storageManager;
         _pictureService = pictureService;
-        _memoryCache = memoryCache;
+        _queue = queue;
+
         _resizeOptions = new Dictionary<string, ResizeOptions> {
-            {"thumbnail", new() {
-                Size = new()
-                {
-                    Height = 0,
-                    Width = 74,
-                },
-                Mode = ResizeMode.Min,
-                Sampler = KnownResamplers.Lanczos3,
-            }
+            {
+                StorageConsts.Thumbnail,
+                new() {
+                    Size = new()
+                    {
+                        Height = 0,
+                        Width = 74,
+                    },
+                    Mode = ResizeMode.Min,
+                    Sampler = KnownResamplers.Lanczos3,
+                }
             },
-            {"image", new()
+            {
+                StorageConsts.Image,
+                new()
                 {
                     Size = new()
                     {
@@ -50,21 +54,6 @@ public class PictureBinaryEventConsumer :
                 }
             }
         };
-
-        _uploadEvioctionCallback = new()
-        {
-            EvictionCallback = (object key, object? value, EvictionReason reason, object? state) =>
-            {
-                if (reason == EvictionReason.Removed || reason == EvictionReason.Replaced)
-                    return;
-                _ = UploadImageAsync(value as PictureBinary);
-            }
-        };
-        _mco = new()
-        {
-            AbsoluteExpiration = DateTime.UtcNow.AddSeconds(10),
-        };
-        _mco.PostEvictionCallbacks.Add(_uploadEvioctionCallback);
     }
 
     public Task HandleEventAsync(EntityInsertedEvent<PictureBinary> eventMessage) => AddToUploadQueue(eventMessage.Entity);
@@ -73,7 +62,7 @@ public class PictureBinaryEventConsumer :
 
     private Task AddToUploadQueue(PictureBinary pictureBinary)
     {
-        _memoryCache.Set(BuildCacheKey(pictureBinary.PictureId), pictureBinary, _mco);
+        _queue.Enqueue(BuildCacheKey(pictureBinary.PictureId), pictureBinary, UploadImageAsync);
         return Task.CompletedTask;
     }
 
@@ -93,8 +82,7 @@ public class PictureBinaryEventConsumer :
                 await image.SaveAsWebpAsync(outStream);
                 image.Mutate(i => i.Resize(ro.Value));
                 using var ms = new MemoryStream(outStream.GetBuffer());
-                await _storageManager.UploadAsync(p,
-                                    "image/webp", outStream.GetBuffer());
+                await _storageManager.UploadAsync(p, "image/webp", outStream.GetBuffer());
             }
         }
     }
@@ -105,8 +93,7 @@ public class PictureBinaryEventConsumer :
     public Task HandleEventAsync(EntityDeletedEvent<Picture> eventMessage)
     {
         var tasks = new List<Task>();
-
-        _memoryCache.Remove(BuildCacheKey(eventMessage.Entity.Id));
+        _queue.Dequeue(BuildCacheKey(eventMessage.Entity.Id));
         foreach (var roKey in _resizeOptions.Keys)
             tasks.Add(_storageManager.DeleteAsync(BuildWebpPath(roKey, eventMessage.Entity.Id)));
 

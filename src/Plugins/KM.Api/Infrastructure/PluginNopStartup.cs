@@ -1,13 +1,14 @@
 ﻿using KM.Api.Factories;
 using KM.Api.Middlewares;
 using KM.Api.Services.Media;
-using Nop.Services.Media;
 
 namespace KM.Api.Infrastructure;
 
 public class PluginNopStartup : INopStartup
 {
     private const string CorsPolicy = "api-order-cors";
+    private const string CatalogWSCorsPolicy = "catalog-ws-cors";
+
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         var origins = configuration.GetRequiredSection("cors:origins")
@@ -22,6 +23,12 @@ public class PluginNopStartup : INopStartup
                 policy => policy.WithOrigins(origins)
                 .AllowAnyHeader()
                 .AllowAnyMethod());
+
+            options.AddPolicy(name: CatalogWSCorsPolicy,
+                          policy => policy.WithOrigins(origins)
+                              .WithMethods("GET", "POST")
+                              .AllowCredentials()
+                              .AllowAnyHeader());
         });
 
         services.AddMemoryCache();
@@ -39,7 +46,6 @@ public class PluginNopStartup : INopStartup
         services.AddSingleton<MediaConvertor>();
         services.AddScoped<IShoppingCartFactory, ShoppingCartFactory>();
         services.AddSignalR();
-
         services.AddScoped<IStorageManager, GcpStorageManager>();
         services.Configure<GcpOptions>(options =>
         {
@@ -48,10 +54,13 @@ public class PluginNopStartup : INopStartup
                 throw new ArgumentException(nameof(GcpOptions.BucketName));
             options.BucketName = bn;
         });
+
+        services.AddSingleton<IPriorityQueue, PriorityQueue>();
     }
 
     public void Configure(IApplicationBuilder application)
     {
+        application.UseCors(CatalogWSCorsPolicy);
         application.UseCors(CorsPolicy);
         application.UseWhen(
             ctx => ctx.Request.Path.StartsWithSegments("/api"),
