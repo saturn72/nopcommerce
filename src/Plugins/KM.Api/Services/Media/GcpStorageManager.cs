@@ -59,7 +59,7 @@ public class GcpStorageManager : IStorageManager
         await _cachingProvider.SetAsync(path, url, exp);
         return url;
     }
-    public async Task<string> GetDownloadLink(string path)
+    public async Task<string?> GetDownloadLink(string path)
     {
         var p = HandlePath(path);
         var exp = TimeSpan.FromDays(7).Subtract(TimeSpan.FromMinutes(5));
