@@ -41,17 +41,20 @@ public class ProductApiFactory : IProductApiFactory
     public async Task<IEnumerable<ProductInfoApiModel>> ToProductInfoApiModel(IEnumerable<Product> products)
     {
         var m = new List<ProductInfoApiModel>();
-        foreach (var p in products)
+        var tasks = products.Select(async p =>
         {
             var model = await _productModelFactory.PrepareProductDetailsModelAsync(p, null, false);
             m.Add(await ToProductInfo(model, p));
-        }
+        });
+        await Task.WhenAll(tasks);
+
         return m;
+
     }
     private async Task<ProductInfoApiModel> ToProductInfo(ProductDetailsModel productDetails, Product product)
     {
         var banners = await GetBannerAsync(productDetails, product);
-        var gallery = GetProductGalleryAsync(productDetails);
+        var gallery = await GetProductGalleryAsync(productDetails);
         var variants = await GetProductVariantsAsync(productDetails, product);
         var reviews = GetReviews(productDetails);
         return new()
@@ -180,7 +183,7 @@ public class ProductApiFactory : IProductApiFactory
                         ColorSquaresRgb = attributeValue.ColorSquaresRgb, //used with "Color squares" attribute type
                         CustomerEntersQty = attributeValue.CustomerEntersQty,
                         DisplayText = displayText,
-                        Image = _mediaConvertor.ToGalleryItemModel(attributeValue.ImageSquaresPictureModel, 0),
+                        Image = await _mediaConvertor.ToGalleryItemModel(attributeValue.ImageSquaresPictureModel, 0),
                         Name = attributeValue.Name,
                         Price = p.value,
                         PriceText = p.text,
@@ -217,7 +220,7 @@ public class ProductApiFactory : IProductApiFactory
         }
     }
 
-    private IEnumerable<GalleryItemModel> GetProductGalleryAsync(ProductDetailsModel productDetails)
+    private async Task<IEnumerable<GalleryItemModel>> GetProductGalleryAsync(ProductDetailsModel productDetails)
     {
         var images = new List<PictureModel>(new[] { productDetails.DefaultPictureModel });
         images.AddRange(productDetails.PictureModels);
@@ -226,7 +229,7 @@ public class ProductApiFactory : IProductApiFactory
         for (var i = 0; i < images.Count(); i++)
         {
             var p = images.ElementAt(i);
-            res.Add(_mediaConvertor.ToGalleryItemModel(p, i));
+            res.Add(await _mediaConvertor.ToGalleryItemModel(p, i));
         }
 
 

@@ -145,7 +145,7 @@ public class ShoppingCartController : KmApiControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetCartByStoreIdAndUserIdAsync()
+    public async Task<IActionResult> GetUserCart()
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
         var store = await _storeContext.GetCurrentStoreAsync();

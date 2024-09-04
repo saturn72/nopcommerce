@@ -56,6 +56,14 @@ public class PluginNopStartup : INopStartup
         });
 
         services.AddSingleton<IPriorityQueue, PriorityQueue>();
+        services.AddEasyCaching(option =>
+        {
+            option.UseFasterKv(config =>
+            {
+                config.SerializerName = "msg";
+            })
+            .WithMessagePack("msg");
+        });
     }
 
     public void Configure(IApplicationBuilder application)
@@ -65,7 +73,6 @@ public class PluginNopStartup : INopStartup
         application.UseWhen(
             ctx => ctx.Request.Path.StartsWithSegments("/api"),
             appBuilder => appBuilder.UseMiddleware<KmAuthenticationMiddleware>());
-
     }
 
 

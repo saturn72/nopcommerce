@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Nop.Core.Caching;
 
 namespace KM.Api.Infrastructure;
 
@@ -19,22 +20,20 @@ public class PriorityQueue : IPriorityQueue
         if (absoluteExpiration == default)
             absoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(10);
 
-        var callback = new PostEvictionCallbackRegistration
+
+        var mceo = new MemoryCacheEntryOptions()
         {
-            EvictionCallback = (object key, object? value, EvictionReason reason, object? state) =>
+            SlidingExpiration = TimeSpan.FromSeconds(3),
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(20),
+        };
+
+        mceo.RegisterPostEvictionCallback((object key, object? value, EvictionReason reason, object? state) =>
             {
                 if (reason == EvictionReason.Removed || reason == EvictionReason.Replaced)
                     return;
                 _ = handler((TData)value);
-            }
-        };
+            });
 
-        var mco = new MemoryCacheEntryOptions
-        {
-            AbsoluteExpiration = absoluteExpiration,
-        };
-        mco.PostEvictionCallbacks.Add(callback);
-     
-        _memoryCache.Set(key, data, mco);
+        _memoryCache.Set(key, data, mceo);
     }
 }

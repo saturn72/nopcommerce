@@ -1,4 +1,5 @@
 ﻿using KM.Api.Models.Media;
+using KM.Api.Services.Media;
 using Nop.Core.Domain.Media;
 using Nop.Services.Media;
 using Nop.Web.Models.Media;
@@ -6,6 +7,13 @@ using Nop.Web.Models.Media;
 namespace KM.Api.Factories;
 public sealed class MediaConvertor
 {
+    private readonly IStorageManager _storageManager;
+
+    public MediaConvertor(IStorageManager storageManager)
+    {
+        _storageManager = storageManager;
+    }
+
     public async Task<object> ToMediaItemAsync(Picture picture, int displayOrder = 0)
     {
         if (picture == null)
@@ -46,14 +54,19 @@ public sealed class MediaConvertor
         };
     }
 
-    public GalleryItemModel ToGalleryItemModel(PictureModel pictureModel, int index)
+    public async Task<GalleryItemModel> ToGalleryItemModel(PictureModel pictureModel, int index)
     {
+        var fp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Image, pictureModel.Id);
+        var fiUrl = await _storageManager.GetDownloadLink(fp);
+
+        var tp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Thumbnail, pictureModel.Id);
+        var tiUrl = await _storageManager.GetDownloadLink(tp);
         return new()
         {
             Alt = pictureModel.AlternateText,
-            FullImage = pictureModel.FullSizeImageUrl,
+            FullImage = fiUrl,
             Index = index,
-            ThumbImage = pictureModel.ThumbImageUrl,
+            ThumbImage = tiUrl,
             Title = pictureModel.Title,
             Type = "image"
         };

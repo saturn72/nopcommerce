@@ -66,7 +66,6 @@ public class PictureBinaryEventConsumer :
         return Task.CompletedTask;
     }
 
-    private string BuildWebpPath(string type, int pictureId) => $"/{type}/{pictureId}.webp";
 
     private async Task UploadImageAsync(PictureBinary pictureBinary)
     {
@@ -74,7 +73,7 @@ public class PictureBinaryEventConsumer :
 
         foreach (var ro in _resizeOptions)
         {
-            var p = BuildWebpPath(ro.Key, product.Id);
+            var p = _storageManager.BuildWebpPath(ro.Key, product.Id);
             using var inStream = new MemoryStream(pictureBinary.BinaryData);
             using var image = await Image.LoadAsync(inStream);
             using var outStream = new MemoryStream();
@@ -95,7 +94,7 @@ public class PictureBinaryEventConsumer :
         var tasks = new List<Task>();
         _queue.Dequeue(BuildCacheKey(eventMessage.Entity.Id));
         foreach (var roKey in _resizeOptions.Keys)
-            tasks.Add(_storageManager.DeleteAsync(BuildWebpPath(roKey, eventMessage.Entity.Id)));
+            tasks.Add(_storageManager.DeleteAsync(_storageManager.BuildWebpPath(roKey, eventMessage.Entity.Id)));
 
         return Task.WhenAll(tasks);
     }
