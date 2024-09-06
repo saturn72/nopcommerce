@@ -1,6 +1,6 @@
 ﻿using KM.Api.Factories;
 using KM.Api.Models.Directory;
-using Nop.Core.Domain.Vendors;
+using KM.Api.Models.Store;
 using Nop.Services.Attributes;
 using Nop.Services.Media;
 using Nop.Services.Vendors;
@@ -45,21 +45,22 @@ public class StoreController : KmApiControllerBase
             return BadRequest();
 
         var phone = ProcessPhoneNumber(store.CompanyPhoneNumber);
-        var data = new
+        var data = new StoreInfoApiModel
         {
-            storeName = store.Name,
-            displayName = store.DefaultTitle,
-            phone,
-            url = store.Url,
-            socialLinks = new
+            StoreName = store.Name,
+            DisplayName = store.DefaultTitle,
+            Phone = phone,
+            Url = store.Url,
+            SocialLinks = new Dictionary<string, string>
             {
-                facebook = "https://www.facebook.com/KedemMarket.co.il",
-                instagram = "https://www.instagram.com/kedemmarket.co.il/",
-                linktr = "https://linktr.ee/kedemmarket",
+                { KmApiConsts.SocialLinkNames.Facebook , "https://www.facebook.com/KedemMarket.co.il" },
+                { KmApiConsts.SocialLinkNames.Instagram , "https://www.instagram.com/kedemmarket.co.il/"},
+                { KmApiConsts.SocialLinkNames.Linktr , "https://linktr.ee/kedemmarket" },
             }
         };
-        return Ok(data);
+        return ToJsonResult(data);
     }
+
     private string ProcessPhoneNumber(string? sourcePhone)
     {
         if (sourcePhone == null)

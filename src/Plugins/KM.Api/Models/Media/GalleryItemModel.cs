@@ -1,6 +1,4 @@
-﻿using ExCSS;
-
-namespace KM.Api.Models.Media;
+﻿namespace KM.Api.Models.Media;
 public record GalleryItemModel
 {
     public string Alt { get; init; }

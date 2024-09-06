@@ -8,4 +8,11 @@ public class KmApiConsts
         internal const string Thumbnail = "thumbnail";
         internal const string Image = "image";
     }
+
+    internal sealed class SocialLinkNames
+    {
+        internal const string Facebook = "facebook";
+        internal const string Instagram = "instagram";
+        internal const string Linktr = "linktr";
+    }
 }
