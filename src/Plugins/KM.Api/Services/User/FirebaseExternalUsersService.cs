@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-
-namespace KM.Api.Services.User;
+﻿namespace KM.Api.Services.User;
 
 public partial class FirebaseExternalUsersService : IExternalUsersService
 {
@@ -10,15 +8,12 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
     private readonly IRepository<CustomerCustomerRoleMapping> _customerRoleMapRepository;
     private readonly FirebaseAdapter _adapter;
     private readonly IStaticCacheManager _cache;
-    private readonly IUserProfileDocumentStore _userProfileStore;
 
     public FirebaseExternalUsersService(
         IRepository<KmUserCustomerMap> userCustomerMapRepository,
-        // IRepository<CustomerAttributeValue> customerAttributeValueRepository,
         IRepository<Customer> customerRepository,
         IRepository<CustomerRole> customerRoleRepository,
         IRepository<CustomerCustomerRoleMapping> customerRoleMapRepository,
-        IUserProfileDocumentStore userProfileStore,
         FirebaseAdapter adapter,
         IStaticCacheManager cache)
     {
@@ -27,7 +22,6 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         _customerRoleRepository = customerRoleRepository;
         _customerRoleMapRepository = customerRoleMapRepository;
         _adapter = adapter;
-        _userProfileStore = userProfileStore;
         _cache = cache;
     }
 

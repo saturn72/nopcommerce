@@ -54,36 +54,30 @@ public sealed class MediaConvertor
         };
     }
 
-    public async Task<GalleryItemModel> ToGalleryItemModel(PictureModel pictureModel, int index)
+    public async Task<GalleryItemModel> ToGalleryItemModel(Picture picture, int index)
     {
-        string fiUrl = default, tiUrl = default;
-        if (pictureModel.Id > 0)
-        {
-            var fp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Image, pictureModel.Id);
-            fiUrl = await _storageManager.GetDownloadLink(fp);
-            var tp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Thumbnail, pictureModel.Id);
-            tiUrl = await _storageManager.GetDownloadLink(tp);
-        }
+        var fp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Image, picture.Id);
+        var fiUrl = await _storageManager.GetDownloadLink(fp);
+        var tp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Thumbnail, picture.Id);
+        var tiUrl = await _storageManager.GetDownloadLink(tp);
 
         return new()
         {
-            Alt = pictureModel.AlternateText,
+            Alt = picture.AltAttribute,
             FullImage = fiUrl,
             Index = index,
             ThumbImage = tiUrl,
-            Title = pictureModel.Title,
+            Title = picture.TitleAttribute,
             Type = "image"
         };
     }
 
-    public GalleryItemModel ToGalleryItemModel(VideoModel videoModel, int index)
+    public GalleryItemModel ToGalleryItemModel(Video video, int index)
     {
         return new()
         {
             Index = index,
-            Url = videoModel.VideoUrl,
-            Width = videoModel.Width,
-            Height = videoModel.Height,
+            Url = video.VideoUrl,
             Type = "video"
         };
     }

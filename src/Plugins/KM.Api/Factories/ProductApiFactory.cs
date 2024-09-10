@@ -1,7 +1,8 @@
 ﻿using KM.Api.Models.Catalog;
 using KM.Api.Models.Media;
 using Microsoft.AspNetCore.Http;
-using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Media;
+using Nop.Services.Media;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Media;
 
@@ -10,6 +11,8 @@ namespace KM.Api.Factories;
 public class ProductApiFactory : IProductApiFactory
 {
     private readonly IProductService _productService;
+    private readonly IPictureService _pictureService;
+    private readonly IVideoService _videoService;
     private readonly IProductAttributeParser _productAttributeParser;
     private readonly MediaConvertor _mediaConvertor;
     private readonly IProductAttributeFormatter _productAttributeFormatter;
@@ -20,15 +23,20 @@ public class ProductApiFactory : IProductApiFactory
 
     public ProductApiFactory(
         IProductService productService,
+        IPictureService pictureService,
+        IVideoService videoService,
         IProductAttributeParser productAttributeParser,
         MediaConvertor mediaFactory,
         IProductAttributeFormatter productAttributeFormatter,
         IProductModelFactory productModelFactory,
         IPriceFormatter priceFormatter,
         IWorkContext workContext,
-        IStoreContext storeContext)
+        IStoreContext storeContext
+        )
     {
         _productService = productService;
+        _pictureService = pictureService;
+        _videoService = videoService;
         _productAttributeParser = productAttributeParser;
         _mediaConvertor = mediaFactory;
         _productAttributeFormatter = productAttributeFormatter;
@@ -54,7 +62,7 @@ public class ProductApiFactory : IProductApiFactory
     private async Task<ProductInfoApiModel> ToProductInfo(ProductDetailsModel productDetails, Product product)
     {
         var banners = await GetBannerAsync(productDetails, product);
-        var gallery = await GetProductGalleryAsync(productDetails);
+        var gallery = await GetProductGalleryAsync(product);
         var variants = await GetProductVariantsAsync(productDetails, product);
         var reviews = GetReviews(productDetails);
         return new()
@@ -177,13 +185,30 @@ public class ProductApiFactory : IProductApiFactory
                         attributeValue.PriceAdjustmentUsePercentage,
                         attributeValue.PriceAdjustmentValue);
 
+                    //var image =_pictureService.GetPictureByIdAsync(attributeValue.Image
+                        //await _mediaConvertor.ToGalleryItemModel(attributeValue.ImageSquaresPictureModel.., 0),
+
+                    //     var imageSquaresPicture = await _pictureService.GetPictureByIdAsync(attributeValue.ImageSquaresPictureId);
+
+                    //(var fullSizeImageUrl, imageSquaresPicture) = await _pictureService.GetPictureUrlAsync(imageSquaresPicture);
+                    //(var imageUrl, imageSquaresPicture) = await _pictureService.GetPictureUrlAsync(imageSquaresPicture, _mediaSettings.ImageSquarePictureSize);
+
+                    //if (imageSquaresPicture != null)
+                    //{
+
+                    //    return new PictureModel
+                    //    {
+                    //        FullSizeImageUrl = fullSizeImageUrl,
+                    //        ImageUrl = imageUrl
+                    //    };
+                    //}
                     var vo = new ProductInfoApiModel.Variant.Option
                     {
                         Id = attributeValue.Id,
                         ColorSquaresRgb = attributeValue.ColorSquaresRgb, //used with "Color squares" attribute type
                         CustomerEntersQty = attributeValue.CustomerEntersQty,
                         DisplayText = displayText,
-                        Image = await _mediaConvertor.ToGalleryItemModel(attributeValue.ImageSquaresPictureModel, 0),
+                        //Image = image,
                         Name = attributeValue.Name,
                         Price = p.value,
                         PriceText = p.text,
@@ -220,22 +245,21 @@ public class ProductApiFactory : IProductApiFactory
         }
     }
 
-    private async Task<IEnumerable<GalleryItemModel>> GetProductGalleryAsync(ProductDetailsModel productDetails)
+    private async Task<IEnumerable<GalleryItemModel>> GetProductGalleryAsync(Product product)
     {
-        var images = new List<PictureModel>(new[] { productDetails.DefaultPictureModel });
-        images.AddRange(productDetails.PictureModels);
-        var res = new List<GalleryItemModel>();
+        var pictures = await _pictureService.GetPicturesByProductIdAsync(product.Id);
 
-        for (var i = 0; i < images.Count(); i++)
+        var res = new List<GalleryItemModel>();
+        for (var i = 0; i < pictures.Count(); i++)
         {
-            var p = images.ElementAt(i);
+            var p = pictures.ElementAt(i);
             res.Add(await _mediaConvertor.ToGalleryItemModel(p, i));
         }
 
-
-        for (var i = 0; i < productDetails.VideoModels.Count(); i++)
+        var videos = await _videoService.GetVideosByProductIdAsync(product.Id);
+        for (var i = 0; i < videos.Count(); i++)
         {
-            var v = productDetails.VideoModels.ElementAt(i);
+            var v = videos.ElementAt(i);
             res.Add(_mediaConvertor.ToGalleryItemModel(v, i));
         }
 
