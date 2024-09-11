@@ -13,6 +13,7 @@ public class ProductApiFactory : IProductApiFactory
     private readonly IProductService _productService;
     private readonly IPictureService _pictureService;
     private readonly IVideoService _videoService;
+    private readonly IProductAttributeService _productAttributeService;
     private readonly IProductAttributeParser _productAttributeParser;
     private readonly MediaConvertor _mediaConvertor;
     private readonly IProductAttributeFormatter _productAttributeFormatter;
@@ -25,14 +26,14 @@ public class ProductApiFactory : IProductApiFactory
         IProductService productService,
         IPictureService pictureService,
         IVideoService videoService,
+        IProductAttributeService productAttributeService,
         IProductAttributeParser productAttributeParser,
         MediaConvertor mediaFactory,
         IProductAttributeFormatter productAttributeFormatter,
         IProductModelFactory productModelFactory,
         IPriceFormatter priceFormatter,
         IWorkContext workContext,
-        IStoreContext storeContext
-        )
+        IStoreContext storeContext)
     {
         _productService = productService;
         _pictureService = pictureService;
@@ -44,6 +45,7 @@ public class ProductApiFactory : IProductApiFactory
         _priceFormatter = priceFormatter;
         _workContext = workContext;
         _storeContext = storeContext;
+        _productAttributeService = productAttributeService;
     }
 
     public async Task<IEnumerable<ProductInfoApiModel>> ToProductInfoApiModel(IEnumerable<Product> products)
@@ -185,30 +187,25 @@ public class ProductApiFactory : IProductApiFactory
                         attributeValue.PriceAdjustmentUsePercentage,
                         attributeValue.PriceAdjustmentValue);
 
-                    //var image =_pictureService.GetPictureByIdAsync(attributeValue.Image
-                        //await _mediaConvertor.ToGalleryItemModel(attributeValue.ImageSquaresPictureModel.., 0),
+                    var avId = attributeValue.Id;
+                    var attValEntity = await _productAttributeService.GetProductAttributeValueByIdAsync(attributeValue.Id);
+                    var image = default(GalleryItemModel);
 
-                    //     var imageSquaresPicture = await _pictureService.GetPictureByIdAsync(attributeValue.ImageSquaresPictureId);
+                    if (attValEntity.ImageSquaresPictureId != 0)
+                    {
+                        var isp = await _pictureService.GetPictureByIdAsync(attValEntity.ImageSquaresPictureId);
+                        if (isp != default)
+                            image = await _mediaConvertor.ToGalleryItemModel(isp, 0);
 
-                    //(var fullSizeImageUrl, imageSquaresPicture) = await _pictureService.GetPictureUrlAsync(imageSquaresPicture);
-                    //(var imageUrl, imageSquaresPicture) = await _pictureService.GetPictureUrlAsync(imageSquaresPicture, _mediaSettings.ImageSquarePictureSize);
+                    }
 
-                    //if (imageSquaresPicture != null)
-                    //{
-
-                    //    return new PictureModel
-                    //    {
-                    //        FullSizeImageUrl = fullSizeImageUrl,
-                    //        ImageUrl = imageUrl
-                    //    };
-                    //}
                     var vo = new ProductInfoApiModel.Variant.Option
                     {
                         Id = attributeValue.Id,
                         ColorSquaresRgb = attributeValue.ColorSquaresRgb, //used with "Color squares" attribute type
                         CustomerEntersQty = attributeValue.CustomerEntersQty,
                         DisplayText = displayText,
-                        //Image = image,
+                        Image = image,
                         Name = attributeValue.Name,
                         Price = p.value,
                         PriceText = p.text,

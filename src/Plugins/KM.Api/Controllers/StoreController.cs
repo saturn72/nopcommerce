@@ -1,6 +1,7 @@
 ﻿using KM.Api.Factories;
 using KM.Api.Models.Directory;
 using KM.Api.Models.Store;
+using KM.Api.Models.User;
 using Nop.Services.Attributes;
 using Nop.Services.Media;
 using Nop.Services.Vendors;
@@ -94,22 +95,22 @@ public class StoreController : KmApiControllerBase
 
         return Ok(new { vendors });
     }
-    private async Task<object> ToVendorApiModel(Vendor vendor)
+    private async Task<VendorApiModel> ToVendorApiModel(Vendor vendor)
     {
         var address = await _addressService.GetAddressByIdAsync(vendor.AddressId);
         var picture = await _pictureService.GetPictureByIdAsync(vendor.PictureId);
 
-        return new
+        return new()
         {
-            id = vendor.Id,
-            name = vendor.Name,
-            description = vendor.Description,
-            contactInfo = await ToContactInfo(address),
-            displayOrder = vendor.DisplayOrder,
-            metaKeywords = vendor.MetaKeywords,
-            metaDescription = vendor.MetaDescription,
-            metaTitle = vendor.MetaTitle,
-            image = _mediaPreperar.ToMediaItemAsync(picture)
+            Id = vendor.Id,
+            Name = vendor.Name,
+            Description = vendor.Description,
+            ContactInfo = await ToContactInfo(address),
+            DisplayOrder = vendor.DisplayOrder,
+            MetaKeywords = vendor.MetaKeywords,
+            MetaDescription = vendor.MetaDescription,
+            MetaTitle = vendor.MetaTitle,
+            Image = await _mediaPreperar.ToGalleryItemModel(picture, 0)
         };
         //PictureId,
     }

@@ -143,7 +143,7 @@ public class SearchController : KmApiControllerBase
             if (picture == null)
                 continue;
 
-            var item = await _mediaPreperar.ToMediaItemAsync(picture, pp.DisplayOrder);
+            var item = await _mediaPreperar.ToGalleryItemModel(picture, pp.DisplayOrder);
             cmis.Add(item);
         }
 
@@ -155,7 +155,7 @@ public class SearchController : KmApiControllerBase
             if (video == null)
                 continue;
 
-            cmis.Add(_mediaPreperar.ToMediaItem(video, v.DisplayOrder));
+            cmis.Add(_mediaPreperar.ToGalleryItemModel(video, v.DisplayOrder));
         }
         return cmis.ToList();
     }
