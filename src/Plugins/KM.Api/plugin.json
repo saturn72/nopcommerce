@@ -1,8 +1,9 @@
-﻿{
+﻿
+{
   "Group": "Kedem Market",
   "FriendlyName": "Kedem Market API plugin",
   "SystemName": "KM.Api",
-  "Version": "1.13",
+  "Version": "1.1.5",
   "SupportedVersions": [ "4.60", "4.70", "4.80" ],
   "Author": "Saturn72",
   "DisplayOrder": 1,

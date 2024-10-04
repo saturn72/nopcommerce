@@ -106,6 +106,7 @@ public class KmOrderService : IKmOrderService
             };
 
             await _kmOrderRepository.InsertAsync(kmOrder);
+            res.KmOrder = kmOrder;
             await _logger.InformationAsync($"order added to the database. {nameof(kmOrder.NopOrderId)}=\'{kmOrder.NopOrderId}\'");
             await _shoppingCartService.ClearShoppingCartAsync(customer, store.Id);
         }

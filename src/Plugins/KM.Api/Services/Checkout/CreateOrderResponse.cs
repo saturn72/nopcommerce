@@ -1,4 +1,5 @@
-﻿namespace KM.Api.Services.Checkout;
+﻿
+namespace KM.Api.Services.Checkout;
 
 public class CreateOrderResponse
 {
@@ -7,4 +8,5 @@ public class CreateOrderResponse
     public IEnumerable<ShoppingCartItem> DisapprovedShoppingCartItems { get; set; }
     public bool IsError => Error.HasValue();
     public string Error { get; set; }
+    public KmOrder KmOrder { get; set; }
 }

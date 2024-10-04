@@ -1,5 +1,4 @@
 ﻿using KM.Api.Services.Media;
-using Microsoft.Extensions.Caching.Memory;
 using Nop.Services.Media;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;

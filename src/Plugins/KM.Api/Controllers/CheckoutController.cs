@@ -25,10 +25,11 @@ public class CheckoutController : KmApiControllerBase
         var errors = new List<string>();
         var cor = await _shoppingCartFactory.ToCreateOrderRequest(model, errors);
 
-        var created = await _kmOrderService.CreateOrderAsync(cor);
-        if (created.IsError)
-            return BadRequest(new { error = created.Error });
+        var res = await _kmOrderService.CreateOrderAsync(cor);
+        if (res.IsError)
+            return BadRequest(new { error = res.Error });
 
-        return Accepted();
+        var o = res.KmOrder.NopOrder;
+        return Ok(new {id = o.Id, status = o.OrderStatus });
     }
 }

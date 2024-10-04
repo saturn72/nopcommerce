@@ -1,11 +1,8 @@
 ﻿using KM.Api.Models.Directory;
+using KM.Api.Models.Media;
 using Microsoft.AspNetCore.Http;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Security;
-using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Tax;
-using Nop.Core.Domain.Vendors;
 using Nop.Services.Attributes;
 using Nop.Services.Directory;
 using Nop.Services.Discounts;
@@ -17,12 +14,14 @@ using Nop.Services.Seo;
 using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Services.Vendors;
+using static LinqToDB.Reflection.Methods.LinqToDB.Insert;
 
 namespace KM.Api.Factories;
 
 public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactory
 {
     private readonly IProductAttributeParser _productAttributeParser;
+    private readonly MediaConvertor _mediaConvertor;
 
     public ShoppingCartFactory(
         AddressSettings addressSettings,
@@ -73,9 +72,11 @@ public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactor
         ShoppingCartSettings shoppingCartSettings,
         TaxSettings taxSettings,
         VendorSettings vendorSettings,
-        IProductAttributeParser productAttributeParser) : base(addressSettings, captchaSettings, catalogSettings, commonSettings, customerSettings, addressModelFactory, addressService, checkoutAttributeParser, checkoutAttributeService, checkoutAttributeFormatter, countryService, currencyService, customerService, dateTimeHelper, discountService, downloadService, genericAttributeService, giftCardService, httpContextAccessor, localizationService, orderProcessingService, orderTotalCalculationService, paymentPluginManager, paymentService, permissionService, pictureService, priceFormatter, productAttributeFormatter, productService, shippingService, shoppingCartService, shortTermCacheManager, stateProvinceService, staticCacheManager, storeContext, storeMappingService, taxService, urlRecordService, vendorService, webHelper, workContext, mediaSettings, orderSettings, rewardPointsSettings, shippingSettings, shoppingCartSettings, taxSettings, vendorSettings)
+        IProductAttributeParser productAttributeParser,
+        MediaConvertor mediaConvertor) : base(addressSettings, captchaSettings, catalogSettings, commonSettings, customerSettings, addressModelFactory, addressService, checkoutAttributeParser, checkoutAttributeService, checkoutAttributeFormatter, countryService, currencyService, customerService, dateTimeHelper, discountService, downloadService, genericAttributeService, giftCardService, httpContextAccessor, localizationService, orderProcessingService, orderTotalCalculationService, paymentPluginManager, paymentService, permissionService, pictureService, priceFormatter, productAttributeFormatter, productService, shippingService, shoppingCartService, shortTermCacheManager, stateProvinceService, staticCacheManager, storeContext, storeMappingService, taxService, urlRecordService, vendorService, webHelper, workContext, mediaSettings, orderSettings, rewardPointsSettings, shippingSettings, shoppingCartSettings, taxSettings, vendorSettings)
     {
         _productAttributeParser = productAttributeParser;
+        _mediaConvertor = mediaConvertor;
     }
 
     public async Task<CreateOrderRequest> ToCreateOrderRequest(CartTransactionApiModel model, List<string> errors)
@@ -147,7 +148,7 @@ public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactor
         {
             var productAttribute = (await _productAttributeParser.ParseProductAttributeValuesAsync(sci.AttributesXml)).FirstOrDefault();
             var i = await PrepareShoppingCartItemModelAsync(cart, sci);
-            modelItems.Add(ToShoppingCartItemApiModel(i, productAttribute));
+            modelItems.Add(await ToShoppingCartItemApiModel(sci, i, productAttribute));
         }
         return new()
         {
@@ -155,32 +156,39 @@ public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactor
         };
     }
 
-    private CheckoutCartItemApiModel ToShoppingCartItemApiModel(ShoppingCartModel.ShoppingCartItemModel source, ProductAttributeValue productAttribute)
+    private async Task<CheckoutCartItemApiModel> ToShoppingCartItemApiModel(ShoppingCartItem sci, ShoppingCartModel.ShoppingCartItemModel model, ProductAttributeValue productAttribute)
     {
+        var product = await _productService.GetProductByIdAsync(sci.ProductId);
+        var sciPicture = await _pictureService.GetProductPictureAsync(product, sci.AttributesXml);
+        var thumbnail = sciPicture != default ?
+            await _mediaConvertor.ToThumbnail(sciPicture)
+            : default;
+
         return new()
         {
-            Id = source.Id,
-            Sku = source.Sku,
-            VendorName = source.VendorName,
-            Picture = source.Picture,
-            ProductId = source.ProductId,
-            ProductName = source.ProductName,
-            ProductSeName = source.ProductSeName,
-            UnitPrice = source.UnitPrice,
-            UnitPriceValue = source.UnitPriceValue,
-            SubTotal = source.SubTotal,
-            SubTotalValue = source.SubTotalValue,
-            Discount = source.Discount,
-            DiscountValue = source.DiscountValue,
-            MaximumDiscountedQty = source.MaximumDiscountedQty,
-            Quantity = source.Quantity,
-            AllowedQuantities = source.AllowedQuantities,
-            AttributeInfo = source.AttributeInfo,
-            RecurringInfo = source.RecurringInfo,
-            RentalInfo = source.RentalInfo,
-            AllowItemEditing = source.AllowItemEditing,
-            DisableRemoval = source.DisableRemoval,
-            Warnings = source.Warnings,
+            Id = model.Id,
+            AllowItemEditing = model.AllowItemEditing,
+            DisableRemoval = model.DisableRemoval,
+            VendorName = model.VendorName,
+            Picture = model.Picture,
+            ProductId = model.ProductId,
+            ProductName = model.ProductName,
+            ProductSeName = model.ProductSeName,
+            UnitPrice = model.UnitPrice,
+            UnitPriceValue = model.UnitPriceValue,
+            SubTotal = model.SubTotal,
+            SubTotalValue = model.SubTotalValue,
+            Discount = model.Discount,
+            DiscountValue = model.DiscountValue,
+            MaximumDiscountedQty = model.MaximumDiscountedQty,
+            Quantity = model.Quantity,
+            AllowedQuantities = model.AllowedQuantities,
+            AttributeInfo = model.AttributeInfo,
+            RecurringInfo = model.RecurringInfo,
+            RentalInfo = model.RentalInfo,
+            Sku = model.Sku,
+            Thumbnail = thumbnail,
+            Warnings = model.Warnings,
             VariantId = productAttribute?.ProductAttributeMappingId ?? 0,
             OptionId = productAttribute?.Id ?? 0,
         };

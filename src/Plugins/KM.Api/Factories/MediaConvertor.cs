@@ -41,24 +41,30 @@ public sealed class MediaConvertor
     //    };
     //}
 
+    public Task<string> ToThumbnail(Picture picture)
+    {
+        var tp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Thumbnail, picture.Id);
+        return _storageManager.GetDownloadLink(tp);
+    }
 
-    public async Task<GalleryItemModel> ToGalleryItemModel(Picture picture, int index)
+    public Task<string> ToImage(Picture picture)
     {
         var fp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Image, picture.Id);
-        var fiUrl = await _storageManager.GetDownloadLink(fp);
-        var tp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Thumbnail, picture.Id);
-        var tiUrl = await _storageManager.GetDownloadLink(tp);
-
+        return _storageManager.GetDownloadLink(fp);
+    }
+    public async Task<GalleryItemModel> ToGalleryItemModel(Picture picture, int index)
+    {
         return new()
         {
             Alt = picture.AltAttribute,
-            FullImage = fiUrl,
+            FullImage = await ToImage(picture),
             Index = index,
-            ThumbImage = tiUrl,
+            ThumbImage = await ToThumbnail(picture),
             Title = picture.TitleAttribute,
             Type = "image"
         };
     }
+
     public GalleryItemModel ToGalleryItemModel(Video video, int index)
     {
         return new()
