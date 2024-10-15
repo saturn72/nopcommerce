@@ -1,5 +1,4 @@
 ﻿using KM.Api.Factories;
-using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Services.Directory;
 using Nop.Services.Localization;

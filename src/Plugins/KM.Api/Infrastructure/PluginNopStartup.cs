@@ -45,6 +45,7 @@ public class PluginNopStartup : INopStartup
         services.AddScoped<IProductApiFactory, ProductApiFactory>();
         services.AddSingleton<MediaConvertor>();
         services.AddScoped<IShoppingCartFactory, ShoppingCartFactory>();
+        services.AddScoped<IOrderApiModelFactory, OrderApiModelFactory>();
         services.AddSignalR();
         services.AddScoped<IStorageManager, GcpStorageManager>();
         services.Configure<GcpOptions>(options =>

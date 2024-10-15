@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Nop.Core.Caching;
 
 namespace KM.Api.Infrastructure;
 

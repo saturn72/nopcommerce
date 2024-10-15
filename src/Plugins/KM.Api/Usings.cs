@@ -6,6 +6,8 @@ global using KM.Api.Documents;
 global using KM.Api.Domain.Checkout;
 global using KM.Api.Domain.User;
 global using Nop.Core.Domain.Stores;
+global using KM.Api.Extensions;
+global using KM.Api.Factories;
 global using KM.Api.Models.Cart;
 global using KM.Api.Models.Checkout;
 global using KM.Api.Services;

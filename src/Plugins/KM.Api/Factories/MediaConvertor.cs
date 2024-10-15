@@ -1,5 +1,6 @@
 ﻿using KM.Api.Models.Media;
 using KM.Api.Services.Media;
+using Nop.Web.Models.Media;
 
 namespace KM.Api.Factories;
 public sealed class MediaConvertor
@@ -41,15 +42,15 @@ public sealed class MediaConvertor
     //    };
     //}
 
-    public Task<string> ToThumbnail(Picture picture)
+    public Task<string> ToThumbnail(int pictureId)
     {
-        var tp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Thumbnail, picture.Id);
+        var tp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Thumbnail, pictureId);
         return _storageManager.GetDownloadLink(tp);
     }
 
-    public Task<string> ToImage(Picture picture)
+    public Task<string> ToImage(int pictureId)
     {
-        var fp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Image, picture.Id);
+        var fp = _storageManager.BuildWebpPath(KmApiConsts.MediaTypes.Image, pictureId);
         return _storageManager.GetDownloadLink(fp);
     }
     public async Task<GalleryItemModel> ToGalleryItemModel(Picture picture, int index)
@@ -57,13 +58,27 @@ public sealed class MediaConvertor
         return new()
         {
             Alt = picture.AltAttribute,
-            FullImage = await ToImage(picture),
+            FullImage = await ToImage(picture.Id),
             Index = index,
-            ThumbImage = await ToThumbnail(picture),
+            ThumbImage = await ToThumbnail(picture.Id),
             Title = picture.TitleAttribute,
             Type = "image"
         };
     }
+
+    public async Task<GalleryItemModel> ToGalleryItemModel(PictureModel picture, int index)
+    {
+        return new()
+        {
+            Alt = picture.AlternateText,
+            FullImage = await ToImage(picture.Id),
+            Index = index,
+            ThumbImage = await ToThumbnail(picture.Id),
+            Title = picture.Title,
+            Type = "image"
+        };
+    }
+
 
     public GalleryItemModel ToGalleryItemModel(Video video, int index)
     {

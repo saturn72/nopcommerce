@@ -1,4 +1,5 @@
-﻿using KM.Api.Models.Directory;
+﻿using KM.Api.Extensions;
+using KM.Api.Models.Directory;
 using KM.Api.Models.Media;
 using Microsoft.AspNetCore.Http;
 using Nop.Core.Domain.Security;
@@ -87,28 +88,11 @@ public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactor
             CartItems = items,
             PaymentMethod = model.PaymentMethod.ToSystemPaymentMethod(),
             StorePickup = model.StorePickup,
-            BillingInfo = toAddress(model.BillingInfo),
+            BillingInfo = model.BillingInfo.ToAddress(),
             UpdateBillingInfo = model.BillingInfo.UpdateUserInfo,
-            ShippingInfo = toAddress(model.ShippingInfo),
+            ShippingInfo = model.ShippingInfo.ToAddress(),
             UpdateShippingInfo = model.ShippingInfo.UpdateUserInfo,
         };
-
-        static Address toAddress(ContactInfoModel ci)
-        {
-            var names = ci.Fullname.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var lastName = ci.Fullname[names[0].Length..].Trim();
-            return new Address
-            {
-                FirstName = names[0],
-                LastName = lastName,
-                Email = ci.Email,
-                PhoneNumber = ci.Phone,
-                Address1 = ci.Address.Street,
-                City = ci.Address.City,
-                ZipPostalCode = ci.Address.PostalCode,
-                //CountryId == need to add countryId
-            };
-        }
     }
 
     public async Task<IList<ShoppingCartItem>> ToShoppingCartItems(IEnumerable<ShoppingCartItemApiModel> items, List<string> errors)
@@ -161,7 +145,7 @@ public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactor
         var product = await _productService.GetProductByIdAsync(sci.ProductId);
         var sciPicture = await _pictureService.GetProductPictureAsync(product, sci.AttributesXml);
         var thumbnail = sciPicture != default ?
-            await _mediaConvertor.ToThumbnail(sciPicture)
+            await _mediaConvertor.ToThumbnail(sciPicture.Id)
             : default;
 
         return new()
