@@ -26,10 +26,10 @@ public record OrderInfoModel
     public string PaymentMethodAdditionalFee { get; init; }
     public decimal PaymentMethodAdditionalFeeValue { get; init; }
     public string PaymentMethodStatus { get; init; }
-    public AddressApiModel PickupAddress { get; init; }
 
     //shipping/pickup
-    public bool PickupInStore { get; init; }
+    public bool Pickup { get; init; }
+    public AddressApiModel PickupAddress { get; init; }
     public ContactInfoModel ShippingAddress { get; init; }
     public string ShippingMethod { get; init; }
     public string ShippingStatus { get; init; }

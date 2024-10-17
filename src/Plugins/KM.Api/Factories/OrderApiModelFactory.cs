@@ -79,7 +79,7 @@ public class OrderApiModelFactory : IOrderApiModelFactory
             PaymentMethodAdditionalFeeValue = odm.PaymentMethodAdditionalFeeValue,
             PaymentMethodStatus = odm.PaymentMethodStatus.ToLower(),
             PickupAddress = odm.PickupAddress.ToAddressApiModel(),
-            PickupInStore = odm.PickupInStore,
+            Pickup = odm.PickupInStore,
             ShippingAddress = odm.ShippingAddress.ToContactInfoModel(),
             ShippingMethod = odm.ShippingMethod,
             ShippingStatus = odm.ShippingStatus.ToLower(),
