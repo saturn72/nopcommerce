@@ -10,6 +10,7 @@ global using KM.Api.Extensions;
 global using KM.Api.Factories;
 global using KM.Api.Models.Cart;
 global using KM.Api.Models.Checkout;
+global using KM.Api.Models.OrderManagement;
 global using KM.Api.Services;
 global using KM.Api.Services.User;
 global using Microsoft.AspNetCore.Authentication;

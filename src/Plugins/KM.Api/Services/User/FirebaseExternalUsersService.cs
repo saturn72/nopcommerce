@@ -1,4 +1,6 @@
-﻿namespace KM.Api.Services.User;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+
+namespace KM.Api.Services.User;
 
 public partial class FirebaseExternalUsersService : IExternalUsersService
 {
@@ -24,8 +26,6 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         _adapter = adapter;
         _cache = cache;
     }
-
-
 
     public async Task<IEnumerable<KmUserCustomerMap>> ProvisionUsersAsync(IEnumerable<string> userIds)
     {
@@ -71,7 +71,12 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
         var ck = new CacheKey(key, "external-user:kedemmarket:uid", "external-user:kedemmarket", "external-user");
         return _cache.PrepareKeyForDefaultCache(ck);
     }
-
+    private CacheKey BuildCustomerCacheKey(int customerId)
+    {
+        var key = string.Format("external-user:kedemmarket:customerid:{0}", customerId);
+        var ck = new CacheKey(key, "external-user:kedemmarket:customerid", "external-user:kedemmarket", "external-user");
+        return _cache.PrepareKeyForDefaultCache(ck);
+    }
     private async Task<KmUserCustomerMap> CreateOrUpdateCustomerAndMap(UserRecord user)
     {
         Customer customer = default;
@@ -185,14 +190,47 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
 
     public async Task<KmUserCustomerMap> GetUserIdCustomerMapByExternalUserId(string userId)
     {
+        var read = false;
         var key = BuildUserCacheKey(userId);
-        return await _cache.GetAsync(key, async () =>
+        var map = await _cache.GetAsync(key, async () =>
         {
             var map = await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(x => x.KmUserId == userId);
             if (map != default)
                 map.Customer = await _customerRepository.Table.FirstOrDefaultAsync(x => x.Id == map.CustomerId);
+            read = true;
+            return map;
+        });
+
+        if(read)
+        {
+            var key2 = BuildCustomerCacheKey(map.CustomerId);
+            _ = _cache.GetAsync(key2, () => map);
+        }
+
+        return map;
+    }
+
+    public async Task<KmUserCustomerMap> GetUserIdCustomerMapByInternalCustomerId(int customerId)
+    {
+        var read = false;
+        var key = BuildCustomerCacheKey(customerId);
+        var map = await _cache.GetAsync(key, async () =>
+        {
+            var map = await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(x => x.CustomerId == customerId);
+            if (map != default)
+                map.Customer = await _customerRepository.Table.FirstOrDefaultAsync(x => x.Id == map.CustomerId);
+            read = true;
 
             return map;
         });
+
+        if (read)
+        {
+            var key2 = BuildUserCacheKey(map.KmUserId);
+            _ = _cache.GetAsync(key2, () => map);
+        }
+        return map;
+
+
     }
 }

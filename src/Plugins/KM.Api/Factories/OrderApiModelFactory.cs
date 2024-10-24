@@ -1,4 +1,4 @@
-﻿using KM.Api.Models.Orders;
+﻿using KM.Api.Models.OrderManagement;
 using Nop.Services.Media;
 using Nop.Web.Models.Order;
 
@@ -11,23 +11,31 @@ public class OrderApiModelFactory : IOrderApiModelFactory
     private readonly MediaConvertor _mediaConvertor;
     private readonly IOrderService _orderService;
     private readonly IProductService _productService;
+    private readonly IExternalUsersService _extenrnalUserService;
 
     public OrderApiModelFactory(
         IOrderModelFactory orderModelFactory,
         IPictureService pictureService,
         MediaConvertor mediaConvertor,
         IOrderService orderService,
-        IProductService productService)
+        IProductService productService,
+        IExternalUsersService extenrnalUserService)
     {
         _orderModelFactory = orderModelFactory;
         _pictureService = pictureService;
         _mediaConvertor = mediaConvertor;
         _orderService = orderService;
         _productService = productService;
+        _extenrnalUserService = extenrnalUserService;
     }
 
+    public async Task<IEnumerable<OrderInfoModel>> PrepareOrderDetailsModelsAsync(IEnumerable<Order> orders)
+    {
+        return await orders.SelectAwait(async o => await PrepareOrderDetailsModelAsync(o)).ToListAsync();
+    }
     public async Task<OrderInfoModel> PrepareOrderDetailsModelAsync(Order order)
     {
+
         var orderItems = await _orderService.GetOrderItemsAsync(order.Id);
         var odm = await _orderModelFactory.PrepareOrderDetailsModelAsync(order);
 
@@ -58,9 +66,12 @@ public class OrderApiModelFactory : IOrderApiModelFactory
             Note = n.Note,
         });
 
+        var extUser = await _extenrnalUserService.GetUserIdCustomerMapByInternalCustomerId(order.CustomerId);
+
         return new OrderInfoModel
         {
             Id = odm.Id,
+            UserId = extUser.KmUserId,
             BillingAddress = odm.BillingAddress.ToContactInfoModel(),
             CreatedOnUtc = odm.CreatedOn,
             CustomOrderNumber = odm.CustomOrderNumber,
@@ -90,7 +101,7 @@ public class OrderApiModelFactory : IOrderApiModelFactory
         {
             var product = await _productService.GetProductByIdAsync(orderItem.ProductId);
             var orderItemPicture = await _pictureService.GetProductPictureAsync(product, orderItem.AttributesXml);
-            var picture = await _mediaConvertor.ToGalleryItemModel(orderItemPicture, 0);
+            var picture = orderItemPicture != default ? await _mediaConvertor.ToGalleryItemModel(orderItemPicture, 0) : default;
 
             //order item picture
             return new OrderInfoModel.OrderItem

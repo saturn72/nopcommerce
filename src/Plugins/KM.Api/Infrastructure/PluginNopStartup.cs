@@ -1,5 +1,4 @@
-﻿using KM.Api.Factories;
-using KM.Api.Middlewares;
+﻿using KM.Api.Middlewares;
 using KM.Api.Services.Media;
 
 namespace KM.Api.Infrastructure;

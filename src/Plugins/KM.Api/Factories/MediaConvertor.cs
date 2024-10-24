@@ -55,6 +55,8 @@ public sealed class MediaConvertor
     }
     public async Task<GalleryItemModel> ToGalleryItemModel(Picture picture, int index)
     {
+        picture.ThrowArgumentNullException(nameof(picture));
+
         return new()
         {
             Alt = picture.AltAttribute,

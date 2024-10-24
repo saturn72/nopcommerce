@@ -1,7 +1,8 @@
 ﻿using KM.Api.Models.Directory;
 using KM.Api.Models.Media;
 
-namespace KM.Api.Models.Orders;
+namespace KM.Api.Models.OrderManagement;
+
 public record OrderInfoModel
 {
     public int Id { get; init; }
@@ -20,6 +21,7 @@ public record OrderInfoModel
     public decimal OrderSubtotalValue { get; init; }
     public string OrderSubTotalDiscount { get; init; }
     public decimal OrderSubTotalDiscountValue { get; init; }
+    public string UserId { get; init; }
     //payment
     public DateTime? PaidOnUtc { get; init; }
     public string PaymentMethod { get; init; }
@@ -35,6 +37,7 @@ public record OrderInfoModel
     public string ShippingStatus { get; init; }
     public IEnumerable<ShipmentBriefModel> Shipments { get; init; }
     public IEnumerable<OrderNote> OrderNotes { get; init; }
+
     #region Nested Classes
     public record OrderItem
     {
