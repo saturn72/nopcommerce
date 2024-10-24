@@ -105,6 +105,9 @@
   <LocaleResource Name="Account.ChangePassword.Fields.OldPassword.Required">
     <Value>Old password is required.</Value>
   </LocaleResource>
+  <LocaleResource Name="Account.ChangePassword.MustBeChanged">
+    <Value>Your password must be changed</Value>
+  </LocaleResource>
   <LocaleResource Name="Account.ChangePassword.PasswordIsExpired">
     <Value>Your password has expired, please create a new one</Value>
   </LocaleResource>
@@ -2264,6 +2267,12 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.Published.Hint">
     <Value>Check to publish this category (visible in store). Uncheck to unpublish (category not available in store).</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Categories.Fields.RestrictFromVendors">
+    <Value>Restrict from vendors</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Catalog.Categories.Fields.RestrictFromVendors.Hint">
+    <Value>Check to restrict vendors from adding products to this category. This option is useful when you have multi-vendors enabled in your store.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Categories.Fields.SeName">
     <Value>Search engine friendly page name</Value>
@@ -5121,6 +5130,9 @@
   <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.ClientId.Hint">
     <Value>Public identifier for application.</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.ClientId.Required">
+    <Value>The client identifier is required</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.ClientSecret">
     <Value>Client Secret</Value>
   </LocaleResource>
@@ -5132,6 +5144,9 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.ClientSecret.Hint">
     <Value>The secret known only to the application and the authorization server.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.ClientSecret.Required">
+    <Value>The client Secret is required</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.DisplayName">
     <Value>Email display name</Value>
@@ -5207,6 +5222,9 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.TenantId.Hint">
     <Value>The tenant ID can be a GUID (the ID of your Microsoft Entra instance), domain name or one of placeholders: "organizations", "consumers", "common".</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.TenantId.Required">
+    <Value>The tenant identifier is required</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.Username">
     <Value>User</Value>
@@ -11963,6 +11981,12 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.MultiFactorAuthenticationProvider.Hint">
     <Value>Name of the multi-factor authentication provider to which the customer is associated.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.MustChangePassword">
+    <Value>Customer must change password</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.MustChangePassword.Hint">
+    <Value>Check to require the customer to change their password.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.Newsletter">
     <Value>Newsletter</Value>
@@ -19877,6 +19901,9 @@
   </LocaleResource>
   <LocaleResource Name="ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts">
     <Value>You cannot use gift cards with auto-ship (recurring) items.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.GiftCardCouponCode.DontWorkWithGiftCards">
+    <Value>You cannot use gift cards with other gift cards.</Value>
   </LocaleResource>
   <LocaleResource Name="ShoppingCart.GiftCardCouponCode.Label">
     <Value>Enter gift card code</Value>

@@ -1,6 +1,4 @@
-﻿using KM.Api.Factories;
-
-namespace KM.Api.Controllers;
+﻿namespace KM.Api.Controllers;
 
 [Route("api/checkout")]
 public class CheckoutController : KmApiControllerBase
