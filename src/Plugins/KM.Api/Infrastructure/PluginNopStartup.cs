@@ -42,11 +42,15 @@ public class PluginNopStartup : INopStartup
         services.AddScoped(typeof(IDocumentStore<>), typeof(FirebaseDocumentStore<>));
         services.AddSingleton<FirebaseAdapter>();
         services.AddScoped<IProductApiFactory, ProductApiFactory>();
+        services.AddScoped<IVendorApiModelFactory, VendorApiModelFactory>();
         services.AddSingleton<MediaConvertor>();
         services.AddScoped<IShoppingCartFactory, ShoppingCartFactory>();
         services.AddScoped<IOrderApiModelFactory, OrderApiModelFactory>();
+        services.AddScoped<IDirectoryFactory, DirectoryFactory>();
+
         services.AddSignalR();
         services.AddScoped<IStorageManager, GcpStorageManager>();
+
         services.Configure<GcpOptions>(options =>
         {
             var bn = configuration["gcpOptions:bucketName"];

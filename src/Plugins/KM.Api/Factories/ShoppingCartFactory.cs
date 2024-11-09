@@ -89,9 +89,9 @@ public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactor
             PaymentMethod = model.PaymentMethod.ToSystemPaymentMethod(),
             StorePickup = model.StorePickup,
             BillingInfo = model.BillingInfo.ToAddress(),
-            UpdateBillingInfo = model.BillingInfo.UpdateUserInfo,
+            UpdateBillingInfo = model.UpdateBillingInfo,
             ShippingInfo = model.ShippingInfo.ToAddress(),
-            UpdateShippingInfo = model.ShippingInfo.UpdateUserInfo,
+            UpdateShippingInfo = model.UpdateShippingInfo,
         };
     }
 

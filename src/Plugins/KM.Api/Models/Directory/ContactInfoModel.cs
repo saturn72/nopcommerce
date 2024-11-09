@@ -7,5 +7,4 @@ public record ContactInfoModel
     public string Email { get; init; }
     public string Fullname { get; init; }
     public string Phone { get; init; }
-    public bool UpdateUserInfo { get; init; }
 }

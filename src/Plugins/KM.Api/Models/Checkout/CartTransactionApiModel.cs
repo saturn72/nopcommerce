@@ -11,4 +11,6 @@ public record CartTransactionApiModel
     public ContactInfoModel BillingInfo { get; init; }
     public ContactInfoModel ShippingInfo { get; init; }
     public bool SubscribeToEMarketing { get; init; }
+    public bool UpdateBillingInfo { get; set; }
+    public bool UpdateShippingInfo { get; set; }
 }
