@@ -1,4 +1,6 @@
-﻿using Nop.Services.Vendors;
+﻿using KM.Api.Models.User;
+using Nop.Core;
+using Nop.Services.Vendors;
 
 namespace KM.Api.Controllers;
 
@@ -45,4 +47,19 @@ public class StoreController : KmApiControllerBase
         var model = await _vendorApiModelFactory.ToVendorApiModel(vendors.ElementAt(0));
         return ToJsonResult(model);
     }
+    [HttpPut]
+    public async Task<IActionResult> CreateOrUpdateStoreAsync([FromBody] VendorApiModel model)
+    {
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var vendors = await _vendorService.GetVendorsByCustomerIdsAsync([customer.Id]);
+        
+        var cur = vendors?.ElementAtOrDefault(0);
+        //create
+        if (vendors == default || vendors.Count == 0)
+            return Ok();
+        //update
+
+        throw new NotImplementedException();
+    }
+
 }
