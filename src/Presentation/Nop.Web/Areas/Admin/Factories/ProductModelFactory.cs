@@ -743,6 +743,8 @@ public partial class ProductModelFactory : IProductModelFactory
             pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize,
             overridePublished: overridePublished);
 
+        var primaryStoreCurrency = await _currencyService.GetCurrencyByIdAsync(_currencySettings.PrimaryStoreCurrencyId);
+
         //prepare list model
         var model = await new ProductListModel().PrepareToGridAsync(searchModel, products, () =>
         {
@@ -756,6 +758,8 @@ public partial class ProductModelFactory : IProductModelFactory
 
                 //fill formatted price
                 productModel.FormattedPrice = product.ProductType == ProductType.GroupedProduct ? null : await _priceFormatter.FormatPriceAsync(product.Price);
+
+                productModel.PrimaryStoreCurrencyCode = primaryStoreCurrency.CurrencyCode;
 
                 //fill in additional values (not existing in the entity)
                 productModel.SeName = await _urlRecordService.GetSeNameAsync(product, 0, true, false);
@@ -873,9 +877,11 @@ public partial class ProductModelFactory : IProductModelFactory
         model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyByIdAsync(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
         model.BaseWeightIn = (await _measureService.GetMeasureWeightByIdAsync(_measureSettings.BaseWeightId)).Name;
         model.BaseDimensionIn = (await _measureService.GetMeasureDimensionByIdAsync(_measureSettings.BaseDimensionId)).Name;
-        model.IsLoggedInAsVendor = await _workContext.GetCurrentVendorAsync() != null;
         model.HasAvailableSpecificationAttributes =
             (await _specificationAttributeService.GetSpecificationAttributesWithOptionsAsync()).Any();
+
+        var currentVendor = await _workContext.GetCurrentVendorAsync();
+        model.IsLoggedInAsVendor = currentVendor != null;
 
         //prepare localized models
         if (!excludeProperties)
@@ -949,7 +955,11 @@ public partial class ProductModelFactory : IProductModelFactory
         }
 
         //prepare model discounts
-        var availableDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToSkus, showHidden: true, isActive: null);
+        var availableDiscounts = await _discountService.GetAllDiscountsAsync(
+            discountType: DiscountType.AssignedToSkus,
+            showHidden: true, isActive: null,
+            vendorId: currentVendor?.Id ?? 0);
+
         await _discountSupportedModelFactory.PrepareModelDiscountsAsync(model, product, availableDiscounts, excludeProperties);
         
         //prepare model stores
