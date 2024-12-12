@@ -1,0 +1,2 @@
+﻿-- MySql
+ALTER TABLE KmOrder DROP COLUMN KmOrderId;
