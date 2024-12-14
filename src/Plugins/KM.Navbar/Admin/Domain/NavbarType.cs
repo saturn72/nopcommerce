@@ -1,4 +1,4 @@
-﻿namespace KM.Navbar.Domain;
+﻿namespace KM.Navbar.Admin.Domain;
 
 public enum NavbarType
 {

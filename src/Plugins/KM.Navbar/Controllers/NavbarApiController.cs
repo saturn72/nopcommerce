@@ -1,13 +1,12 @@
-﻿using KM.Navbar.Services;
-
+﻿
 namespace KM.Navbar.Controllers;
 
 [Route("api/navbar")]
-public class NavbarController : ControllerBase
+public class NavbarApiController : ControllerBase
 {
     private readonly INavbarService _navbarService;
 
-    public NavbarController(INavbarService navbarService)
+    public NavbarApiController(INavbarService navbarService)
     {
         _navbarService = navbarService;
     }

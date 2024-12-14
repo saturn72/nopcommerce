@@ -3,7 +3,7 @@
   "Group": "Kedem Market",
   "FriendlyName": "Kedem Market Navbar plugin",
   "SystemName": "KM.Navbar",
-  "Version": "1.0.0",
+  "Version": "1.0.2",
   "SupportedVersions": [ "4.80" ],
   "Author": "Saturn72",
   "DisplayOrder": 1,

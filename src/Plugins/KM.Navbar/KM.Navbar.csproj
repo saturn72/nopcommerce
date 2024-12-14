@@ -11,32 +11,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="dmin\Views\Manage.cshtml" />
     <None Remove="logo.jpg" />
     <None Remove="plugin.json" />
-    <None Remove="Views\_ViewImports.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Admin\Views\List.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="logo.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="plugin.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="EasyCaching.FasterKv" Version="1.9.2" />
-    <PackageReference Include="EasyCaching.Serialization.MessagePack" Version="1.9.2" />
-    <PackageReference Include="FirebaseAdmin" Version="2.3.0" />
-    <PackageReference Include="Google.Cloud.Firestore" Version="3.8.0" />
-    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.10.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.13" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="Views\_ViewImports.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -49,19 +36,10 @@
     <ClearPluginAssemblies Include="$(MSBuildProjectDirectory)\..\..\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Migrations\KmOrder_2.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Migrations\KmUserCustomerMap.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Migrations\KmOrder_1.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Factories\" />
-    <Folder Include="Models\" />
+    <Page Include="Admin\Views\List.cshtml" />
   </ItemGroup>
 
   <!-- This target execute after "Build" target -->

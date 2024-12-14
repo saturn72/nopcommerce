@@ -1,4 +1,4 @@
-﻿using KM.Navbar.Domain;
+﻿using KM.Navbar.Admin.Domain;
 
 namespace KM.Navbar.Services;
 public interface INavbarService

@@ -1,4 +1,4 @@
-﻿using KM.Navbar.Domain;
+﻿using KM.Navbar.Admin.Domain;
 using Nop.Core.Caching;
 using Nop.Data;
 

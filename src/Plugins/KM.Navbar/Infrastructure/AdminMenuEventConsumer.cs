@@ -1,5 +1,5 @@
-﻿using Nop.Services.Events;
-using Nop.Services.Security;
+﻿using KM.Navbar.Admin.Controllers;
+using Nop.Services.Events;
 using Nop.Web.Framework.Events;
 using Nop.Web.Framework.Menu;
 
@@ -23,7 +23,7 @@ public class AdminMenuEventConsumer : IConsumer<AdminMenuCreatedEvent>
             {
                 SystemName = "Navbar",
                 Title = "Navbar Management",
-                Url = eventMessage.GetMenuItemUrl("NavbarAdmin", "Index"),
+                Url = eventMessage.GetMenuItemUrl("Navbar", nameof(NavbarController.Index)),
                 IconClass = "fa-solid fa-bars",
                 Visible = true,
             });
