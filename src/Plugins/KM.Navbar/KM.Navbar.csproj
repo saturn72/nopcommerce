@@ -11,13 +11,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="dmin\Views\Manage.cshtml" />
+    <None Remove="Admin\Views\_ViewImports.cshtml" />
+    <None Remove="Admin\Views\Manage.cshtml" />
     <None Remove="logo.jpg" />
     <None Remove="plugin.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Admin\Views\List.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Admin\Views\_ViewImports.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="logo.jpg">
@@ -37,9 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="Admin\Views\List.cshtml" />
   </ItemGroup>
 
   <!-- This target execute after "Build" target -->

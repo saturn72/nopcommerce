@@ -13,7 +13,7 @@ public class AdminMenuEventConsumer : IConsumer<AdminMenuCreatedEvent>
     //    _permissionService = permissionService;
     //}
 
-    public async Task HandleEventAsync(AdminMenuCreatedEvent eventMessage)
+    public Task HandleEventAsync(AdminMenuCreatedEvent eventMessage)
     {
         //if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_SETTINGS))
         //    return;
@@ -22,10 +22,11 @@ public class AdminMenuEventConsumer : IConsumer<AdminMenuCreatedEvent>
             new AdminMenuItem
             {
                 SystemName = "Navbar",
-                Title = "Navbar Management",
+                Title = "Navbar",
                 Url = eventMessage.GetMenuItemUrl("Navbar", nameof(NavbarController.Index)),
                 IconClass = "fa-solid fa-bars",
                 Visible = true,
             });
+        return Task.CompletedTask;
     }
 }

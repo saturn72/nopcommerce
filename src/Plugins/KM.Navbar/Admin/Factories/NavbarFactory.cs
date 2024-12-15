@@ -11,11 +11,15 @@ public class NavbarFactory : INavbarFactory
         _navbarInfoRepository = navbarInfoRepository;
     }
 
-    public async Task<IEnumerable<NavbarInfoModel>> PrepareNavbarListAsync()
+    public async Task<NavbarInfoSearchModel> PrepareNavbarListModelAsync()
     {
+        return new NavbarInfoSearchModel
+        {
+
+        };
         var nis = await _navbarInfoRepository.GetAllAsync(x => x, cks => cks.PrepareKey(new("navbar-infos")));
 
-        return await nis.Select(g => new NavbarInfoModel
+        var d = await nis.Select(g => new NavbarInfoModel
         {
             Id = g.Id,
             Name = g.Name,
@@ -24,6 +28,7 @@ public class NavbarFactory : INavbarFactory
             Elements = PrepareNavbarElements(g.Elements)
         }).OrderBy(x => x.Index)
         .ToListAsync();
+
     }
 
     public IList<NavbarElementModel> PrepareNavbarElements(IEnumerable<NavbarElement> elements)

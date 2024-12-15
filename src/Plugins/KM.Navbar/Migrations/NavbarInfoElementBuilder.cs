@@ -7,7 +7,8 @@ public class NavbarInfoElementBuilder : NopEntityBuilder<NavbarElement>
 {
     public override void MapEntity(CreateTableExpressionBuilder table)
     {
-        table.WithColumn(nameof(NavbarElement.Id)).AsInt32().PrimaryKey().Identity()
+        table.
+            WithColumn(nameof(NavbarElement.Id)).AsInt32().PrimaryKey().Identity()
         .WithColumn(nameof(NavbarElement.Alt)).AsString()
         .WithColumn(nameof(NavbarElement.Icon)).AsString(128)
         .WithColumn(nameof(NavbarElement.Index)).AsString(400)

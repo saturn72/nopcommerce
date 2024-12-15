@@ -25,7 +25,7 @@ public class NavbarController : BaseAdminController
     //[CheckPermission(Nop.Services.Security.StandardPermission.)]
     public virtual async Task<IActionResult> List()
     {
-        var model = await _navbarFactory.PrepareNavbarListAsync();
+        var model = await _navbarFactory.PrepareNavbarListModelAsync();
         return View(VIEW_PATH + "List.cshtml", model);
     }
 }
