@@ -8,7 +8,7 @@ public class NavbarInfoBuilder : NopEntityBuilder<NavbarInfo>
     {
         table
             .WithColumn(nameof(NavbarInfo.Id)).AsInt32().PrimaryKey().Identity()
-            .WithColumn(nameof(NavbarInfo.Index)).AsInt32()
+            .WithColumn(nameof(NavbarInfo.DisplayOrder)).AsInt32()
             .WithColumn(nameof(NavbarInfo.Published)).AsBoolean()
             .WithColumn(nameof(NavbarInfo.Name)).AsString(256).Nullable();
 
