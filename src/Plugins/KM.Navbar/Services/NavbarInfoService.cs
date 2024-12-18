@@ -6,10 +6,10 @@ public class NavbarInfoService : INavbarInfoService
     private readonly IRepository<NavbarInfo> _navbarInfoRepository;
     private readonly IRepository<NavbarElement> _navbarElementRepository;
     private readonly IStoreMappingService _storeMappingService;
-
+    private const int CACHE_TIME = 30 * 24 * 60;
     private static readonly CacheKey _cacheKey = new("navbars")
     {
-        CacheTime = 30 * 24 * 60
+        CacheTime = CACHE_TIME
     };
 
     public NavbarInfoService(
@@ -56,5 +56,21 @@ public class NavbarInfoService : INavbarInfoService
         });
 
         return new PagedList<NavbarInfo>(navbarInfos, pageIndex, pageSize);
+    }
+
+    public async Task<bool> InsertNavbarAsync(NavbarInfo navbar)
+    {
+        var allNavbars = _navbarInfoRepository.GetAll(
+            query => query.Where(c => !c.Deleted && c.Name.Equals(navbar.Name, StringComparison.InvariantCultureIgnoreCase)),
+            cache => new CacheKey(_cacheKey.Key, [navbar.Name])
+            {
+                CacheTime = CACHE_TIME
+            });
+
+        if (allNavbars.Any())
+            return false;
+
+        await _navbarInfoRepository.InsertAsync(navbar);
+        return navbar.Id != 0;
     }
 }

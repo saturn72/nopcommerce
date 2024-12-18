@@ -2,7 +2,6 @@
 using Nop.Services.Localization;
 
 namespace KM.Navbar.Infrastructure;
-
 public class Plugin : BasePlugin
 {
     private readonly ILocalizationService _localizationService;
@@ -94,8 +93,51 @@ public class Plugin : BasePlugin
             new LocaleStringResource
             {
                 LanguageId = languageId,
-                ResourceName ="Admin.Navbar.Fields.Published",
+                ResourceName = "Admin.Navbar.Fields.Published",
                 ResourceValue = "Published"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Fields.Description",
+                ResourceValue = "Published"
+            },
+
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Fields.PageSize",
+                ResourceValue = "Published"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Fields.AllowCustomersToSelectPageSize",
+                ResourceValue = "Allow Customers To Select Page Size"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Fields.PageSizeOptions",
+                ResourceValue = "Page Size Options"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Fields.Deleted",
+                ResourceValue = "Deleted"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Fields.LimitedToStores",
+                ResourceValue = "Limited To Stores"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.AddNew",
+                ResourceValue = "Add new Navbar"
             },
         };
     }

@@ -7,7 +7,7 @@ public class NavbarElement : BaseEntity
     public int Index { get; init; }
     public string Label { get; init; }
     public string Tags { get; init; }
-    public NavbarType Type { get; init; }
+    public string Type { get; init; }
     public string Value { get; init; }
     public int NavbarInfoId { get; init; }
 }

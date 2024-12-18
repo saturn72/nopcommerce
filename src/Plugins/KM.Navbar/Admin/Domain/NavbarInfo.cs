@@ -9,5 +9,7 @@ public class NavbarInfo : BaseEntity, IStoreMappingSupported
     public bool Published { get; set; }
     public bool Deleted { get; set; }
     public bool LimitedToStores { get; set; }
+    public DateTime CreatedOnUtc { get; internal set; }
+    public DateTime UpdatedOnUtc { get; internal set; }
 }
 

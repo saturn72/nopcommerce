@@ -1,0 +1,45 @@
+﻿@using Nop.Web.Areas.Admin.Components
+@model NavbarInfoModel
+
+@{
+    const string hideInfoBlockAttributeName = "NavbarPage.HideInfoBlock";
+    var customer = await WorkContext.GetCurrentCustomerAsync();
+    var hideInfoBlock = await GenericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+
+    const string hideDisplayBlockAttributeName = "NavbarPage.HideDisplayBlock";
+    var hideDisplayBlock = await GenericAttributeService.GetAttributeAsync<bool>(customer, hideDisplayBlockAttributeName, defaultValue: true);
+
+    const string hideMappingsBlockAttributeName = "NavbarPage.HideMappingsBlock";
+    var hideMappingsBlock = await GenericAttributeService.GetAttributeAsync<bool>(customer, hideMappingsBlockAttributeName, defaultValue: true);
+
+    const string hideSeoBlockAttributeName = "NavbarPage.HideSEOBlock";
+    var hideSeoBlock = await GenericAttributeService.GetAttributeAsync<bool>(customer, hideSeoBlockAttributeName, defaultValue: true);
+
+    const string hideProductsBlockAttributeName = "NavbarPage.HideProductsBlock";
+    var hideProductsBlock = await GenericAttributeService.GetAttributeAsync<bool>(customer, hideProductsBlockAttributeName, defaultValue: true);
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-md-12 clearfix">
+                    <div class="float-left">
+                        @await Component.InvokeAsync(typeof(SettingModeViewComponent), new { modeName = "navbar-advanced-mode" })
+                    </div>
+                </div>
+            </div>
+
+            <nop-cards id="navbar-cards">
+                <nop-card asp-name="navbar-info" asp-icon="fas fa-info" asp-title="@T("Admin.Navbars.Info")" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock" asp-advanced="false">@await Html.PartialAsync(NavbarController.GetViewPath("_CreateOrUpdate.Info.cshtml"), Model)</nop-card>
+                @* <nop-card asp-name="navbar-display" asp-icon="fas fa-tv" asp-title="@T("Admin.Navbars.Display")" asp-hide-block-attribute-name="@hideDisplayBlockAttributeName" asp-hide="@hideDisplayBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.Display", Model)</nop-card> *@
+                @* <nop-card asp-name="navbar-mappings" asp-icon="fas fa-bookmark" asp-title="@T("Admin.Navbars.Mappings")" asp-hide-block-attribute-name="@hideMappingsBlockAttributeName" asp-hide="@hideMappingsBlock" asp-advanced="true">@await Html.PartialAsync("_CreateOrUpdate.Mappings", Model)</nop-card> *@
+                @* <nop-card asp-name="navbar-seo" asp-icon="fas fa-magnifying-glass-plus" asp-title="@T("Admin.Common.SEO")" asp-hide-block-attribute-name="@hideSeoBlockAttributeName" asp-hide="@hideSeoBlock" asp-advanced="true">@await Html.PartialAsync("_CreateOrUpdate.Seo", Model)</nop-card> *@
+                @* <nop-card asp-name="navbar-products" asp-icon="fas fa-table-list" asp-title="@T("Admin.Navbars.Products")" asp-hide-block-attribute-name="@hideProductsBlockAttributeName" asp-hide="@hideProductsBlock" asp-advanced="true">@await Html.PartialAsync("_CreateOrUpdate.Products", Model)</nop-card> *@
+            </nop-cards>
+        </div>
+    </div>
+</section>

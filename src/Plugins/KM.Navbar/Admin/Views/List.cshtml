@@ -3,13 +3,13 @@
 }
 @model NavbarInfoSearchModel
 
-@inject INopHtmlHelper NopHtml
+@inject INopHtmlHelper nopHtml
 @inject IWorkContext workContext
 @inject IGenericAttributeService genericAttributeService
 
 @{
     ViewBag.PageTitle = T("Admin.Navbar.List").Text;
-    NopHtml.SetActiveMenuItemSystemName("Navbar");
+    nopHtml.SetActiveMenuItemSystemName("Navbar");
 }
 @{
     const string hideSearchBlockAttributeName = "NavbarPage.HideSearchBlock";
@@ -138,17 +138,17 @@
                         ClassName =  NopColumnClassDefaults.CenterAll,
                         Width = "50"
                         },
-                        new ColumnProperty(nameof(NavbarInfoModel.Published))
-                        {
-                        Title = T("Admin.Navbar.Fields.Published").Text,
-                        Width = "50",
-                        ClassName = NopColumnClassDefaults.CenterAll,
-                        Render = new RenderBoolean()
-                        },
                         new ColumnProperty(nameof(NavbarInfoModel.Name))
                         {
                         Title = T("Admin.Navbar.Fields.Name").Text,
                         Width = "100",
+                        ClassName = NopColumnClassDefaults.CenterAll,
+                        Render = new RenderBoolean()
+                        },
+                        new ColumnProperty(nameof(NavbarInfoModel.Published))
+                        {
+                        Title = T("Admin.Navbar.Fields.Published").Text,
+                        Width = "50",
                         ClassName = NopColumnClassDefaults.CenterAll,
                         Render = new RenderBoolean()
                         },

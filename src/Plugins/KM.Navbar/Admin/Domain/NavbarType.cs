@@ -1,8 +1,8 @@
 ﻿namespace KM.Navbar.Admin.Domain;
 
-public enum NavbarType
+public sealed class NavbarTypes
 {
-    Filter = 0,
-    Route = 1,
+    public const string Filter = "filter";
+    public const string Route = "route";
 }
 

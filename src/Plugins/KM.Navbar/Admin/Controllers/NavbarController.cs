@@ -1,7 +1,4 @@
 ﻿
-using Nop.Core.Domain.Discounts;
-using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
-
 namespace KM.Navbar.Admin.Controllers;
 
 [AutoValidateAntiforgeryToken]
@@ -11,10 +8,27 @@ public class NavbarController : BaseAdminController
 {
     private const string VIEW_PATH = "~/Plugins/KM.Navbar/Admin/Views/";
     private readonly INavbarFactory _navbarFactory;
+    private readonly INavbarInfoService _navbarInfoService;
+    private readonly INotificationService _notificationService;
+    private readonly ILocalizationService _localizationService;
 
-    public NavbarController(INavbarFactory navbarFactory)
+    public NavbarController(
+        INavbarFactory navbarFactory,
+        INavbarInfoService navbarInfoService,
+        INotificationService notificationService,
+        ILocalizationService localizationService)
     {
         _navbarFactory = navbarFactory;
+        _navbarInfoService = navbarInfoService;
+        _notificationService = notificationService;
+        _localizationService = localizationService;
+    }
+
+    public static string GetViewPath(string viewName) => VIEW_PATH + viewName;
+
+    public override ViewResult View(string? viewName, object? model)
+    {
+        return base.View(GetViewPath(viewName), model);
     }
 
     public virtual IActionResult Index()
@@ -27,69 +41,37 @@ public class NavbarController : BaseAdminController
     {
         var model = new NavbarInfoSearchModel();
         await _navbarFactory.PrepareNavbarInfoSearchModelAsync(model);
-        return View(VIEW_PATH + "List.cshtml", model);
+        return View("List.cshtml", model);
     }
 
     [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_VIEW)]
     public virtual async Task<IActionResult> List(NavbarInfoSearchModel searchModel)
     {
-        //prepare model
         var model = await _navbarFactory.PrepareNavbarInfoListModelAsync(searchModel);
-
         return Json(model);
     }
 
-
-
-    [CheckPermission(NavbarPermissions.NAVBARS_CREATE_EDIT_DELETE)]
+    [CheckPermission(NavbarPermissions.NAVBARS_CREATE)]
     public virtual async Task<IActionResult> Create()
     {
-        //prepare model
         var model = await _navbarFactory.PrepareNavbarInfoModelAsync(new NavbarInfoModel(), null);
-
-        return View(model);
+        return View("Create.cshtml", model);
     }
 
     [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-    [CheckPermission(NavbarPermissions.NAVBARS_CREATE_EDIT_DELETE)]
+    [CheckPermission(NavbarPermissions.NAVBARS_CREATE)]
     public virtual async Task<IActionResult> Create(NavbarInfoModel model, bool continueEditing)
     {
         if (ModelState.IsValid)
         {
-            var navbar = model.ToEntity<Navbar>();
+            var navbar = model.ToEntity<NavbarInfo>();
             navbar.CreatedOnUtc = DateTime.UtcNow;
             navbar.UpdatedOnUtc = DateTime.UtcNow;
-            await _navbarService.InsertNavbarAsync(navbar);
+            await _navbarInfoService.InsertNavbarAsync(navbar);
 
-            //search engine name
-            model.SeName = await _urlRecordService.ValidateSeNameAsync(navbar, model.SeName, navbar.Name, true);
-            await _urlRecordService.SaveSlugAsync(navbar, model.SeName, 0);
-
-            //locales
-            await UpdateLocalesAsync(navbar, model);
-
-            //discounts
-            var allDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToNavbars, showHidden: true, isActive: null);
-            foreach (var discount in allDiscounts)
-            {
-                if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
-                    await _navbarService.InsertDiscountNavbarMappingAsync(new DiscountNavbarMapping { DiscountId = discount.Id, EntityId = navbar.Id });
-            }
-
-            await _navbarService.UpdateNavbarAsync(navbar);
-
-            //update picture seo file name
-            await UpdatePictureSeoNamesAsync(navbar);
-
-            //stores
-            await SaveStoreMappingsAsync(navbar, model);
-
-            //activity log
-            await _customerActivityService.InsertActivityAsync("AddNewNavbar",
-                string.Format(await _localizationService.GetResourceAsync("ActivityLog.AddNewNavbar"), navbar.Name), navbar);
-
-            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Catalog.Navbars.Added"));
+            var msg = await _localizationService.GetResourceAsync("Admin.Catalog.Navbars.Added");
+            _notificationService.SuccessNotification(msg);
 
             if (!continueEditing)
                 return RedirectToAction("List");
@@ -97,10 +79,7 @@ public class NavbarController : BaseAdminController
             return RedirectToAction("Edit", new { id = navbar.Id });
         }
 
-        //prepare model
-        model = await _navbarModelFactory.PrepareNavbarModelAsync(model, null, true);
-
-        //if we got this far, something failed, redisplay form
-        return View(model);
+        model = await _navbarFactory.PrepareNavbarInfoModelAsync(model, null, true);
+        return View("Create.cshtml", model);
     }
 }
