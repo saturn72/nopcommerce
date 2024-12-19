@@ -139,6 +139,13 @@ public class Plugin : BasePlugin
                 ResourceName = "Admin.Navbars.AddNew",
                 ResourceValue = "Add new Navbar"
             },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements",
+                ResourceValue = "Navbar Elements"
+            },
+            
         };
     }
 
