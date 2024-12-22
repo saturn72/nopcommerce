@@ -68,19 +68,51 @@ public class NavbarFactory : INavbarFactory
             if (model == null)
                 model = navbarInfo.ToModel<NavbarInfoModel>();
         }
-
+        model ??= new NavbarInfoModel();
         //set default values for the new model
         if (navbarInfo == null)
         {
-            model.PageSize = _navbarSettings.DefaultPageSize;
-            model.PageSizeOptions = _navbarSettings.PageSizeOptions;
+            model.NavbarElementSearchModel = new()
+            {
+                PageSizeOptions = _navbarSettings.PageSizeOptions,
+                AllowCustomersToSelectPageSize = true,
+            };
             model.Published = true;
-            model.AllowCustomersToSelectPageSize = true;
         }
 
         await _baseAdminModelFactory.PrepareStoresAsync(model.AvailableStores);
 
         //await _storeMappingSupportedModelFactory.PrepareModelStoresAsync(model, navbarInfo, excludeProperties);
+
+        return model;
+    }
+
+    public async Task<NavbarInfoElementListModel> PrepareNavbarInfoElementListModelAsync(NavbarElementSearchModel searchModel, NavbarInfo navbarInfo)
+    {
+        ThrowIfNull(searchModel, nameof(searchModel));
+        ThrowIfNull(navbarInfo, nameof(navbarInfo));
+
+        //get product categories
+        var navbarElements = await _navbarService.GetNavbarElementsByNavbarInfoIdAsync(navbarInfo.Id,
+            showHidden: true,
+            pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
+
+        //prepare grid model
+        var model = await new CategoryProductListModel().PrepareToGridAsync(searchModel, navbarElements, () =>
+        {
+            return navbarElements.SelectAwait(async productCategory =>
+            {
+                //fill in model values from the entity
+                var categoryProductModel = productCategory.ToModel<CategoryProductModel>();
+
+                //fill in additional values (not existing in the entity)
+                categoryProductModel.ProductName = (await _productService.GetProductByIdAsync(productCategory.ProductId))?.Name;
+
+                return categoryProductModel;
+            });
+        });
+
+
 
         return model;
     }

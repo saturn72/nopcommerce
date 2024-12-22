@@ -10,10 +10,11 @@ public class NavbarApiController : ControllerBase
     {
         _navbarService = navbarService;
     }
-    [HttpGet]
-    public async Task<IActionResult> GetNavbarAsync()
+
+    [HttpGet("{name}")]
+    public async Task<IActionResult> GetNavbarInfoByNameAsync(string name)
     {
-        var data = await _navbarService.GetNavbarInfoAsync();
+        var data = await _navbarService.GetNavbarInfoByNameAsync(name);
         return Ok(data);
     }
 }

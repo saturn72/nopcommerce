@@ -1,0 +1,36 @@
+@{
+    Layout = "_AdminLayout";
+}
+@model NavbarInfoModel
+@{
+    ViewBag.PageTitle = T("Admin.Navbars.EditNavbarDetails").Text;
+    NopHtml.SetActiveMenuItemSystemName("Navbars");
+}
+
+<form asp-controller="NavbarInfo" asp-action="Edit" method="post" id="navbar-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Navbars.EditNavbarDetails") - @Model.Name
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Admin.Navbars.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-floppy-disk"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" class="btn btn-primary">
+                <i class="far fa-floppy-disk"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+            <span id="navbar-delete" class="btn btn-danger">
+                <i class="far fa-trash-can"></i>
+                @T("Admin.Common.Delete")
+            </span>
+        </div>
+    </div>
+    @await Html.PartialAsync(NavbarController.GetViewPath("_CreateOrUpdate"), Model)
+</form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="navbar-delete" />

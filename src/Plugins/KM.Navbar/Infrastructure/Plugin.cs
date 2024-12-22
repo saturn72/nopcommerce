@@ -81,6 +81,18 @@ public class Plugin : BasePlugin
             new LocaleStringResource
             {
                 LanguageId = languageId,
+                ResourceName = "Admin.Navbar.Fields.Name.Required",
+                ResourceValue = "Name required"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbar.Fields.Name.Unique",
+                ResourceValue = "Navbar with same name already exist. Navbar names must be unique"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
                 ResourceName = "Admin.Navbar.Fields.Elements",
                 ResourceValue = "Elements"
             },
@@ -145,7 +157,30 @@ public class Plugin : BasePlugin
                 ResourceName = "Admin.Navbars.Elements",
                 ResourceValue = "Navbar Elements"
             },
-            
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Added",
+                ResourceValue = "Navbar was added"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Failed",
+                ResourceValue = "Failed to add navbar"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Deleted",
+                ResourceValue = "Navbar deleted"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.EditNavbarDetails",
+                ResourceValue = "Edit Navbar Details"
+            },
         };
     }
 
