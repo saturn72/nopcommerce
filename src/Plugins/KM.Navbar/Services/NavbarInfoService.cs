@@ -1,7 +1,4 @@
-﻿
-using Nop.Core;
-
-namespace KM.Navbar.Services;
+﻿namespace KM.Navbar.Services;
 
 public class NavbarInfoService : INavbarInfoService
 {
@@ -108,27 +105,12 @@ public class NavbarInfoService : INavbarInfoService
     }
 
     public async Task<IPagedList<NavbarElement>> GetNavbarElementsByNavbarInfoIdAsync(int navbarInfoId,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
+        int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        if (navbarInfoId == 0)
+        if (navbarInfoId <= 0)
             return new PagedList<NavbarElement>(new List<NavbarElement>(), pageIndex, pageSize);
 
-        var query = from pc in _productCategoryRepository.Table
-                    join p in _productRepository.Table on pc.ProductId equals p.Id
-                    where pc.CategoryId == navbarInfoId && !p.Deleted
-                    orderby pc.DisplayOrder, pc.Id
-                    select pc;
-
-        if (!showHidden)
-        {
-            var navbarInfosQuery = _navbarInfoRepository.Table.Where(c => c.Published);
-
-            //apply store mapping constraints
-            var store = await _storeContext.GetCurrentStoreAsync();
-            navbarInfosQuery = await _storeMappingService.ApplyStoreMapping(navbarInfosQuery, store.Id);
-            query = query.Where(pc => navbarInfosQuery.Any(c => c.Id == pc.CategoryId));
-        }
-
+        var query = _navbarElementRepository.Table.Where(nbe => nbe.NavbarInfoId == navbarInfoId);
         return await query.ToPagedListAsync(pageIndex, pageSize);
     }
 }

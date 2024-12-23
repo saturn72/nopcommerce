@@ -92,28 +92,14 @@ public class NavbarFactory : INavbarFactory
         ThrowIfNull(searchModel, nameof(searchModel));
         ThrowIfNull(navbarInfo, nameof(navbarInfo));
 
-        //get product categories
-        var navbarElements = await _navbarService.GetNavbarElementsByNavbarInfoIdAsync(navbarInfo.Id,
-            showHidden: true,
-            pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
+        var navbarElements = await _navbarService.GetNavbarElementsByNavbarInfoIdAsync(
+            navbarInfo.Id,
+            pageIndex: searchModel.Page - 1,
+            pageSize: searchModel.PageSize);
 
         //prepare grid model
-        var model = await new CategoryProductListModel().PrepareToGridAsync(searchModel, navbarElements, () =>
-        {
-            return navbarElements.SelectAwait(async productCategory =>
-            {
-                //fill in model values from the entity
-                var categoryProductModel = productCategory.ToModel<CategoryProductModel>();
-
-                //fill in additional values (not existing in the entity)
-                categoryProductModel.ProductName = (await _productService.GetProductByIdAsync(productCategory.ProductId))?.Name;
-
-                return categoryProductModel;
-            });
-        });
-
-
-
-        return model;
+        var model = new NavbarInfoElementListModel();
+        return model.PrepareToGrid(searchModel, navbarElements,
+            () => navbarElements.Select(navbarElement => navbarElement.ToModel<NavbarElementModel>()));
     }
 }
