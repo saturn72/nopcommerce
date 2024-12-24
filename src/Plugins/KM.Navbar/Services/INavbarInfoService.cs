@@ -8,6 +8,7 @@ public interface INavbarInfoService
     Task<NavbarInfo> GetNavbarInfoByIdAsync(int id);
     Task<IEnumerable<NavbarInfo>> GetNavbarInfoByIdsAsync(IEnumerable<int> ids);
     Task<NavbarInfo> GetNavbarInfoByNameAsync(string name);
-    Task InsertNavbarAsync(NavbarInfo navbar);
+    Task InsertNavbarInfoAsync(NavbarInfo navbar);
+    Task InsertNavbarElementAsync(NavbarElement navbarElement);
     Task UpdateNavbarInfoAsync(NavbarInfo navbar);
 }

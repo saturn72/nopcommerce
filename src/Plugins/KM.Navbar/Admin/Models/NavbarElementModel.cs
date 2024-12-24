@@ -2,6 +2,7 @@
 
 public record NavbarElementModel : BaseNopEntityModel
 {
+    public int NavbarInfoId { get; init; }
     [NopResourceDisplayName("Admin.NavbarElement.Fields.Alt")]
     public string Alt { get; init; }
     [NopResourceDisplayName("Admin.NavbarElement.Fields.Icon")]

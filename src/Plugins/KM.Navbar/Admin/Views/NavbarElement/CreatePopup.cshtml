@@ -5,7 +5,7 @@
     ViewBag.PageTitle = T("Admin.Navbars.Elements.AddNew").Text;
 }
 
-<form asp-controller="NavbarInfo" asp-action="ElementCreatePopup"
+<form asp-controller="Navbar" asp-action="NavbarElementAddPopup"
       asp-route-navbarInfoId="@Context.Request.Query["navbarInfoId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
@@ -22,7 +22,7 @@
                     </button>
                 </div>
             </div>
-            @await Html.PartialAsync(NavbarController.GetViewPath("_NavbarElement.CreateOrUpdate.cshtml"), Model)
+            @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.cshtml"), Model)
         </div>
     </section>
 </form>

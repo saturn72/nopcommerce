@@ -202,6 +202,12 @@ public class Plugin : BasePlugin
             new LocaleStringResource
             {
                 LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Icon.Required",
+                ResourceValue = "Icon is required"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
                 ResourceName = "Admin.NavbarElement.Fields.Index",
                 ResourceValue = "Index"
             },
@@ -210,6 +216,18 @@ public class Plugin : BasePlugin
                 LanguageId = languageId,
                 ResourceName = "Admin.NaNavbarElement.Fields.Label",
                 ResourceValue = "Label"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NaNavbarElement.Fields.Label.Required",
+                ResourceValue = "Label is required"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NaNavbarElement.Fields.Label.Unique",
+                ResourceValue = "Label should be unique for navbar"
             },
             new LocaleStringResource
             {

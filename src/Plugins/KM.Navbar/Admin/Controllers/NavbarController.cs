@@ -75,7 +75,7 @@ public class NavbarController : BaseAdminController
             var navbar = model.ToEntity<NavbarInfo>();
             navbar.CreatedOnUtc = DateTime.UtcNow;
             navbar.UpdatedOnUtc = DateTime.UtcNow;
-            await _navbarInfoService.InsertNavbarAsync(navbar);
+            await _navbarInfoService.InsertNavbarInfoAsync(navbar);
 
             var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Added");
             _notificationService.SuccessNotification(msg);
@@ -222,13 +222,16 @@ public class NavbarController : BaseAdminController
     }
 
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_CREATE)]
-    public virtual async Task<IActionResult> NavbarElementAddPopup(int categoryId)
+    public virtual async Task<IActionResult> NavbarElementAddPopup(int navbarInfoId)
     {
         //prepare model
-        var model = new NavbarElementModel();
+        var model = new NavbarElementModel
+        {
+            NavbarInfoId = navbarInfoId
+        };
         await _navbarFactory.PrepareNavbarElemenModelAsync(model);
 
-        return View("NavbarElement.CreatePopup.cshtml", model);
+        return View("NavbarElement/CreatePopup.cshtml", model);
     }
 
     [HttpPost]
@@ -237,31 +240,16 @@ public class NavbarController : BaseAdminController
 
     public virtual async Task<IActionResult> NavbarElementAddPopup(NavbarElementModel model)
     {
-        throw new NotImplementedException();
-        ////get selected products
-        //var selectedProducts = await _productService.GetProductsByIdsAsync(model.SelectedProductIds.ToArray());
-        //if (selectedProducts.Any())
-        //{
-        //    var existingProductCategories = await _categoryService.GetProductCategoriesByCategoryIdAsync(model.CategoryId, showHidden: true);
-        //    foreach (var product in selectedProducts)
-        //    {
-        //        //whether product category with such parameters already exists
-        //        if (_categoryService.FindProductCategory(existingProductCategories, product.Id, model.CategoryId) != null)
-        //            continue;
+        if (ModelState.IsValid)
+        {
+            var navbarElement = model.ToEntity<NavbarElement>();
+            await _navbarInfoService.InsertNavbarElementAsync(navbarElement);
+            var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Added");
+            _notificationService.SuccessNotification(msg);
+            return Json(new { Result = true });
+        }
 
-        //        //insert the new product category mapping
-        //        await _categoryService.InsertProductCategoryAsync(new ProductCategory
-        //        {
-        //            CategoryId = model.CategoryId,
-        //            ProductId = product.Id,
-        //            IsFeaturedProduct = false,
-        //            DisplayOrder = 1
-        //        });
-        //    }
-        //}
-
-        //ViewBag.RefreshPage = true;
-
-        //return View(new AddProductToCategorySearchModel());
+        ViewBag.RefreshPage = true;
+        return View("NavbarElement/CreatePopup.cshtml", new NavbarElementModel());
     }
 }

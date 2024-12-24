@@ -2,24 +2,29 @@
 using Nop.Web.Framework.Validators;
 
 namespace KM.Navbar.Admin.Validators;
-public class NavInfoModelValidator : BaseNopValidator<NavbarInfoModel>
+public class NavbarElementModelValidator : BaseNopValidator<NavbarElementModel>
 {
-    public NavInfoModelValidator(
+    public NavbarElementModelValidator(
         ILocalizationService localizationService,
         INavbarInfoService navbarInfoService)
     {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.Label)
             .NotEmpty()
-            .WithMessageAwait(localizationService.GetResourceAsync("Admin.Navbar.Fields.Name.Required"));
+            .WithMessageAwait(localizationService.GetResourceAsync("Admin.NaNavbarElement.Fields.Label.Required"));
 
-        RuleFor(x => x.Name)
+        //does not have exist elements with the same label
+        RuleFor(x => x.Label)
             .MustAwait(async (nb, ct) =>
             {
-                var x = await navbarInfoService.GetNavbarInfoByNameAsync(nb.Name);
-                return x == null;
+                var nbes = await navbarInfoService.GetNavbarElementsByNavbarInfoIdAsync(nb.NavbarInfoId);
+                return nbes.FirstOrDefault(d => d.Label == nb.Label) == null;
             })
-            .WithMessageAwait(localizationService.GetResourceAsync("Admin.Navbar.Fields.Name.Unique"));
+            .WithMessageAwait(localizationService.GetResourceAsync("Admin.NaNavbarElement.Fields.Label.Unique"));
 
-        SetDatabaseValidationRules<NavbarInfo>();
+        RuleFor(x => x.Icon)
+           .NotEmpty()
+           .WithMessageAwait(localizationService.GetResourceAsync("Admin.Navbar.Fields.Icon.Required"));
+
+        SetDatabaseValidationRules<NavbarElement>();
     }
 }
