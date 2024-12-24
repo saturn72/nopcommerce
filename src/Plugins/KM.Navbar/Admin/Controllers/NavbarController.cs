@@ -1,5 +1,4 @@
-﻿
-using Nito.AsyncEx;
+﻿using Nop.Web.Framework.Controllers;
 
 namespace KM.Navbar.Admin.Controllers;
 
@@ -210,8 +209,8 @@ public class NavbarController : BaseAdminController
         }
     }
     [HttpPost]
-    [CheckPermission(NavbarPermissions.NAVBARS_EDIT)]
-    [CheckPermission(NavbarPermissions.NAVBARS_DELETE)]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
     public virtual async Task<IActionResult> NavbarElementList(NavbarElementSearchModel searchModel)
     {
         var navbar = await _navbarInfoService.GetNavbarInfoByIdAsync(searchModel.NavbarInfoId)
@@ -220,5 +219,49 @@ public class NavbarController : BaseAdminController
         var model = await _navbarFactory.PrepareNavbarInfoElementListModelAsync(searchModel, navbar);
 
         return Json(model);
+    }
+
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_CREATE)]
+    public virtual async Task<IActionResult> NavbarElementAddPopup(int categoryId)
+    {
+        //prepare model
+        var model = new NavbarElementModel();
+        await _navbarFactory.PrepareNavbarElemenModelAsync(model);
+
+        return View("NavbarElement.CreatePopup.cshtml", model);
+    }
+
+    [HttpPost]
+    [FormValueRequired("save")]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_CREATE)]
+
+    public virtual async Task<IActionResult> NavbarElementAddPopup(NavbarElementModel model)
+    {
+        throw new NotImplementedException();
+        ////get selected products
+        //var selectedProducts = await _productService.GetProductsByIdsAsync(model.SelectedProductIds.ToArray());
+        //if (selectedProducts.Any())
+        //{
+        //    var existingProductCategories = await _categoryService.GetProductCategoriesByCategoryIdAsync(model.CategoryId, showHidden: true);
+        //    foreach (var product in selectedProducts)
+        //    {
+        //        //whether product category with such parameters already exists
+        //        if (_categoryService.FindProductCategory(existingProductCategories, product.Id, model.CategoryId) != null)
+        //            continue;
+
+        //        //insert the new product category mapping
+        //        await _categoryService.InsertProductCategoryAsync(new ProductCategory
+        //        {
+        //            CategoryId = model.CategoryId,
+        //            ProductId = product.Id,
+        //            IsFeaturedProduct = false,
+        //            DisplayOrder = 1
+        //        });
+        //    }
+        //}
+
+        //ViewBag.RefreshPage = true;
+
+        //return View(new AddProductToCategorySearchModel());
     }
 }

@@ -63,7 +63,7 @@
     </div>
     <div class="card-footer">
         <button type="submit" id="btnAddNewNavbarInfoElement"
-                onclick="javascript:OpenWindow('@(Url.Action("ProductAddPopup", "Navbar", new { navbarId = Model.Id, btnId = "btnRefreshElements", formId = "navbar-form" }))', 800, 800, true); return false;"
+                onclick="javascript:OpenWindow('@(Url.Action("NavbarElementAddPopup", "Navbar", new { navbarId = Model.Id, btnId = "btnRefreshElements", formId = "navbar-form" }))', 800, 800, true); return false;"
                 class="btn btn-primary">
             @T("Admin.Navbars.Elements.AddNew")
         </button>

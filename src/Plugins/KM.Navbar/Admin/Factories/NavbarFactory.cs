@@ -102,4 +102,9 @@ public class NavbarFactory : INavbarFactory
         return model.PrepareToGrid(searchModel, navbarElements,
             () => navbarElements.Select(navbarElement => navbarElement.ToModel<NavbarElementModel>()));
     }
+
+    public Task PrepareNavbarElemenModelAsync(NavbarElementModel model)
+    {
+        return Task.CompletedTask;
+    }
 }

@@ -181,6 +181,54 @@ public class Plugin : BasePlugin
                 ResourceName = "Admin.Navbars.EditNavbarDetails",
                 ResourceValue = "Edit Navbar Details"
             },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.AddNew",
+                ResourceValue = "Add Navbar Element"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Alt",
+                ResourceValue = "Alt"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Icon",
+                ResourceValue = "Icon"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Index",
+                ResourceValue = "Index"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NaNavbarElement.Fields.Label",
+                ResourceValue = "Label"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Tags",
+                ResourceValue = "Tags"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Type",
+                ResourceValue = "Type"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Value",
+                ResourceValue = "Value"
+            },
         };
     }
 

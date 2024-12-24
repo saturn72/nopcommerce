@@ -4,7 +4,6 @@ public partial record NavbarInfoModel : BaseNopEntityModel
 {
     [NopResourceDisplayName("Admin.Navbar.Fields.Elements")]
     public IList<NavbarElementModel> Elements { get; set; }
-
     [NopResourceDisplayName("Admin.Navbar.Fields.Name")]
     public string Name { get; set; }
     [NopResourceDisplayName("Admin.Navbars.Fields.Description")]
