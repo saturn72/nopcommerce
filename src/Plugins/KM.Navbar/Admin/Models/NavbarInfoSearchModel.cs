@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Nop.Web.Framework.Models;
-using Nop.Web.Framework.Mvc.ModelBinding;
-
-namespace KM.Navbar.Admin.Models;
+﻿namespace KM.Navbar.Admin.Models;
 public record NavbarInfoSearchModel : BaseSearchModel
 {
     [NopResourceDisplayName("Admin.Navbars.List.SearchNavbarName")]

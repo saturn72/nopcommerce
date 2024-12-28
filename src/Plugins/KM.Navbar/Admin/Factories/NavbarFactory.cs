@@ -103,8 +103,23 @@ public class NavbarFactory : INavbarFactory
             () => navbarElements.Select(navbarElement => navbarElement.ToModel<NavbarElementModel>()));
     }
 
-    public Task PrepareNavbarElemenModelAsync(NavbarElementModel model)
+    public Task PrepareCreateNavbarElementPopupModelAsync(CreateOrUpdateNavbarElementPopupModel model)
     {
+        model.AvailableTypes ??= new List<SelectListItem>
+        {
+            new()
+            {
+                Selected = true,
+                Text = Consts.NavbarElementType.Route,
+                Value = Consts.NavbarElementType.Route.ToLower(),
+            },new()
+            {
+                Selected = false,
+                Text = Consts.NavbarElementType.Filter,
+                Value = Consts.NavbarElementType.Filter.ToLower(),
+            },
+        };
+
         return Task.CompletedTask;
     }
 }

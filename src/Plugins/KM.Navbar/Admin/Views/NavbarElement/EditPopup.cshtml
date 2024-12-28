@@ -2,7 +2,7 @@
 
 @{
     Layout = "_AdminPopupLayout";
-    ViewBag.PageTitle = T("Admin.Navbars.Elements.AddNew").Text;
+    ViewBag.PageTitle = T("Admin.Navbars.Elements.Edit").Text;
 }
 
 <form asp-controller="Navbar" asp-action="NavbarElementAddPopup"
@@ -13,7 +13,7 @@
         <div class="container-fluid">
             <div class="content-header clearfix">
                 <h1 class="float-left">
-                    @T("Admin.Navbars.Elements.AddNew")
+                    @T("Admin.Navbars.Elements.Edit")
                 </h1>
                 <div class="float-right">
                     <button type="submit" name="save" class="btn btn-primary">

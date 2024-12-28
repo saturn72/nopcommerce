@@ -2,24 +2,46 @@
 using Nop.Web.Framework.Validators;
 
 namespace KM.Navbar.Admin.Validators;
-public class NavInfoModelValidator : BaseNopValidator<NavbarInfoModel>
+public class CreateNavbarElementPopupModelValidator : BaseNopValidator<CreateOrUpdateNavbarElementPopupModel>
 {
-    public NavInfoModelValidator(
+    public CreateNavbarElementPopupModelValidator(
         ILocalizationService localizationService,
         INavbarInfoService navbarInfoService)
     {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.Caption)
             .NotEmpty()
-            .WithMessageAwait(localizationService.GetResourceAsync("Admin.Navbar.Fields.Name.Required"));
+            .WithMessageAwait(localizationService.GetResourceAsync("Admin.NavbarElement.Fields.Caption.Required"));
 
-        RuleFor(x => x.Name)
+        //does not have exist elements with the same label
+        RuleFor(x => x.Caption)
             .MustAwait(async (nb, ct) =>
             {
-                var x = await navbarInfoService.GetNavbarInfoByNameAsync(nb.Name);
-                return x == null;
+                var nbes = await navbarInfoService.GetNavbarElementsByNavbarInfoIdAsync(nb.NavbarInfoId);
+                return nbes.FirstOrDefault(d => d.Caption == nb.Caption) == null;
             })
-            .WithMessageAwait(localizationService.GetResourceAsync("Admin.Navbar.Fields.Name.Unique"));
+            .WithMessageAwait(localizationService.GetResourceAsync("Admin.NavbarElement.Fields.Caption.Unique"));
 
-        SetDatabaseValidationRules<NavbarInfo>();
+        RuleFor(x => x.Icon)
+           .NotEmpty()
+           .WithMessageAwait(localizationService.GetResourceAsync("Admin.NavbarElement.Fields.Icon.Required"));
+
+        RuleFor(x => x.ActiveIcon)
+                  .NotEmpty()
+                  .WithMessageAwait(localizationService.GetResourceAsync("Admin.NavbarElement.Fields.ActiveIcon.Required"));
+
+        RuleFor(x => x.Type)
+           .Must(x => x.Equals(Consts.NavbarElementType.Filter, StringComparison.InvariantCultureIgnoreCase) ||
+           x.Equals(Consts.NavbarElementType.Route, StringComparison.InvariantCultureIgnoreCase))
+           .WithMessageAwait(localizationService.GetResourceAsync("Admin.NavbarElement.Fields.Type.Invalid"));
+
+        RuleFor(x => x.Value)
+           .NotEmpty()
+           .WithMessageAwait(localizationService.GetResourceAsync("Admin.NavbarElement.Fields.Value.Required"));
+
+        RuleFor(x => x.NavbarInfoId)
+           .NotEmpty()
+           .WithMessageAwait(localizationService.GetResourceAsync("Admin.NavbarElement.Fields.NavbarInfoId.Required"));
+
+        SetDatabaseValidationRules<NavbarElement>();
     }
 }

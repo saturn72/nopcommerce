@@ -11,6 +11,7 @@ public class PluginNopStartup : INopStartup
         services.AddScoped<INavbarInfoService, NavbarInfoService>();
         services.AddScoped<INavbarFactory, NavbarFactory>();
         services.AddTransient<IValidator<NavbarInfoModel>, NavInfoModelValidator>();
+        services.AddTransient<IValidator<CreateOrUpdateNavbarElementPopupModel>, CreateNavbarElementPopupModelValidator>();
 
     }
 

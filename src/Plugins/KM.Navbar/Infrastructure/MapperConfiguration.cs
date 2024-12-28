@@ -11,6 +11,9 @@ public class MapperConfiguration : Profile, IOrderedMapperProfile
               .ReverseMap();
         CreateMap<NavbarElementModel, NavbarElement>()
               .ReverseMap();
+        CreateMap<CreateOrUpdateNavbarElementPopupModel, NavbarElement>()
+              .ReverseMap();
+
     }
     public int Order => 1;
 }

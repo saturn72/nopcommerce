@@ -1,4 +1,4 @@
-@model NavbarElementModel
+@model CreateOrUpdateNavbarElementPopupModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
@@ -21,11 +21,11 @@
                         <div class="card-body">
                             <div class="form-group row">
                                 <div class="col-sm-3">
-                                    <nop-label asp-for="Label" />
+                                    <nop-label asp-for="Caption" />
                                 </div>
                                 <div class="col-sm-9">
-                                    <nop-editor asp-for="Label" asp-postfix="@Model.Label" />
-                                    <span asp-validation-for="Label"></span>
+                                    <nop-editor asp-for="Caption" asp-postfix="@Model.Caption" />
+                                    <span asp-validation-for="Caption"></span>
                                 </div>
                             </div>
 
@@ -51,6 +51,16 @@
 
                             <div class="form-group row">
                                 <div class="col-sm-3">
+                                    <nop-label asp-for="ActiveIcon" />
+                                </div>
+                                <div class="col-sm-9">
+                                    <nop-editor asp-for="ActiveIcon" asp-postfix="@Model.ActiveIcon" />
+                                    <span asp-validation-for="ActiveIcon"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-3">
                                     <nop-label asp-for="Tags" />
                                 </div>
                                 <div class="col-sm-9">
@@ -60,12 +70,11 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-sm-3">
+                                <div class="col-md-4">
                                     <nop-label asp-for="Type" />
                                 </div>
-                                <div class="col-sm-9">
-                                    <nop-editor asp-for="Type" asp-postfix="@Model.Type" />
-                                    <span asp-validation-for="Type"></span>
+                                <div class="col-md-8">
+                                    <nop-select asp-for="Type" class="form-control" asp-items="Model.AvailableTypes" />
                                 </div>
                             </div>
 

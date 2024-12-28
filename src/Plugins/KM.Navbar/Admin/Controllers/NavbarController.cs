@@ -1,4 +1,5 @@
 ﻿using Nop.Web.Framework.Controllers;
+using Nop.Web.Framework.Mvc;
 
 namespace KM.Navbar.Admin.Controllers;
 
@@ -225,11 +226,11 @@ public class NavbarController : BaseAdminController
     public virtual async Task<IActionResult> NavbarElementAddPopup(int navbarInfoId)
     {
         //prepare model
-        var model = new NavbarElementModel
+        var model = new CreateOrUpdateNavbarElementPopupModel
         {
             NavbarInfoId = navbarInfoId
         };
-        await _navbarFactory.PrepareNavbarElemenModelAsync(model);
+        await _navbarFactory.PrepareCreateNavbarElementPopupModelAsync(model);
 
         return View("NavbarElement/CreatePopup.cshtml", model);
     }
@@ -237,8 +238,7 @@ public class NavbarController : BaseAdminController
     [HttpPost]
     [FormValueRequired("save")]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_CREATE)]
-
-    public virtual async Task<IActionResult> NavbarElementAddPopup(NavbarElementModel model)
+    public virtual async Task<IActionResult> NavbarElementAddPopup(CreateOrUpdateNavbarElementPopupModel model)
     {
         if (ModelState.IsValid)
         {
@@ -246,10 +246,38 @@ public class NavbarController : BaseAdminController
             await _navbarInfoService.InsertNavbarElementAsync(navbarElement);
             var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Added");
             _notificationService.SuccessNotification(msg);
-            return Json(new { Result = true });
+            ViewBag.RefreshPage = true;
         }
 
-        ViewBag.RefreshPage = true;
-        return View("NavbarElement/CreatePopup.cshtml", new NavbarElementModel());
+        await _navbarFactory.PrepareCreateNavbarElementPopupModelAsync(model);
+        return View("NavbarElement/CreatePopup.cshtml", model);
+    }
+
+    [HttpPost]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
+    public virtual async Task<IActionResult> NavbarElementUpdate(NavbarElementModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var navbarElement = model.ToEntity<NavbarElement>();
+            await _navbarInfoService.UpdateNavbarElementAsync(navbarElement);
+            var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Updated");
+            _notificationService.SuccessNotification(msg);
+        }
+        return new NullJsonResult();
+    }
+
+    [HttpPost]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
+    public virtual async Task<IActionResult> NavbarElementDelete(NavbarElementModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var navbarElement = model.ToEntity<NavbarElement>();
+            await _navbarInfoService.DeleteNavbarElementAsync(navbarElement);
+            var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Deleted");
+            _notificationService.SuccessNotification(msg);
+        }
+        return new NullJsonResult();
     }
 }

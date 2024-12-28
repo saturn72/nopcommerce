@@ -1,5 +1,4 @@
 ﻿using Nop.Core.Domain.Localization;
-using Nop.Services.Localization;
 
 namespace KM.Navbar.Infrastructure;
 public class Plugin : BasePlugin
@@ -190,6 +189,24 @@ public class Plugin : BasePlugin
             new LocaleStringResource
             {
                 LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Added",
+                ResourceValue = "Navbar Element Added successfuly"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Updated",
+                ResourceValue = "Navbar Element Updated successfuly"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Edit",
+                ResourceValue = "Edit Navbar Element"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
                 ResourceName = "Admin.NavbarElement.Fields.Alt",
                 ResourceValue = "Alt"
             },
@@ -208,26 +225,68 @@ public class Plugin : BasePlugin
             new LocaleStringResource
             {
                 LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.ActiveIcon",
+                ResourceValue = "ActiveIcon"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.ActiveIcon.Required",
+                ResourceValue = "Active Icon is required"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Type",
+                ResourceValue = "Type"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Type.Invalid",
+                ResourceValue = "Value is invalid"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Type.Required",
+                ResourceValue = "Value is required"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Value.Required",
+                ResourceValue = "Value is required"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.NavbarInfoId.Required",
+                ResourceValue = "Navbar Id is required"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
                 ResourceName = "Admin.NavbarElement.Fields.Index",
                 ResourceValue = "Index"
             },
             new LocaleStringResource
             {
                 LanguageId = languageId,
-                ResourceName = "Admin.NaNavbarElement.Fields.Label",
-                ResourceValue = "Label"
+                ResourceName = "Admin.NavbarElement.Fields.Caption",
+                ResourceValue = "Caption"
             },
             new LocaleStringResource
             {
                 LanguageId = languageId,
-                ResourceName = "Admin.NaNavbarElement.Fields.Label.Required",
-                ResourceValue = "Label is required"
+                ResourceName = "Admin.NavbarElement.Fields.Caption.Required",
+                ResourceValue = "Caption is required"
             },
             new LocaleStringResource
             {
                 LanguageId = languageId,
-                ResourceName = "Admin.NaNavbarElement.Fields.Label.Unique",
-                ResourceValue = "Label should be unique for navbar"
+                ResourceName = "Admin.NavbarElement.Fields.Caption.Unique",
+                ResourceValue = "Caption should be unique for navbar"
             },
             new LocaleStringResource
             {

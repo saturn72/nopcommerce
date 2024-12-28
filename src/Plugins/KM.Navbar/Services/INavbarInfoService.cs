@@ -11,4 +11,6 @@ public interface INavbarInfoService
     Task InsertNavbarInfoAsync(NavbarInfo navbar);
     Task InsertNavbarElementAsync(NavbarElement navbarElement);
     Task UpdateNavbarInfoAsync(NavbarInfo navbar);
+    Task UpdateNavbarElementAsync(NavbarElement navbarElement);
+    Task DeleteNavbarElementAsync(NavbarElement navbarElement);
 }

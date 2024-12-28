@@ -7,10 +7,12 @@ public record NavbarElementModel : BaseNopEntityModel
     public string Alt { get; init; }
     [NopResourceDisplayName("Admin.NavbarElement.Fields.Icon")]
     public string Icon { get; init; }
+    [NopResourceDisplayName("Admin.NavbarElement.Fields.ActiveIcon")]
+    public string ActiveIcon { get; init; }
     [NopResourceDisplayName("Admin.NavbarElement.Fields.Index")]
     public int Index { get; init; }
-    [NopResourceDisplayName("Admin.NaNavbarElement.Fields.Label")]
-    public string Label { get; init; }
+    [NopResourceDisplayName("Admin.NavbarElement.Fields.Caption")]
+    public string Caption { get; init; }
     [NopResourceDisplayName("Admin.NavbarElement.Fields.Tags")]
     public string Tags { get; init; } = string.Empty;
     [NopResourceDisplayName("Admin.NavbarElement.Fields.Type")]
