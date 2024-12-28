@@ -81,7 +81,17 @@ public class NavbarInfoService : INavbarInfoService
             CacheTime = CACHE_TIME
         };
 
-        return await _staticCacheManager.GetAsync(ck, async () => await _navbarInfoRepository.Table.FirstOrDefaultAsync(c => c.Name == name));
+        return await _staticCacheManager.GetAsync(ck, async () =>
+        {
+            var navbar = await _navbarInfoRepository.Table.FirstOrDefaultAsync(c => c.Name == name);
+
+            if (navbar != null)
+            {
+                var elements = await _navbarElementRepository.GetAllAsync(query => query = query.Where(c => c.NavbarInfoId == navbar.Id));
+                navbar.Elements = elements.ToList();
+            }
+            return navbar;
+        });
     }
 
     public async Task UpdateNavbarInfoAsync(NavbarInfo navbarInfo)

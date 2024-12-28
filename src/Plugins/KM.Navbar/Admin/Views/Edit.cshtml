@@ -31,6 +31,6 @@
             </span>
         </div>
     </div>
-    @await Html.PartialAsync(NavbarController.GetViewPath("_CreateOrUpdate"), Model)
+    @await Html.PartialAsync(NavbarController.GetViewPath("_CreateOrUpdate.cshtml"), Model)
 </form>
 <nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="navbar-delete" />

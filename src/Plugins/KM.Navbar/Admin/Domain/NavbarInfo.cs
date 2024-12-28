@@ -3,7 +3,7 @@
 namespace KM.Navbar.Admin.Domain;
 public class NavbarInfo : BaseEntity, IStoreMappingSupported
 {
-    public IEnumerable<NavbarElement> Elements { get; init; }
+    public IEnumerable<NavbarElement> Elements { get; set; }
     public int DisplayOrder { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
