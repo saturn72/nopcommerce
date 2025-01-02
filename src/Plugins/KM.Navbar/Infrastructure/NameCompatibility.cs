@@ -1,6 +1,6 @@
 ﻿using Nop.Data.Mapping;
 
-namespace KM.Navbar.Mapping
+namespace KM.Navbar.Infrastructure
 {
     public partial class NameCompatibility : INameCompatibility
     {

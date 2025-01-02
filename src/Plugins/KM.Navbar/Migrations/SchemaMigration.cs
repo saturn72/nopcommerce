@@ -4,7 +4,7 @@ using Nop.Data.Migrations;
 
 namespace KM.Navbar.Migrations;
 
-[NopMigration("2024/12/14 09:40:08:9037677", "Nop.Plugin.Misc.KM.Navbar schema", MigrationProcessType.Installation)]
+[NopMigration("2024/12/25 09:40:08:9037677", "Nop.Plugin.Misc.KM.Navbar schema", MigrationProcessType.Installation | MigrationProcessType.Update)]
 public class SchemaMigration : ForwardOnlyMigration
 {
 

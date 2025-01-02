@@ -1,19 +1,32 @@
-﻿using Nop.Core.Domain.Localization;
+﻿using KM.Navbar.Widgets;
+using Nop.Core.Domain.Cms;
+using Nop.Core.Domain.Localization;
+using Nop.Services.Cms;
+using Nop.Services.Configuration;
+using Nop.Web.Framework.Infrastructure;
 
 namespace KM.Navbar.Infrastructure;
-public class Plugin : BasePlugin
+public class Plugin : BasePlugin, IWidgetPlugin
 {
     private readonly ILocalizationService _localizationService;
     private readonly ILanguageService _languageService;
     private readonly IEnumerable<LocaleStringResource> _localeStringResources;
+    private readonly WidgetSettings _widgetSettings;
+    private readonly ISettingService _settingService;
+
+    public bool HideInWidgetList => true;
 
     public Plugin(
         ILocalizationService localizationService,
-        ILanguageService languageService)
+        ILanguageService languageService,
+        WidgetSettings widgetSettings,
+        ISettingService settingService)
     {
         _localizationService = localizationService;
         _languageService = languageService;
         _localeStringResources = GetLocaleStringResources();
+        _widgetSettings = widgetSettings;
+        _settingService = settingService;
     }
 
     private IEnumerable<LocaleStringResource> GetLocaleStringResources()
@@ -313,11 +326,14 @@ public class Plugin : BasePlugin
     {
         await base.InstallAsync();
         await InsertLocaleResourcesAsync();
+        _widgetSettings.ActiveWidgetSystemNames.Add(PluginDescriptor.SystemName);
+        await _settingService.SaveSettingAsync(_widgetSettings);
     }
-
 
     public async override Task UninstallAsync()
     {
+        _widgetSettings.ActiveWidgetSystemNames.Remove(PluginDescriptor.SystemName);
+        await _settingService.SaveSettingAsync(_widgetSettings);
         await UninsertLocaleResourcesAsync();
         await base.UninstallAsync();
     }
@@ -334,5 +350,21 @@ public class Plugin : BasePlugin
         foreach (var lr in _localeStringResources)
             tasks.Add(_localizationService.InsertLocaleStringResourceAsync(lr));
         await Task.WhenAll(tasks);
+    }
+
+    public Task<IList<string>> GetWidgetZonesAsync()
+    {
+        return Task.FromResult<IList<string>>(new List<string>
+        {
+            AdminWidgetZones.VendorDetailsBlock
+        });
+    }
+
+    public Type GetWidgetViewComponent(string widgetZone)
+    {
+        if (widgetZone == AdminWidgetZones.VendorDetailsBlock)
+            return typeof(VendorAddRemoveTags);
+
+        throw new ArgumentOutOfRangeException(widgetZone);
     }
 }
