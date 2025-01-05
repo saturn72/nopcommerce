@@ -1,4 +1,4 @@
-﻿using Nop.Web.Framework.Controllers;
+﻿using KM.Navbar.Admin.Models;
 using Nop.Web.Framework.Mvc;
 
 namespace KM.Navbar.Admin.Controllers;
@@ -223,22 +223,20 @@ public class NavbarController : BaseAdminController
     }
 
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_CREATE)]
-    public virtual async Task<IActionResult> NavbarElementAddPopup(int navbarInfoId)
+    public virtual async Task<IActionResult> NavbarElementCreate(int navbarInfoId)
     {
-        //prepare model
-        var model = new CreateOrUpdateNavbarElementPopupModel
+        var model = new CreateOrUpdateNavbarElementModel
         {
             NavbarInfoId = navbarInfoId
         };
-        await _navbarFactory.PrepareCreateNavbarElementPopupModelAsync(model);
+        await _navbarFactory.PrepareCreateOrUpdateNavbarElementModelAsync(model);
 
-        return View("NavbarElement/CreatePopup.cshtml", model);
+        return View("NavbarElement/Create.cshtml", model);
     }
 
-    [HttpPost]
-    [FormValueRequired("save")]
+    [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_CREATE)]
-    public virtual async Task<IActionResult> NavbarElementAddPopup(CreateOrUpdateNavbarElementPopupModel model)
+    public virtual async Task<IActionResult> NavbarElementCreate(CreateOrUpdateNavbarElementModel model, bool continueEditing)
     {
         if (ModelState.IsValid)
         {
@@ -246,11 +244,22 @@ public class NavbarController : BaseAdminController
             await _navbarInfoService.InsertNavbarElementAsync(navbarElement);
             var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Added");
             _notificationService.SuccessNotification(msg);
-            ViewBag.RefreshPage = true;
+            if (continueEditing)
+                return RedirectToAction(nameof(NavbarElementEdit), new { id = model.NavbarInfoId });
+            return RedirectToAction("Edit", new { id = model.NavbarInfoId });
         }
 
-        await _navbarFactory.PrepareCreateNavbarElementPopupModelAsync(model);
-        return View("NavbarElement/CreatePopup.cshtml", model);
+        await _navbarFactory.PrepareCreateOrUpdateNavbarElementModelAsync(model);
+        return View("NavbarElement/Create.cshtml", model);
+    }
+
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
+    public virtual async Task<IActionResult> NavbarElementEdit(int id)
+    {
+        var e = await _navbarInfoService.GetNavbarElementsByIdAsync(id);
+        var model = e.ToModel<CreateOrUpdateNavbarElementModel>();
+
+        return View("NavbarElement/Edit.cshtml", model);
     }
 
     [HttpPost]
@@ -280,4 +289,63 @@ public class NavbarController : BaseAdminController
         }
         return new NullJsonResult();
     }
+
+    #region Vendors
+
+    [HttpPost]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_VIEW)]
+    public virtual async Task<IActionResult> NavbarElementVendorList(NavElementVendorSearchModel searchModel)
+    {
+        throw new NotImplementedException();
+        //var navbar = await _navbarInfoService.GetNavbarInfoByIdAsync(searchModel.NavbarInfoId)
+        //    ?? throw new ArgumentException("No navbar info found with the specified id");
+
+        //var model = await _navbarFactory.PrepareNavbarInfoElementListModelAsync(searchModel, navbar);
+
+        //return Json(model);
+    }
+
+    [HttpPost]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
+    public virtual async Task<IActionResult> NavbarElementVendorDelete(NavbarElementModel model)
+    {
+        throw new NotImplementedException();
+        if (ModelState.IsValid)
+        {
+            var navbarElement = model.ToEntity<NavbarElement>();
+            await _navbarInfoService.DeleteNavbarElementAsync(navbarElement);
+            var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Deleted");
+            _notificationService.SuccessNotification(msg);
+        }
+        return new NullJsonResult();
+    }
+
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
+    public virtual async Task<IActionResult> VendorAddPopup(int navbarElementId)
+    {
+        //prepare model
+        var model = new AddOrRemoveVendotToNavbarElementModel
+        {
+            NavbarElementId = navbarElementId
+        };
+        await _navbarFactory.PrepareAddOrRemoveVendotToNavbarElementModel(model);
+
+        return View("VendorAddPopup.cshtml", model);
+    }
+
+    [HttpPost]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
+    public async Task<IActionResult> NavbarElementVendorUpdate(NavbarElementModel model)
+    {
+        throw new NotImplementedException();
+        if (ModelState.IsValid)
+        {
+            var navbarElement = model.ToEntity<NavbarElement>();
+            await _navbarInfoService.UpdateNavbarElementAsync(navbarElement);
+            var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Updated");
+            _notificationService.SuccessNotification(msg);
+        }
+        return new NullJsonResult();
+    }
+    #endregion
 }

@@ -1,6 +1,5 @@
 ﻿namespace KM.Navbar.Admin.Models;
-
-public record CreateOrUpdateNavbarElementPopupModel : BaseNopEntityModel
+public record CreateOrUpdateNavbarElementModel : BaseNopEntityModel
 {
     public int NavbarInfoId { get; set; }
     [NopResourceDisplayName("Admin.NavbarElement.Fields.ActiveIcon")]
@@ -21,4 +20,7 @@ public record CreateOrUpdateNavbarElementPopupModel : BaseNopEntityModel
     public string Type { get; set; }
     [NopResourceDisplayName("Admin.NavbarElement.Fields.Value")]
     public string Value { get; set; }
+
+    [NopResourceDisplayName("Admin.NavbarElement.Fields.Vendors")]
+    public NavElementVendorSearchModel VendorSearchModel { get; set; }
 }

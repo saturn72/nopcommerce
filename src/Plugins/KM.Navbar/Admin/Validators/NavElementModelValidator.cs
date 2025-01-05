@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
+using KM.Navbar.Admin.Models;
 using Nop.Web.Framework.Validators;
 
 namespace KM.Navbar.Admin.Validators;
-public class CreateNavbarElementPopupModelValidator : BaseNopValidator<CreateOrUpdateNavbarElementPopupModel>
+public class CreateNavbarElementPopupModelValidator : BaseNopValidator<CreateOrUpdateNavbarElementModel>
 {
     public CreateNavbarElementPopupModelValidator(
         ILocalizationService localizationService,

@@ -1,6 +1,6 @@
 ﻿
 namespace KM.Navbar.Models;
-public class NavbarElementSlimModel
+public class NavbarElementModel
 {
     public string Alt { get; init; }
     public string Icon { get; init; }

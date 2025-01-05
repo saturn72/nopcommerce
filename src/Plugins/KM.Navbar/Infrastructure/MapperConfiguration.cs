@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using KM.Navbar.Models;
 using Nop.Core.Infrastructure.Mapper;
 
 namespace KM.Navbar.Infrastructure;
@@ -8,16 +7,18 @@ public class MapperConfiguration : Profile, IOrderedMapperProfile
 {
     public MapperConfiguration()
     {
-        CreateMap<NavbarInfoModel, NavbarInfo>()
+        CreateMap<Admin.Models.NavbarInfoModel, NavbarInfo>()
               .ReverseMap();
-        CreateMap<NavbarElementModel, NavbarElement>()
+        CreateMap<Admin.Models.NavbarElementModel, NavbarElement>()
               .ReverseMap();
-        CreateMap<NavbarElement, NavbarElementSlimModel>()
+        CreateMap<NavbarElement, Models.NavbarElementModel>()
               .ReverseMap();
 
-        CreateMap<CreateOrUpdateNavbarElementPopupModel, NavbarElement>()
+        CreateMap<Admin.Models.CreateOrUpdateNavbarElementModel, NavbarElement>()
              .ReverseMap();
 
+        CreateMap<Admin.Models.CreateOrUpdateNavbarElementModel, NavbarElement>()
+            .ReverseMap();
     }
     public int Order => 1;
 }

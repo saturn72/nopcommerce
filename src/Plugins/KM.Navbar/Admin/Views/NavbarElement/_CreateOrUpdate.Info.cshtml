@@ -1,0 +1,85 @@
+@model CreateOrUpdateNavbarElementModel
+
+<div class="card-body">
+    <div>
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="Caption" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="Caption" asp-required="true" />
+                <span asp-validation-for="Caption"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-3">
+                <nop-label asp-for="Alt" />
+            </div>
+            <div class="col-sm-9">
+                <nop-editor asp-for="Alt" asp-postfix="@Model.Alt" />
+                <span asp-validation-for="Alt"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-3">
+                <nop-label asp-for="Icon" />
+            </div>
+            <div class="col-sm-9">
+                <nop-editor asp-for="Icon" asp-postfix="@Model.Icon" />
+                <span asp-validation-for="Icon"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-3">
+                <nop-label asp-for="ActiveIcon" />
+            </div>
+            <div class="col-sm-9">
+                <nop-editor asp-for="ActiveIcon" asp-postfix="@Model.ActiveIcon" />
+                <span asp-validation-for="ActiveIcon"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-3">
+                <nop-label asp-for="Tags" />
+            </div>
+            <div class="col-sm-9">
+                <nop-editor asp-for="Tags" asp-postfix="@Model.Tags" />
+                <span asp-validation-for="Tags"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="Type" />
+            </div>
+            <div class="col-md-9">
+                <nop-select asp-for="Type" class="form-control" asp-items="Model.AvailableTypes" />
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-3">
+                <nop-label asp-for="Value" />
+            </div>
+            <div class="col-sm-9">
+                <nop-editor asp-for="Value" asp-postfix="@Model.Value" />
+                <span asp-validation-for="Value"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-3">
+                <nop-label asp-for="Index" />
+            </div>
+            <div class="col-sm-9">
+                <nop-editor asp-for="Index" asp-postfix="@Model.Index" />
+                <span asp-validation-for="Index"></span>
+            </div>
+        </div>
+
+    </div>
+</div>

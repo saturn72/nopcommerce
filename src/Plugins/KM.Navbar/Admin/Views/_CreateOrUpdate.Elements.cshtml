@@ -6,15 +6,15 @@
         @await Html.PartialAsync("Table", new DataTablesModel
 {
     Name = "navbar-elements-grid",
-    UrlRead = new DataUrl("NavbarElementList", "Navbar", new RouteValueDictionary
+    UrlRead = new DataUrl(nameof(NavbarController.NavbarElementList), "Navbar", new RouteValueDictionary
     {
         [nameof(Model.NavbarElementSearchModel.NavbarInfoId)] = Model.Id
     }),
-    UrlDelete = new DataUrl("NavbarElementDelete", "Navbar", new RouteValueDictionary
+    UrlDelete = new DataUrl(nameof(NavbarController.NavbarElementDelete), "Navbar", new RouteValueDictionary
     {
         [nameof(Model.NavbarElementSearchModel.NavbarInfoId)] = Model.Id
     }),
-    UrlUpdate = new DataUrl("NavbarElementUpdate", "Navbar", new RouteValueDictionary
+    UrlUpdate = new DataUrl(nameof(NavbarController.NavbarElementUpdate), "Navbar", new RouteValueDictionary
     {
         [nameof(Model.NavbarElementSearchModel.NavbarInfoId)] = Model.Id
     }),
@@ -114,7 +114,7 @@
     Title = T("Admin.Common.Edit").Text,
     Width = "200",
     ClassName =  NopColumnClassDefaults.Button,
-    Render = new RenderButtonsInlineEdit()
+    Render = new RenderButtonEdit(new DataUrl("~/Admin/Navbar/NavbarElementEdit", nameof(NavbarElementModel.Id))),
     },
     new ColumnProperty(nameof(NavbarElementModel.Id))
     {
@@ -127,23 +127,10 @@
 })
     </div>
     <div class="card-footer">
-        <button type="submit" id="btnAddNewNavbarInfoElement"
-                onclick="javascript:OpenWindow('@(Url.Action("NavbarElementAddPopup", "Navbar", new { navbarInfoId = Model.Id, formId = "navbar-form" }))', 800, 800, true); return false;"
-                class="btn btn-primary">
+        <a asp-action="NavbarElementCreate" asp-route-navbarInfoId="@Model.Id" class="btn btn-primary">
+            <i class="fas fa-square-plus"></i>
             @T("Admin.Navbars.Elements.AddNew")
-        </button>
-        <button type="submit" id="btnRefreshElements" style="display: none"></button>
-        <script>
-            $(function() {
-                $('#btnRefreshElements').click(function () {
-                    //refresh grid
-                    updateTable('#elements-grid');
-
-                    //return false to don't reload a page
-                    return false;
-                });
-            });
-        </script>
+        </a>
     </div>
 }
 else

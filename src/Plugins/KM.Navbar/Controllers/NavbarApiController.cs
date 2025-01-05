@@ -1,5 +1,4 @@
-﻿
-using KM.Navbar.Models;
+﻿using KM.Navbar.Models;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 
@@ -30,7 +29,7 @@ public class NavbarApiController : ControllerBase
         var navbar = await _navbarService.GetNavbarInfoByNameAsync(name);
         var elements = navbar?.Elements ?? [];
 
-        var data = elements.Select(ne => new NavbarElementSlimModel
+        var data = elements.Select(ne => new NavbarElementModel
         {
             ActiveIcon = ne.ActiveIcon,
             Alt = ne.Alt,

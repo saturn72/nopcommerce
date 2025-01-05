@@ -14,7 +14,6 @@
     <None Remove="logo.jpg" />
     <None Remove="plugin.json" />
     <None Remove="Admin\Views\_ViewImports.cshtml" />
-    <None Remove="Admin\Views\Manage.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,15 +30,29 @@
     <Content Include="Admin\Views\List.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Admin\Views\NavbarElement\EditPopup.cshtml">
+    <Content Include="Admin\Views\NavbarElement\Edit.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="Admin\Views\NavbarElement\CreatePopup.cshtml">
+    <Content Include="Admin\Views\NavbarElement\Create.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Admin\Views\NavbarElement\VendorAddPopup.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Admin\Views\NavbarElement\_CreateOrUpdate.Vendors.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Admin\Views\NavbarElement\_CreateOrUpdate.Info.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Include="Admin\Views\_CreateOrUpdate.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

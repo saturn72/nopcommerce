@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using KM.Navbar.Admin.Models;
 using Nop.Web.Framework.Validators;
 
 namespace KM.Navbar.Admin.Validators;

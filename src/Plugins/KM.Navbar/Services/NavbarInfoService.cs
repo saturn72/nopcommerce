@@ -7,7 +7,8 @@ public class NavbarInfoService : INavbarInfoService
     private readonly IRepository<NavbarElement> _navbarElementRepository;
     private readonly IStoreMappingService _storeMappingService;
     private const int CACHE_TIME = 30 * 24 * 60;
-    private const string CACHE_KEY = "navbars";
+    private const string NAVBAR_CACHE_KEY = "navbars";
+    private const string NAVBAR_ELEMENET_CACHE_KEY = "navbar-elements";
 
     public NavbarInfoService(
         IRepository<NavbarInfo> navbarInfoRepository,
@@ -53,7 +54,7 @@ public class NavbarInfoService : INavbarInfoService
         var n = navbarInfo.Name.ToLower();
         var allNavbars = _navbarInfoRepository.GetAll(
             query => query.Where(c => !c.Deleted && c.Name.ToLower() == n),
-            cache => new CacheKey(CACHE_KEY, [navbarInfo.Name])
+            cache => new CacheKey(NAVBAR_CACHE_KEY, [navbarInfo.Name])
             {
                 CacheTime = CACHE_TIME
             });
@@ -62,13 +63,13 @@ public class NavbarInfoService : INavbarInfoService
             return;
 
         await _navbarInfoRepository.InsertAsync(navbarInfo);
-        await _staticCacheManager.RemoveByPrefixAsync(CACHE_KEY);
+        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task<NavbarInfo> GetNavbarInfoByIdAsync(int id)
     {
         return await _navbarInfoRepository.GetByIdAsync(id, cks =>
-        new CacheKey($"{CACHE_KEY}.{id}", [CACHE_KEY])
+        new CacheKey($"{NAVBAR_CACHE_KEY}.{id}", [NAVBAR_CACHE_KEY])
         {
             CacheTime = CACHE_TIME
         });
@@ -76,7 +77,7 @@ public class NavbarInfoService : INavbarInfoService
 
     public async Task<NavbarInfo> GetNavbarInfoByNameAsync(string name)
     {
-        var ck = new CacheKey($"{CACHE_KEY}.{name}", [CACHE_KEY])
+        var ck = new CacheKey($"{NAVBAR_CACHE_KEY}.{name}", [NAVBAR_CACHE_KEY])
         {
             CacheTime = CACHE_TIME
         };
@@ -98,7 +99,7 @@ public class NavbarInfoService : INavbarInfoService
     {
         ThrowIfNull(navbarInfo, nameof(navbarInfo));
         await _navbarInfoRepository.UpdateAsync(navbarInfo);
-        await _staticCacheManager.RemoveByPrefixAsync(CACHE_KEY);
+        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task DeleteNavbarInfosAsync(IEnumerable<NavbarInfo> navbarInfoss)
@@ -107,7 +108,7 @@ public class NavbarInfoService : INavbarInfoService
         if (!navbarInfoss.Any())
             return;
         await _navbarInfoRepository.DeleteAsync(navbarInfoss.ToList());
-        await _staticCacheManager.RemoveByPrefixAsync(CACHE_KEY);
+        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task<IEnumerable<NavbarInfo>> GetNavbarInfoByIdsAsync(IEnumerable<int> navbarInfoIds)
@@ -115,6 +116,7 @@ public class NavbarInfoService : INavbarInfoService
         return await _navbarInfoRepository.GetByIdsAsync(navbarInfoIds.ToArray());
     }
 
+    #region navbar-elements
     public async Task<IPagedList<NavbarElement>> GetNavbarElementsByNavbarInfoIdAsync(int navbarInfoId,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
@@ -125,24 +127,37 @@ public class NavbarInfoService : INavbarInfoService
         return await query.ToPagedListAsync(pageIndex, pageSize);
     }
 
+    public async Task<NavbarElement> GetNavbarElementsByIdAsync(int navbarElementId)
+    {
+        if (navbarElementId <= 0)
+            throw new ArgumentException($"{nameof(navbarElementId)} must be positive");
+
+        return await _navbarElementRepository.GetByIdAsync(navbarElementId, cks =>
+            new CacheKey($"{NAVBAR_ELEMENET_CACHE_KEY}.{navbarElementId}", [NAVBAR_CACHE_KEY, NAVBAR_ELEMENET_CACHE_KEY])
+            {
+                CacheTime = CACHE_TIME
+            });
+    }
+
     public async Task InsertNavbarElementAsync(NavbarElement navbarElement)
     {
         ThrowIfNull(navbarElement, nameof(navbarElement));
         await _navbarElementRepository.InsertAsync(navbarElement);
-        await _staticCacheManager.RemoveByPrefixAsync(CACHE_KEY);
+        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task UpdateNavbarElementAsync(NavbarElement navbarElement)
     {
         ThrowIfNull(navbarElement, nameof(navbarElement));
         await _navbarElementRepository.UpdateAsync(navbarElement);
-        await _staticCacheManager.RemoveByPrefixAsync(CACHE_KEY);
+        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task DeleteNavbarElementAsync(NavbarElement navbarElement)
     {
         ThrowIfNull(navbarElement, nameof(navbarElement));
         await _navbarElementRepository.DeleteAsync(navbarElement);
-        await _staticCacheManager.RemoveByPrefixAsync(CACHE_KEY);
+        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
+    #endregion
 }

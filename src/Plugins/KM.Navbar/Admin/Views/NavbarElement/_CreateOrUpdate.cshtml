@@ -1,107 +1,51 @@
-@model CreateOrUpdateNavbarElementPopupModel
+@using Nop.Web.Areas.Admin.Components
+
+@model CreateOrUpdateNavbarElementModel
+
+@{
+    var customer = await WorkContext.GetCurrentCustomerAsync();
+
+    const string hideInfoBlockAttributeName = "NavbarElementPage.HideInfoBlock";
+    var hideInfoBlock = await GenericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+
+    const string hideVendorsBlockAttributeName = "NavbarElementPage.HideVendorsBlock";
+    var hideVendorsBlock = await GenericAttributeService.GetAttributeAsync<bool>(customer, hideVendorsBlockAttributeName);
+}
 
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
-
-@if (ViewBag.RefreshPage == true)
-{
-    <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-        catch (e){}
-        window.close();
-    </script>
-}
+<input asp-for="NavbarInfoId" type="hidden" />
 
 <section class="content">
     <div class="container-fluid">
         <div class="form-horizontal">
-            <div class="form-horizontal">
-                <div class="cards-group">
-                    <div class="card card-default card-popup">
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <div class="col-sm-3">
-                                    <nop-label asp-for="Caption" />
-                                </div>
-                                <div class="col-sm-9">
-                                    <nop-editor asp-for="Caption" asp-postfix="@Model.Caption" />
-                                    <span asp-validation-for="Caption"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-3">
-                                    <nop-label asp-for="Alt" />
-                                </div>
-                                <div class="col-sm-9">
-                                    <nop-editor asp-for="Alt" asp-postfix="@Model.Alt" />
-                                    <span asp-validation-for="Alt"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-3">
-                                    <nop-label asp-for="Icon" />
-                                </div>
-                                <div class="col-sm-9">
-                                    <nop-editor asp-for="Icon" asp-postfix="@Model.Icon" />
-                                    <span asp-validation-for="Icon"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-3">
-                                    <nop-label asp-for="ActiveIcon" />
-                                </div>
-                                <div class="col-sm-9">
-                                    <nop-editor asp-for="ActiveIcon" asp-postfix="@Model.ActiveIcon" />
-                                    <span asp-validation-for="ActiveIcon"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-3">
-                                    <nop-label asp-for="Tags" />
-                                </div>
-                                <div class="col-sm-9">
-                                    <nop-editor asp-for="Tags" asp-postfix="@Model.Tags" />
-                                    <span asp-validation-for="Tags"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-md-4">
-                                    <nop-label asp-for="Type" />
-                                </div>
-                                <div class="col-md-8">
-                                    <nop-select asp-for="Type" class="form-control" asp-items="Model.AvailableTypes" />
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-3">
-                                    <nop-label asp-for="Value" />
-                                </div>
-                                <div class="col-sm-9">
-                                    <nop-editor asp-for="Value" asp-postfix="@Model.Value" />
-                                    <span asp-validation-for="Value"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-3">
-                                    <nop-label asp-for="Index" />
-                                </div>
-                                <div class="col-sm-9">
-                                    <nop-editor asp-for="Index" asp-postfix="@Model.Index" />
-                                    <span asp-validation-for="Index"></span>
-                                </div>
-                            </div>
-
-                        </div>
+            <div class="row">
+                <div class="col-md-12 clearfix">
+                    <div class="float-left">
+                        @await Component.InvokeAsync(typeof(SettingModeViewComponent), new { modeName = "navbar-advanced-mode" })
                     </div>
                 </div>
             </div>
+
+            <nop-cards id="navbar-element-cards">
+                <nop-card asp-name="navbar-element-info"
+                          asp-icon="fas fa-info"
+                          asp-title="@T("Admin.Navbars.Elements.Info")"
+                          asp-hide-block-attribute-name="@hideInfoBlockAttributeName"
+                          asp-hide="@hideInfoBlock"
+                          asp-advanced="false">
+                    @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.Info.cshtml"), Model)
+                </nop-card>
+                <nop-card asp-name="navbar-element-vendors" asp-icon="fas fa-tv"
+                          asp-title="@T("Admin.Navbars.Elements.Vendors")"
+                          asp-hide-block-attribute-name="@hideVendorsBlockAttributeName"
+                          asp-hide="@hideVendorsBlock"
+                          asp-advanced="true">
+                    @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.Vendors"), Model)
+                </nop-card>
+                @* <nop-card asp-name="navbar-mappings" asp-icon="fas fa-bookmark" asp-title="@T("Admin.Navbars.Mappings")" asp-hide-block-attribute-name="@hideMappingsBlockAttributeName" asp-hide="@hideMappingsBlock" asp-advanced="true">@await Html.PartialAsync("_CreateOrUpdate.Mappings", Model)</nop-card> *@
+                @* <nop-card asp-name="navbar-seo" asp-icon="fas fa-magnifying-glass-plus" asp-title="@T("Admin.Common.SEO")" asp-hide-block-attribute-name="@hideSeoBlockAttributeName" asp-hide="@hideSeoBlock" asp-advanced="true">@await Html.PartialAsync("_CreateOrUpdate.Seo", Model)</nop-card> *@
+                @* <nop-card asp-name="navbar-products" asp-icon="fas fa-table-list" asp-title="@T("Admin.Navbars.Elements")" asp-hide-block-attribute-name="@hideProductsBlockAttributeName" asp-hide="@hideProductsBlock" asp-advanced="true">@await Html.PartialAsync(NavbarController.GetViewPath("_CreateOrUpdate.Elements.cshtml"), Model)</nop-card> *@
+            </nop-cards>
         </div>
     </div>
 </section>

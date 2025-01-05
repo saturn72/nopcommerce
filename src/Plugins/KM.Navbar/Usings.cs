@@ -1,6 +1,4 @@
 ﻿global using static System.ArgumentNullException;
-
-global using KM.Navbar.Admin.Models;
 global using KM.Navbar.Admin.Domain;
 global using KM.Navbar.Admin.Factories;
 global using KM.Navbar.Security;

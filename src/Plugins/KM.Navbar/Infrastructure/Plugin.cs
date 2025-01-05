@@ -202,6 +202,18 @@ public class Plugin : BasePlugin, IWidgetPlugin
             new LocaleStringResource
             {
                 LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Vendors.AddNew",
+                ResourceValue = "Add Vendor to Navbar Element"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Vendors.SaveBeforeEdit",
+                ResourceValue = "Save Before Edit"
+            },            
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
                 ResourceName = "Admin.Navbars.Elements.Added",
                 ResourceValue = "Navbar Element Added successfuly"
             },
@@ -239,7 +251,7 @@ public class Plugin : BasePlugin, IWidgetPlugin
             {
                 LanguageId = languageId,
                 ResourceName = "Admin.NavbarElement.Fields.ActiveIcon",
-                ResourceValue = "ActiveIcon"
+                ResourceValue = "Active Icon"
             },
             new LocaleStringResource
             {
@@ -319,6 +331,49 @@ public class Plugin : BasePlugin, IWidgetPlugin
                 ResourceName = "Admin.NavbarElement.Fields.Value",
                 ResourceValue = "Value"
             },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Fields.Vendors",
+                ResourceValue = "Vendors"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Vendors.Fields.VendorName",
+                ResourceValue = "Vendor Name"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Vendors.Fields.IsFeaturedVendor",
+                ResourceValue = "Featured Vendor"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.NavbarElement.Vendors.Fields.DisplayOrder",
+                ResourceValue = "Display Order"
+            },            
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Info",
+                ResourceValue = "Info"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.BackToList",
+                ResourceValue = "Back to Navbars List"
+            },
+
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Vendors",
+                ResourceValue = "Vendors"
+            },            
         };
     }
 

@@ -1,4 +1,6 @@
-﻿namespace KM.Navbar.Admin.Factories;
+﻿using KM.Navbar.Admin.Models;
+
+namespace KM.Navbar.Admin.Factories;
 
 public class NavbarFactory : INavbarFactory
 {
@@ -103,7 +105,7 @@ public class NavbarFactory : INavbarFactory
             () => navbarElements.Select(navbarElement => navbarElement.ToModel<NavbarElementModel>()));
     }
 
-    public Task PrepareCreateNavbarElementPopupModelAsync(CreateOrUpdateNavbarElementPopupModel model)
+    public Task PrepareCreateOrUpdateNavbarElementModelAsync(CreateOrUpdateNavbarElementModel model)
     {
         model.AvailableTypes ??= new List<SelectListItem>
         {
@@ -120,6 +122,11 @@ public class NavbarFactory : INavbarFactory
             },
         };
 
+        return Task.CompletedTask;
+    }
+
+    public Task PrepareAddOrRemoveVendotToNavbarElementModel(AddOrRemoveVendotToNavbarElementModel model)
+    {
         return Task.CompletedTask;
     }
 }
