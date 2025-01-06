@@ -5,6 +5,7 @@ public class NavbarInfoService : INavbarInfoService
     private readonly IStaticCacheManager _staticCacheManager;
     private readonly IRepository<NavbarInfo> _navbarInfoRepository;
     private readonly IRepository<NavbarElement> _navbarElementRepository;
+    private readonly IRepository<NavbarElementVendor> _navbarElementVendorRepository;
     private readonly IStoreMappingService _storeMappingService;
     private const int CACHE_TIME = 30 * 24 * 60;
     private const string NAVBAR_CACHE_KEY = "navbars";
@@ -13,14 +14,15 @@ public class NavbarInfoService : INavbarInfoService
     public NavbarInfoService(
         IRepository<NavbarInfo> navbarInfoRepository,
         IRepository<NavbarElement> navbarElementRepository,
+        IRepository<NavbarElementVendor> navbarElementVendorRepository,
         IStaticCacheManager staticCacheManager,
-        IStoreMappingService storeMappingService
-     )
+        IStoreMappingService storeMappingService)
     {
         _navbarInfoRepository = navbarInfoRepository;
         _navbarElementRepository = navbarElementRepository;
         _staticCacheManager = staticCacheManager;
         _storeMappingService = storeMappingService;
+        _navbarElementVendorRepository = navbarElementVendorRepository;
     }
 
     public async Task<IPagedList<NavbarInfo>> GetAllNavbarInfosAsync(string navbarName, bool showHidden, int storeId, int pageIndex, int pageSize, bool? overridePublished)
@@ -159,5 +161,16 @@ public class NavbarInfoService : INavbarInfoService
         await _navbarElementRepository.DeleteAsync(navbarElement);
         await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
+
+    public async Task<IPagedList<NavbarElementVendor>> GetNavbarElementVendorsByNavbarElementIdAsync(int navbarElementId,
+        int pageIndex = 0, int pageSize = int.MaxValue)
+    {
+        if (navbarElementId <= 0)
+            return new PagedList<NavbarElementVendor>(new List<NavbarElementVendor>(), pageIndex, pageSize);
+
+        var query = _navbarElementVendorRepository.Table.Where(nbe => nbe.NavbarElementId == navbarElementId);
+        return await query.ToPagedListAsync(pageIndex, pageSize);
+    }
+
     #endregion
 }

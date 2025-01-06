@@ -13,11 +13,11 @@
     LengthMenu = Model.VendorSearchModel.AvailablePageSizes,
     ColumnCollection = new List<ColumnProperty>
     {
-    new ColumnProperty(nameof(NavElementVendorModel.VendorName))
+    new ColumnProperty(nameof(NavbarElementVendorModel.VendorName))
     {
     Title = T("Admin.NavbarElement.Vendors.Fields.Vendor").Text
     },
-    new ColumnProperty(nameof(NavElementVendorModel.IsFeaturedVendor))
+    new ColumnProperty(nameof(NavbarElementVendorModel.IsFeaturedVendor))
     {
     Title = T("Admin.NavbarElement.Vendors.Fields.IsFeaturedVendor").Text,
     Width = "150",
@@ -26,7 +26,7 @@
     Editable = true,
     EditType = EditType.Checkbox
     },
-    new ColumnProperty(nameof(NavElementVendorModel.DisplayOrder))
+    new ColumnProperty(nameof(NavbarElementVendorModel.DisplayOrder))
     {
     Title = T("Admin.NavbarElement.Vendors.Fields.DisplayOrder").Text,
     Width = "150",
@@ -34,21 +34,21 @@
     Editable = true,
     EditType = EditType.Number
     },
-    new ColumnProperty(nameof(NavElementVendorModel.VendorId))
+    new ColumnProperty(nameof(NavbarElementVendorModel.VendorId))
     {
     Title = T("Admin.Common.View").Text,
     Width = "150",
     ClassName = NopColumnClassDefaults.Button,
-    Render = new RenderButtonView(new DataUrl("~/Admin/Vendor/Edit/", nameof(NavElementVendorModel.VendorId)))
+    Render = new RenderButtonView(new DataUrl("~/Admin/Vendor/Edit/", nameof(NavbarElementVendorModel.VendorId)))
     },
-    new ColumnProperty(nameof(NavElementVendorModel.Id))
+    new ColumnProperty(nameof(NavbarElementVendorModel.Id))
     {
     Title = T("Admin.Common.Edit").Text,
     Width = "200",
     ClassName =  NopColumnClassDefaults.Button,
     Render = new RenderButtonsInlineEdit()
     },
-    new ColumnProperty(nameof(NavElementVendorModel.Id))
+    new ColumnProperty(nameof(NavbarElementVendorModel.Id))
     {
     Title = T("Admin.Common.Delete").Text,
     Width = "100",
@@ -60,7 +60,7 @@
     </div>
     <div class="card-footer">
         <button type="submit" id="btnAddNewVendor"
-                onclick="javascript:OpenWindow('@(Url.Action(nameof(NavbarController.VendorAddPopup), "Navbar", new { navbarElementId = Model.Id, btnId = "btnRefreshVendors", formId = "category-form" }))', 800, 800, true); return false;"
+                onclick="javascript:OpenWindow('@(Url.Action(nameof(NavbarController.VendorAddPopup), "Navbar", new { navbarElementId = Model.Id, btnId = "btnRefreshVendors", formId = "navbar-element-form" }))', 800, 800, true); return false;"
                 class="btn btn-primary">
             @T("Admin.Navbars.Elements.Vendors.AddNew")
         </button>

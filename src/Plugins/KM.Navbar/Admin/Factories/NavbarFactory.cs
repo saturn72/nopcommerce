@@ -48,7 +48,7 @@ public class NavbarFactory : INavbarFactory
 
     public virtual async Task<NavbarInfoListModel> PrepareNavbarInfoListModelAsync(NavbarInfoSearchModel searchModel)
     {
-        ArgumentNullException.ThrowIfNull(searchModel);
+        ThrowIfNull(searchModel);
 
         var navbars = await _navbarService.GetAllNavbarInfosAsync(
             navbarName: searchModel.SearchNavbarName,
@@ -121,12 +121,36 @@ public class NavbarFactory : INavbarFactory
                 Value = Consts.NavbarElementType.Filter.ToLower(),
             },
         };
+        model.VendorSearchModel ??= new();
 
         return Task.CompletedTask;
     }
 
-    public Task PrepareAddOrRemoveVendotToNavbarElementModel(AddOrRemoveVendotToNavbarElementModel model)
+    public async Task PrepareAddOrRemoveVendorToNavbarElementModel(AddOrRemoveVendorToNavbarElementSearchModel searchModel)
     {
-        return Task.CompletedTask;
+        ThrowIfNull(searchModel);
+
+        await _baseAdminModelFactory.PrepareVendorsAsync(searchModel.AvailableVendors);
+        var nevs = await _navbarService.GetNavbarElementVendorsByNavbarElementIdAsync(searchModel.SearchNavbarElementId);
+        foreach (var nev in nevs)
+        {
+            var vendor = searchModel.AvailableVendors.First(v => v.Value == nev.VendorId.ToString());
+            if (vendor != null)
+                vendor.Selected = true;
+        }
+        searchModel.SelectedVendorIds = nevs.Select(nev => nev.VendorId).ToList();
+
+        searchModel.SetPopupGridPageSize();
+    }
+
+    public async Task<NavbarElementVendorListModel> PrepareNavbarElementVendorListModelAsync(NavbarElementVendorSearchModel searchModel)
+    {
+        ThrowIfNull(searchModel);
+
+        var vendors = await _navbarService.GetNavbarElementVendorsByNavbarElementIdAsync(searchModel.NavbarElementId, searchModel.PageSize, searchModel.Start)
+            ?? throw new ArgumentException("No navbar element vendors found with the specified id");
+
+        var model = new NavbarElementVendorListModel().PrepareToGrid(searchModel, vendors, () => vendors.Select(nb => nb.ToModel<NavbarElementVendorModel>()));
+        return model;
     }
 }

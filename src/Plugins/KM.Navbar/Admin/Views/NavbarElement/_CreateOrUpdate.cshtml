@@ -35,12 +35,13 @@
                           asp-advanced="false">
                     @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.Info.cshtml"), Model)
                 </nop-card>
+
                 <nop-card asp-name="navbar-element-vendors" asp-icon="fas fa-tv"
                           asp-title="@T("Admin.Navbars.Elements.Vendors")"
                           asp-hide-block-attribute-name="@hideVendorsBlockAttributeName"
                           asp-hide="@hideVendorsBlock"
                           asp-advanced="true">
-                    @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.Vendors"), Model)
+                    @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.Vendors.cshtml"), Model)
                 </nop-card>
                 @* <nop-card asp-name="navbar-mappings" asp-icon="fas fa-bookmark" asp-title="@T("Admin.Navbars.Mappings")" asp-hide-block-attribute-name="@hideMappingsBlockAttributeName" asp-hide="@hideMappingsBlock" asp-advanced="true">@await Html.PartialAsync("_CreateOrUpdate.Mappings", Model)</nop-card> *@
                 @* <nop-card asp-name="navbar-seo" asp-icon="fas fa-magnifying-glass-plus" asp-title="@T("Admin.Common.SEO")" asp-hide-block-attribute-name="@hideSeoBlockAttributeName" asp-hide="@hideSeoBlock" asp-advanced="true">@await Html.PartialAsync("_CreateOrUpdate.Seo", Model)</nop-card> *@

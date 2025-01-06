@@ -1,28 +1,29 @@
 @model CreateOrUpdateNavbarElementModel
 
 @{
-    Layout = "_AdminPopupLayout";
+    Layout = "_AdminLayout";
     ViewBag.PageTitle = T("Admin.Navbars.Elements.Edit").Text;
 }
-
-<form asp-controller="Navbar" asp-action="NavbarElementAddPopup"
-      asp-route-navbarInfoId="@Context.Request.Query["navbarInfoId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
-    <section class="content">
-        <div class="container-fluid">
-            <div class="content-header clearfix">
-                <h1 class="float-left">
-                    @T("Admin.Navbars.Elements.Edit")
-                </h1>
-                <div class="float-right">
-                    <button type="submit" name="save" class="btn btn-primary">
-                        <i class="far fa-floppy-disk"></i>
-                        @T("Admin.Common.Save")
-                    </button>
-                </div>
-            </div>
-            @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.cshtml"), Model)
+<form asp-controller="Navbar" asp-action="NavbarElementEdit" method="post" id="navbar-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Navbars.Elements.Edit")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="Edit">@T("Admin.Navbars.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-floppy-disk"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" class="btn btn-primary">
+                <i class="far fa-floppy-disk"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
         </div>
-    </section>
+    </div>
+    @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.cshtml"), Model)
 </form>
+

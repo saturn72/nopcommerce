@@ -15,10 +15,8 @@ public class MapperConfiguration : Profile, IOrderedMapperProfile
               .ReverseMap();
 
         CreateMap<Admin.Models.CreateOrUpdateNavbarElementModel, NavbarElement>()
+            //.ForMember(dest =>dest.Vendors, mo => mo.MapFrom(src => src.Vendors))
              .ReverseMap();
-
-        CreateMap<Admin.Models.CreateOrUpdateNavbarElementModel, NavbarElement>()
-            .ReverseMap();
     }
     public int Order => 1;
 }

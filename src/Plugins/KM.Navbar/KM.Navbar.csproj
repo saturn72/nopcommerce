@@ -43,6 +43,7 @@
     <Content Include="Admin\Views\NavbarElement\VendorAddPopup.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Admin\Views\NavbarElement\_CreateOrUpdate.Vendors.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

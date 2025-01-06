@@ -258,13 +258,13 @@ public class NavbarController : BaseAdminController
     {
         var e = await _navbarInfoService.GetNavbarElementsByIdAsync(id);
         var model = e.ToModel<CreateOrUpdateNavbarElementModel>();
-
+        await _navbarFactory.PrepareCreateOrUpdateNavbarElementModelAsync(model);
         return View("NavbarElement/Edit.cshtml", model);
     }
 
-    [HttpPost]
+    [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
-    public virtual async Task<IActionResult> NavbarElementUpdate(NavbarElementModel model)
+    public virtual async Task<IActionResult> NavbarElementUpdate(CreateOrUpdateNavbarElementModel model)
     {
         if (ModelState.IsValid)
         {
@@ -294,15 +294,10 @@ public class NavbarController : BaseAdminController
 
     [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_VIEW)]
-    public virtual async Task<IActionResult> NavbarElementVendorList(NavElementVendorSearchModel searchModel)
+    public virtual async Task<IActionResult> NavbarElementVendorList(NavbarElementVendorSearchModel searchModel)
     {
-        throw new NotImplementedException();
-        //var navbar = await _navbarInfoService.GetNavbarInfoByIdAsync(searchModel.NavbarInfoId)
-        //    ?? throw new ArgumentException("No navbar info found with the specified id");
-
-        //var model = await _navbarFactory.PrepareNavbarInfoElementListModelAsync(searchModel, navbar);
-
-        //return Json(model);
+        var model = await _navbarFactory.PrepareNavbarElementVendorListModelAsync(searchModel);
+        return Json(model);
     }
 
     [HttpPost]
@@ -323,14 +318,13 @@ public class NavbarController : BaseAdminController
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
     public virtual async Task<IActionResult> VendorAddPopup(int navbarElementId)
     {
-        //prepare model
-        var model = new AddOrRemoveVendotToNavbarElementModel
+        var searchModel = new AddOrRemoveVendorToNavbarElementSearchModel
         {
-            NavbarElementId = navbarElementId
+            SearchNavbarElementId = navbarElementId
         };
-        await _navbarFactory.PrepareAddOrRemoveVendotToNavbarElementModel(model);
+        await _navbarFactory.PrepareAddOrRemoveVendorToNavbarElementModel(searchModel);
 
-        return View("VendorAddPopup.cshtml", model);
+        return View("NavbarElement/VendorAddPopup.cshtml", searchModel);
     }
 
     [HttpPost]

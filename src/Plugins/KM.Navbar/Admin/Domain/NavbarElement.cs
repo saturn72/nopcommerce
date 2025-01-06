@@ -11,5 +11,5 @@ public class NavbarElement : BaseEntity
     public string Tags { get; init; }
     public string Type { get; init; }
     public string Value { get; init; }
+    public IList<NavbarElementVendor> Vendors { get; init; }
 }
-

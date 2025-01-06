@@ -202,6 +202,12 @@ public class Plugin : BasePlugin, IWidgetPlugin
             new LocaleStringResource
             {
                 LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Edit",
+                ResourceValue = "Edit Navbar Element"
+            },            
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
                 ResourceName = "Admin.Navbars.Elements.Vendors.AddNew",
                 ResourceValue = "Add Vendor to Navbar Element"
             },
@@ -367,13 +373,31 @@ public class Plugin : BasePlugin, IWidgetPlugin
                 ResourceName = "Admin.Navbars.BackToList",
                 ResourceValue = "Back to Navbars List"
             },
-
             new LocaleStringResource
             {
                 LanguageId = languageId,
                 ResourceName = "Admin.Navbars.Elements.Vendors",
                 ResourceValue = "Vendors"
-            },            
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Vendors.List.SearchVendorName",
+                ResourceValue = "Vendor Name"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Vendors.List.SearchNavbarElement",
+                ResourceValue = "Navbar Element"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Vendors.List.SearchVendorId",
+                ResourceValue = "Vendor Id"
+            },
+
         };
     }
 
