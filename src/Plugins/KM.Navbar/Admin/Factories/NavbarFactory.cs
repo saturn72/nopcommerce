@@ -1,4 +1,5 @@
 ﻿using KM.Navbar.Admin.Models;
+using Nop.Services.Vendors;
 
 namespace KM.Navbar.Admin.Factories;
 
@@ -8,17 +9,20 @@ public class NavbarFactory : INavbarFactory
     private readonly ILocalizationService _localizationService;
     private readonly IBaseAdminModelFactory _baseAdminModelFactory;
     private readonly NavbarSettings _navbarSettings;
+    private readonly IVendorService _vendorService;
 
     public NavbarFactory(
         INavbarInfoService navbarService,
         ILocalizationService localizationService,
         IBaseAdminModelFactory baseAdminModelFactory,
-        NavbarSettings navbarSettings)
+        NavbarSettings navbarSettings,
+        IVendorService vendorService)
     {
         _navbarService = navbarService;
         _localizationService = localizationService;
         _baseAdminModelFactory = baseAdminModelFactory;
         _navbarSettings = navbarSettings;
+        _vendorService = vendorService;
     }
 
     public async Task PrepareNavbarInfoSearchModelAsync(NavbarInfoSearchModel searchModel)
@@ -45,7 +49,6 @@ public class NavbarFactory : INavbarFactory
         await _baseAdminModelFactory.PrepareStoresAsync(searchModel.AvailableStores);
         searchModel.SetGridPageSize();
     }
-
     public virtual async Task<NavbarInfoListModel> PrepareNavbarInfoListModelAsync(NavbarInfoSearchModel searchModel)
     {
         ThrowIfNull(searchModel);
@@ -61,7 +64,6 @@ public class NavbarFactory : INavbarFactory
 
         return model;
     }
-
     public async Task<NavbarInfoModel> PrepareNavbarInfoModelAsync(NavbarInfoModel model, NavbarInfo navbarInfo, bool excludeProperties = false)
     {
         if (navbarInfo != null)
@@ -88,7 +90,6 @@ public class NavbarFactory : INavbarFactory
 
         return model;
     }
-
     public async Task<NavbarInfoElementListModel> PrepareNavbarInfoElementListModelAsync(NavbarElementSearchModel searchModel, NavbarInfo navbarInfo)
     {
         ThrowIfNull(searchModel, nameof(searchModel));
@@ -104,7 +105,6 @@ public class NavbarFactory : INavbarFactory
         return model.PrepareToGrid(searchModel, navbarElements,
             () => navbarElements.Select(navbarElement => navbarElement.ToModel<NavbarElementModel>()));
     }
-
     public Task PrepareCreateOrUpdateNavbarElementModelAsync(CreateOrUpdateNavbarElementModel model)
     {
         model.AvailableTypes ??= new List<SelectListItem>
@@ -126,12 +126,30 @@ public class NavbarFactory : INavbarFactory
         return Task.CompletedTask;
     }
 
-    public async Task PrepareAddOrRemoveVendorToNavbarElementModel(AddOrRemoveVendorToNavbarElementSearchModel searchModel)
+    #region vendor
+    public async Task<NavbarElementVendorListModel> PrepareNavbarElementVendorListSearchModelAsync(NavbarElementVendorListSearchModel searchModel)
+    {
+        ThrowIfNull(searchModel);
+        var pageIndex = Math.Max(searchModel.Page - 1, 0);
+        var nevs = await _navbarService.GetNavbarElementVendorsByNavbarElementIdAsync(searchModel.SearchNavbarElementId, pageIndex, searchModel.PageSize)
+            ?? throw new ArgumentException("No navbar element vendors found with the specified id");
+        var vendors = await _vendorService.GetAllVendorsAsync();
+
+        foreach (var n in nevs)
+        {
+            var cur = vendors.First(x => x.Id == n.VendorId);
+            n.Vendor = cur;
+        }
+
+        var model = new NavbarElementVendorListModel().PrepareToGrid(searchModel, nevs, () => nevs.Select(nb => nb.ToModel<NavbarElementVendorModel>()));
+        return model;
+    }
+    public async Task PrepareAddVendorToNavbarElementModel(AddVendorToNavbarElementSearchModel searchModel)
     {
         ThrowIfNull(searchModel);
 
         await _baseAdminModelFactory.PrepareVendorsAsync(searchModel.AvailableVendors);
-        var nevs = await _navbarService.GetNavbarElementVendorsByNavbarElementIdAsync(searchModel.SearchNavbarElementId);
+        var nevs = await _navbarService.GetNavbarElementVendorsByNavbarElementIdAsync(searchModel.NavbarElementId);
         foreach (var nev in nevs)
         {
             var vendor = searchModel.AvailableVendors.First(v => v.Value == nev.VendorId.ToString());
@@ -142,15 +160,25 @@ public class NavbarFactory : INavbarFactory
 
         searchModel.SetPopupGridPageSize();
     }
-
-    public async Task<NavbarElementVendorListModel> PrepareNavbarElementVendorListModelAsync(NavbarElementVendorSearchModel searchModel)
+    public async Task<VendorAddPopupListModel> VendorAddPopupListAsync(NavbarElementVendorListSearchModel searchModel)
     {
         ThrowIfNull(searchModel);
 
-        var vendors = await _navbarService.GetNavbarElementVendorsByNavbarElementIdAsync(searchModel.NavbarElementId, searchModel.PageSize, searchModel.Start)
+        var maps = await _navbarService.GetNavbarElementVendorsByNavbarElementIdAsync(searchModel.SearchNavbarElementId)
             ?? throw new ArgumentException("No navbar element vendors found with the specified id");
 
-        var model = new NavbarElementVendorListModel().PrepareToGrid(searchModel, vendors, () => vendors.Select(nb => nb.ToModel<NavbarElementVendorModel>()));
+        var vendors = await _vendorService.GetAllVendorsAsync();
+
+        var model = new VendorAddPopupListModel().PrepareToGrid(searchModel, vendors,
+            () => vendors.Select(nb => new NavbarElementVendorSelectModel
+            {
+                VendorId = nb.Id,
+                VendorName = nb.Name,
+            }));
+
+        model.SelectedVendorIds = maps.Select(nev => nev.VendorId).ToList();
         return model;
     }
+
+    #endregion
 }

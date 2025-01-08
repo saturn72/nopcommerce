@@ -22,5 +22,5 @@ public record CreateOrUpdateNavbarElementModel : BaseNopEntityModel
     public string Value { get; set; }
 
     [NopResourceDisplayName("Admin.NavbarElement.Fields.Vendors")]
-    public NavbarElementVendorSearchModel VendorSearchModel { get; set; }
+    public NavbarElementVendorListSearchModel VendorSearchModel { get; set; }
 }

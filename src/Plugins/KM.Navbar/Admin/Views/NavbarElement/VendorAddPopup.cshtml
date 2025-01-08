@@ -1,5 +1,4 @@
-﻿@using Nop.Web.Areas.Admin.Models.Vendors
-@model AddOrRemoveVendorToNavbarElementSearchModel
+﻿@model AddVendorToNavbarElementSearchModel
 
 @{
     Layout = "_AdminPopupLayout";
@@ -18,7 +17,7 @@
 }
 else
 {
-    <form asp-controller="NavbarElement" asp-action="VendorAddPopup"
+    <form asp-controller="Navbar" asp-action="VendorAddPopup"
           asp-route-navbarelementId="@Context.Request.Query["navbarelementId"]"
           asp-route-btnId="@Context.Request.Query["btnId"]"
           asp-route-formId="@Context.Request.Query["formId"]">
@@ -72,36 +71,31 @@ else
                                 @await Html.PartialAsync("Table", new DataTablesModel
                        {
                            Name = "vendors-grid",
-                           UrlRead = new DataUrl("VendorAddPopupList", "NavbarElement", null),
+                           UrlRead = new DataUrl(nameof(NavbarController.VendorAddPopupList), "Navbar",
+                            new RouteValueDictionary { [nameof(NavbarElementVendorListSearchModel.SearchNavbarElementId)] = Model.NavbarElementId }),
                            SearchButtonId = "search-vendors",
                            Length = Model.PageSize,
                            LengthMenu = Model.AvailablePageSizes,
                            Filters = new List<FilterParameter>
                             {
                             new FilterParameter(nameof(Model.SearchVendorName)),
-                            new FilterParameter(nameof(Model.SearchNavbarElementId)),
+                            new FilterParameter(nameof(Model.NavbarElementId)),
                             new FilterParameter(nameof(Model.SearchVendorId)),
                             },
                            ColumnCollection = new List<ColumnProperty>
                             {
-                            new ColumnProperty(nameof(NavbarElementVendorModel.Id))
+                            new ColumnProperty(nameof(NavbarElementVendorSelectModel.VendorId))
                             {
                             IsMasterCheckBox = true,
-                            Render = new RenderCheckBox(nameof(AddOrRemoveVendorToNavbarElementSearchModel.SelectedVendorIds)),
+                            Render = new RenderCheckBox(nameof(AddVendorToNavbarElementSearchModel.SelectedVendorIds), nameof(NavbarElementVendorSelectModel.VendorId)),
                             ClassName = NopColumnClassDefaults.CenterAll,
                             Width = "50"
+                            
                             },
-                            new ColumnProperty(nameof(NavbarElementVendorModel.VendorName))
+                            new ColumnProperty(nameof(NavbarElementVendorSelectModel.VendorName))
                             {
                             Title = T("Admin.Catalog.Vendors.Fields.Name").Text
                             },
-                            new ColumnProperty(nameof(NavbarElementVendorModel.Published))
-                            {
-                            Title = T("Admin.Catalog.Vendors.Fields.Published").Text,
-                            Width = "100",
-                            ClassName = NopColumnClassDefaults.CenterAll,
-                            Render = new RenderBoolean()
-                            }
                             }
                        })
                             </div>

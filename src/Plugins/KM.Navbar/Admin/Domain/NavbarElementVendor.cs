@@ -10,6 +10,6 @@ public class NavbarElementVendor : BaseEntity
     public bool Published { get; init; }
     public int VendorId { get; init; }
 
-    public Vendor Vendor { get; init; }
+    public Vendor Vendor { get; set; }
     public NavbarElement NavbarElement { get; init; }
 }

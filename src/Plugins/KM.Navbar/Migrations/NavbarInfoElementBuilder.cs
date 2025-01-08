@@ -1,4 +1,5 @@
 ﻿using FluentMigrator.Builders.Create.Table;
+using KM.Navbar.Infrastructure;
 using Nop.Data.Mapping.Builders;
 
 namespace KM.Navbar.Migrations;
@@ -7,6 +8,7 @@ public class NavbarInfoElementBuilder : NopEntityBuilder<NavbarElement>
 {
     public override void MapEntity(CreateTableExpressionBuilder table)
     {
+        var nc = new NameCompatibility();
         table.WithColumn(nameof(NavbarElement.Id)).AsInt32().PrimaryKey().Identity()
             .WithColumn(nameof(NavbarElement.ActiveIcon)).AsString(256)
             .WithColumn(nameof(NavbarElement.Alt)).AsString(2056).Nullable()
@@ -16,6 +18,6 @@ public class NavbarInfoElementBuilder : NopEntityBuilder<NavbarElement>
             //.WithColumn(nameof(NavbarElement.Tags)).AsString().Nullable()
             .WithColumn(nameof(NavbarElement.Type)).AsString(1024).NotNullable()
             //.WithColumn(nameof(NavbarElement.Value)).AsString()
-            .WithColumn(nameof(NavbarElement.NavbarInfoId)).AsInt32().ForeignKey($"{nameof(NavbarInfo)}s", nameof(NavbarElement.NavbarInfoId)).NotNullable();
+            .WithColumn(nameof(NavbarElement.NavbarInfoId)).AsInt32().ForeignKey(nc.TableNames[typeof(NavbarInfo)], nameof(NavbarInfo.Id)).NotNullable();
     }
 }

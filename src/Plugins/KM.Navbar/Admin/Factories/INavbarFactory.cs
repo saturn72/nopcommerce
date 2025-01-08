@@ -8,6 +8,7 @@ public interface INavbarFactory
     Task<NavbarInfoModel> PrepareNavbarInfoModelAsync(NavbarInfoModel model, NavbarInfo navbarInfo, bool excludeProperties = false);
     Task<NavbarInfoElementListModel> PrepareNavbarInfoElementListModelAsync(NavbarElementSearchModel searchModel, NavbarInfo navbar);
     Task PrepareCreateOrUpdateNavbarElementModelAsync(CreateOrUpdateNavbarElementModel model);
-    Task PrepareAddOrRemoveVendorToNavbarElementModel(AddOrRemoveVendorToNavbarElementSearchModel searchModel);
-    Task<NavbarElementVendorListModel> PrepareNavbarElementVendorListModelAsync(NavbarElementVendorSearchModel searchModel);
+    Task PrepareAddVendorToNavbarElementModel(AddVendorToNavbarElementSearchModel searchModel);
+    Task<NavbarElementVendorListModel> PrepareNavbarElementVendorListSearchModelAsync(NavbarElementVendorListSearchModel searchModel);
+    Task<VendorAddPopupListModel> VendorAddPopupListAsync(NavbarElementVendorListSearchModel searchModel);
 }

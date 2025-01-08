@@ -1,6 +1,6 @@
-﻿
-namespace KM.Navbar.Admin.Models;
-public record AddOrRemoveVendorToNavbarElementSearchModel : BaseSearchModel
+﻿namespace KM.Navbar.Admin.Models;
+
+public record NavbarElementVendorListSearchModel : BaseSearchModel
 {
     [NopResourceDisplayName("Admin.Navbars.Elements.Vendors.List.SearchVendorName")]
     public string SearchVendorName { get; set; }
@@ -10,6 +10,6 @@ public record AddOrRemoveVendorToNavbarElementSearchModel : BaseSearchModel
     [NopResourceDisplayName("Admin.Navbars.Elements.Vendors.List.SearchVendorId")]
     public int SearchVendorId { get; set; }
 
-    public IList<int> SelectedVendorIds { get; set; }
-    public IList<SelectListItem> AvailableVendors { get; set; }= new List<SelectListItem>();
+    public IList<int> SelectedVendorIds { get; set; } = new List<int>();
+    public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
 }

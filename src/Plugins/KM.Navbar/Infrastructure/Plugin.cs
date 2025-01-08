@@ -204,12 +204,24 @@ public class Plugin : BasePlugin, IWidgetPlugin
                 LanguageId = languageId,
                 ResourceName = "Admin.Navbars.Elements.Edit",
                 ResourceValue = "Edit Navbar Element"
-            },            
+            },
             new LocaleStringResource
             {
                 LanguageId = languageId,
                 ResourceName = "Admin.Navbars.Elements.Vendors.AddNew",
                 ResourceValue = "Add Vendor to Navbar Element"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Vendors.Added",
+                ResourceValue = "Vendor was added to Navbar Element"
+            },
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName = "Admin.Navbars.Elements.Vendors.Deleted",
+                ResourceValue = "Vendor was removed from Navbar Element"
             },
             new LocaleStringResource
             {
@@ -397,7 +409,12 @@ public class Plugin : BasePlugin, IWidgetPlugin
                 ResourceName = "Admin.Navbars.Elements.Vendors.List.SearchVendorId",
                 ResourceValue = "Vendor Id"
             },
-
+            new LocaleStringResource
+            {
+                LanguageId = languageId,
+                ResourceName ="Admin.NavbarElement.Vendors.Fields.Published",
+                ResourceValue = "Published"
+            },
         };
     }
 

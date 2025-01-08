@@ -209,6 +209,8 @@ public class NavbarController : BaseAdminController
                 await _storeMappingService.DeleteStoreMappingAsync(storeMappingToDelete);
         }
     }
+
+    #region Elements    
     [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
@@ -290,42 +292,61 @@ public class NavbarController : BaseAdminController
         return new NullJsonResult();
     }
 
-    #region Vendors
+    #endregion
 
+    #region Vendors
     [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_VIEW)]
-    public virtual async Task<IActionResult> NavbarElementVendorList(NavbarElementVendorSearchModel searchModel)
+    public virtual async Task<IActionResult> NavbarElementVendorList(NavbarElementVendorListSearchModel searchModel)
     {
-        var model = await _navbarFactory.PrepareNavbarElementVendorListModelAsync(searchModel);
+        var model = await _navbarFactory.PrepareNavbarElementVendorListSearchModelAsync(searchModel);
         return Json(model);
-    }
-
-    [HttpPost]
-    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
-    public virtual async Task<IActionResult> NavbarElementVendorDelete(NavbarElementModel model)
-    {
-        throw new NotImplementedException();
-        if (ModelState.IsValid)
-        {
-            var navbarElement = model.ToEntity<NavbarElement>();
-            await _navbarInfoService.DeleteNavbarElementAsync(navbarElement);
-            var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Deleted");
-            _notificationService.SuccessNotification(msg);
-        }
-        return new NullJsonResult();
     }
 
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
     public virtual async Task<IActionResult> VendorAddPopup(int navbarElementId)
     {
-        var searchModel = new AddOrRemoveVendorToNavbarElementSearchModel
+        var searchModel = new AddVendorToNavbarElementSearchModel
         {
-            SearchNavbarElementId = navbarElementId
+            NavbarElementId = navbarElementId
         };
-        await _navbarFactory.PrepareAddOrRemoveVendorToNavbarElementModel(searchModel);
+        await _navbarFactory.PrepareAddVendorToNavbarElementModel(searchModel);
 
         return View("NavbarElement/VendorAddPopup.cshtml", searchModel);
     }
+    [HttpPost]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_VIEW)]
+    public virtual async Task<IActionResult> VendorAddPopupList(NavbarElementVendorListSearchModel searchModel)
+    {
+        var model = await _navbarFactory.VendorAddPopupListAsync(searchModel);
+        return Json(model);
+    }
+
+    [HttpPost]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
+    public virtual async Task<IActionResult> VendorAddPopup(AddVendorToNavbarElementSearchModel model)
+    {
+        await _navbarInfoService.AddNavbarElementVendorsAsync(model.NavbarElementId, model.SelectedVendorIds);
+        ViewBag.RefreshPage = true;
+        var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Vendors.Deleted");
+        _notificationService.SuccessNotification(msg);
+        return new NullJsonResult();
+    }
+
+    [HttpPost]
+    [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
+    public virtual async Task<IActionResult> NavbarElementVendorDelete(int id)
+    {
+        if (id <= 0)
+            return new NullJsonResult();
+
+        var nev = await _navbarInfoService.GetNavbarElementVendorByIdAsync(id);
+        await _navbarInfoService.DeleteNavbarElementVendorAsync(nev);
+        var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Vendors.Added");
+        _notificationService.SuccessNotification(msg);
+        return new NullJsonResult();
+    }
+
 
     [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]

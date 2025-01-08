@@ -1,4 +1,6 @@
-﻿namespace KM.Navbar.Services;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+
+namespace KM.Navbar.Services;
 
 public class NavbarInfoService : INavbarInfoService
 {
@@ -170,6 +172,26 @@ public class NavbarInfoService : INavbarInfoService
 
         var query = _navbarElementVendorRepository.Table.Where(nbe => nbe.NavbarElementId == navbarElementId);
         return await query.ToPagedListAsync(pageIndex, pageSize);
+    }
+
+    public async Task AddNavbarElementVendorsAsync(int navbarElementId, IList<int> selectedVendorIds)
+    {
+        var toAdd = selectedVendorIds.Select(svi => new NavbarElementVendor
+        {
+            VendorId = svi,
+            NavbarElementId = navbarElementId,
+        }).ToList();
+        await _navbarElementVendorRepository.InsertAsync(toAdd);
+    }
+
+    public async Task<NavbarElementVendor> GetNavbarElementVendorByIdAsync(int id)
+    {
+        return await _navbarElementVendorRepository.GetByIdAsync(id);
+    }
+
+    public async Task DeleteNavbarElementVendorAsync(NavbarElementVendor navbarElementVendor)
+    {
+        await _navbarElementVendorRepository.DeleteAsync(navbarElementVendor);
     }
 
     #endregion
