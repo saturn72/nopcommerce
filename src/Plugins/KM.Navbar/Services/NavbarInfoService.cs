@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
+﻿using AutoMapper.Configuration.Annotations;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace KM.Navbar.Services;
 
@@ -176,11 +177,15 @@ public class NavbarInfoService : INavbarInfoService
 
     public async Task AddNavbarElementVendorsAsync(int navbarElementId, IList<int> selectedVendorIds)
     {
-        var toAdd = selectedVendorIds.Select(svi => new NavbarElementVendor
+        var all = selectedVendorIds.Select(svi => new NavbarElementVendor
         {
             VendorId = svi,
             NavbarElementId = navbarElementId,
         }).ToList();
+        var exist = (await GetNavbarElementVendorsByNavbarElementIdAsync(navbarElementId)).ToList();
+
+        var toAdd = all.Where(a => exist.All(e => e.VendorId != a.VendorId)).ToList();
+
         await _navbarElementVendorRepository.InsertAsync(toAdd);
     }
 

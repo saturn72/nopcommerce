@@ -330,7 +330,10 @@ public class NavbarController : BaseAdminController
         ViewBag.RefreshPage = true;
         var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Vendors.Deleted");
         _notificationService.SuccessNotification(msg);
-        return new NullJsonResult();
+
+        ViewBag.RefreshPage = true;
+
+        return View("NavbarElement/VendorAddPopup.cshtml", new AddVendorToNavbarElementSearchModel());
     }
 
     [HttpPost]
@@ -344,6 +347,7 @@ public class NavbarController : BaseAdminController
         await _navbarInfoService.DeleteNavbarElementVendorAsync(nev);
         var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Vendors.Added");
         _notificationService.SuccessNotification(msg);
+        ViewBag.RefreshPage = true;
         return new NullJsonResult();
     }
 

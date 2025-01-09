@@ -5,7 +5,10 @@
     ViewBag.PageTitle = T("Admin.Navbars.Elements.AddNew").Text;
 }
 
-<form asp-controller="Navbar" asp-action="NavbarElementCreate" method="post" id="navbar-form">
+<form asp-controller="Navbar"
+      asp-action="NavbarElementCreate"
+      method="post"
+      id="navbar-element-form">
     <div class="content-header clearfix">
         <h1 class="float-left">
             @T("Admin.Navbars.AddNew")

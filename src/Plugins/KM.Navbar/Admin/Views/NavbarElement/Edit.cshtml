@@ -4,7 +4,10 @@
     Layout = "_AdminLayout";
     ViewBag.PageTitle = T("Admin.Navbars.Elements.Edit").Text;
 }
-<form asp-controller="Navbar" asp-action="NavbarElementEdit" method="post" id="navbar-form">
+<form asp-controller="Navbar"
+      asp-action="NavbarElementEdit"
+      method="post"
+      id="navbar-element-form">
     <div class="content-header clearfix">
         <h1 class="float-left">
             @T("Admin.Navbars.Elements.Edit")
