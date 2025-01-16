@@ -7,7 +7,7 @@ public class CreateNavbarElementPopupModelValidator : BaseNopValidator<CreateOrU
 {
     public CreateNavbarElementPopupModelValidator(
         ILocalizationService localizationService,
-        INavbarInfoService navbarInfoService)
+        INavbarService navbarInfoService)
     {
         RuleFor(x => x.Caption)
             .NotEmpty()

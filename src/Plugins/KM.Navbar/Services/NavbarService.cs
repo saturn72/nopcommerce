@@ -1,20 +1,17 @@
-﻿using AutoMapper.Configuration.Annotations;
-using DocumentFormat.OpenXml.Office2010.Excel;
+﻿namespace KM.Navbar.Services;
 
-namespace KM.Navbar.Services;
+using KM.Navbar.Admin.Domain;
+using static NavbarCacheSettings;
 
-public class NavbarInfoService : INavbarInfoService
+public class NavbarService : INavbarService
 {
     private readonly IStaticCacheManager _staticCacheManager;
     private readonly IRepository<NavbarInfo> _navbarInfoRepository;
     private readonly IRepository<NavbarElement> _navbarElementRepository;
     private readonly IRepository<NavbarElementVendor> _navbarElementVendorRepository;
     private readonly IStoreMappingService _storeMappingService;
-    private const int CACHE_TIME = 30 * 24 * 60;
-    private const string NAVBAR_CACHE_KEY = "navbars";
-    private const string NAVBAR_ELEMENET_CACHE_KEY = "navbar-elements";
 
-    public NavbarInfoService(
+    public NavbarService(
         IRepository<NavbarInfo> navbarInfoRepository,
         IRepository<NavbarElement> navbarElementRepository,
         IRepository<NavbarElementVendor> navbarElementVendorRepository,
@@ -161,6 +158,11 @@ public class NavbarInfoService : INavbarInfoService
     public async Task DeleteNavbarElementAsync(NavbarElement navbarElement)
     {
         ThrowIfNull(navbarElement, nameof(navbarElement));
+        var nevs = await GetNavbarElementVendorsByNavbarElementIdAsync(navbarElement.Id);
+
+        if (nevs.Any())
+            await _navbarElementVendorRepository.DeleteAsync(nevs);
+
         await _navbarElementRepository.DeleteAsync(navbarElement);
         await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
@@ -185,8 +187,8 @@ public class NavbarInfoService : INavbarInfoService
         var exist = (await GetNavbarElementVendorsByNavbarElementIdAsync(navbarElementId)).ToList();
 
         var toAdd = all.Where(a => exist.All(e => e.VendorId != a.VendorId)).ToList();
-
-        await _navbarElementVendorRepository.InsertAsync(toAdd);
+        if (toAdd.Any())
+            await _navbarElementVendorRepository.InsertAsync(toAdd);
     }
 
     public async Task<NavbarElementVendor> GetNavbarElementVendorByIdAsync(int id)
@@ -197,6 +199,22 @@ public class NavbarInfoService : INavbarInfoService
     public async Task DeleteNavbarElementVendorAsync(NavbarElementVendor navbarElementVendor)
     {
         await _navbarElementVendorRepository.DeleteAsync(navbarElementVendor);
+    }
+
+    public async Task UpdateNavbarElementVendorAsync(NavbarElementVendor navbarElementVendor)
+    {
+        ThrowIfNull(navbarElementVendor, nameof(navbarElementVendor));
+
+        await _navbarElementVendorRepository.UpdateAsync(navbarElementVendor);
+    }
+
+    public async Task<IPagedList<NavbarElementVendor>> GetNavbarElementVendorsByVendorIdAsync(int vendorId, int pageIndex = 0, int pageSize = int.MaxValue)
+    {
+        if (vendorId <= 0)
+            return new PagedList<NavbarElementVendor>(new List<NavbarElementVendor>(), pageIndex, pageSize);
+
+        var query = _navbarElementVendorRepository.Table.Where(nbe => nbe.VendorId == vendorId);
+        return await query.ToPagedListAsync(pageIndex, pageSize);
     }
 
     #endregion

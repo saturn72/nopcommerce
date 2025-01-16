@@ -1,4 +1,4 @@
-﻿using KM.Api.Factories;
+﻿using KM.Common.Services.Media;
 using Nop.Core.Domain.Directory;
 using Nop.Services.Directory;
 using Nop.Services.Localization;

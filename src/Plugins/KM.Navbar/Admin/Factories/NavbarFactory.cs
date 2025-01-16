@@ -5,14 +5,14 @@ namespace KM.Navbar.Admin.Factories;
 
 public class NavbarFactory : INavbarFactory
 {
-    private readonly INavbarInfoService _navbarService;
+    private readonly INavbarService _navbarService;
     private readonly ILocalizationService _localizationService;
     private readonly IBaseAdminModelFactory _baseAdminModelFactory;
     private readonly NavbarSettings _navbarSettings;
     private readonly IVendorService _vendorService;
 
     public NavbarFactory(
-        INavbarInfoService navbarService,
+        INavbarService navbarService,
         ILocalizationService localizationService,
         IBaseAdminModelFactory baseAdminModelFactory,
         NavbarSettings navbarSettings,
@@ -121,7 +121,10 @@ public class NavbarFactory : INavbarFactory
                 Value = Consts.NavbarElementType.Filter.ToLower(),
             },
         };
-        model.VendorSearchModel ??= new();
+        model.VendorSearchModel ??= new()
+        {
+            SearchNavbarElementId = model.NavbarElementId
+        };
 
         return Task.CompletedTask;
     }

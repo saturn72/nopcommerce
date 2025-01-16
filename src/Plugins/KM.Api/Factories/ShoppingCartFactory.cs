@@ -1,6 +1,4 @@
-﻿using KM.Api.Extensions;
-using KM.Api.Models.Directory;
-using KM.Api.Models.Media;
+﻿using KM.Common.Services.Media;
 using Microsoft.AspNetCore.Http;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Tax;
@@ -15,7 +13,6 @@ using Nop.Services.Seo;
 using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Services.Vendors;
-using static LinqToDB.Reflection.Methods.LinqToDB.Insert;
 
 namespace KM.Api.Factories;
 

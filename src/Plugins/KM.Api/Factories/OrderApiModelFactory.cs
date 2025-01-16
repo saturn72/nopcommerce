@@ -1,4 +1,4 @@
-﻿using KM.Api.Models.OrderManagement;
+﻿using KM.Common.Services.Media;
 using Nop.Services.Media;
 using Nop.Web.Models.Order;
 

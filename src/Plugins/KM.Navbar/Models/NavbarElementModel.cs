@@ -10,4 +10,5 @@ public class NavbarElementModel
     public string Tags { get; init; } = string.Empty;
     public string Type { get; init; }
     public string Value { get; init; }
+    public IEnumerable<VendorModel> Vendors { get; init; } = new List<VendorModel>();
 }

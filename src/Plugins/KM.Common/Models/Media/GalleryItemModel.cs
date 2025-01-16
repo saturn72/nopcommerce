@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Models.Media;
+﻿namespace KM.Common.Models.Media;
 public record GalleryItemModel
 {
     public string Alt { get; init; }

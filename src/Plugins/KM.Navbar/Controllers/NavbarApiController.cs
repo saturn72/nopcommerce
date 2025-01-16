@@ -1,4 +1,4 @@
-﻿using KM.Navbar.Models;
+﻿
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 
@@ -7,16 +7,16 @@ namespace KM.Navbar.Controllers;
 [Route("api/navbar")]
 public class NavbarApiController : ControllerBase
 {
-    private readonly INavbarInfoService _navbarService;
+    private readonly KM.Navbar.Factories.INavbarFactory _navbarFactory;
     private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
     {
         NullValueHandling = NullValueHandling.Ignore,
         ContractResolver = new CamelCasePropertyNamesContractResolver()
     };
 
-    public NavbarApiController(INavbarInfoService navbarService)
+    public NavbarApiController(KM.Navbar.Factories.INavbarFactory navbarFactory)
     {
-        _navbarService = navbarService;
+        _navbarFactory = navbarFactory;
     }
 
     protected internal static JsonResult ToJsonResult(object body)
@@ -24,22 +24,14 @@ public class NavbarApiController : ControllerBase
         return new(body, _jsonSerializerSettings);
     }
     [HttpGet("{name}")]
-    public async Task<IActionResult> GetNavbarInfoByNameAsync(string name)
+    public async Task<IActionResult> GeNavbarInfoByNameAsync(string name)
     {
-        var navbar = await _navbarService.GetNavbarInfoByNameAsync(name);
-        var elements = navbar?.Elements ?? [];
+        if (name.HasNoValue())
+            return BadRequest();
 
-        var data = elements.Select(ne => new NavbarElementModel
-        {
-            ActiveIcon = ne.ActiveIcon,
-            Alt = ne.Alt,
-            Caption = ne.Caption,
-            Icon = ne.Icon,
-            Index = ne.Index,
-            Tags = ne.Tags,
-            Type = ne.Type,
-            Value = ne.Value,
-        }).ToList();
+        var data = await _navbarFactory.PrepareNavbarApiModelByNameAsync(name);
+        if (data == null)
+            return BadRequest();
         return ToJsonResult(data);
     }
 }

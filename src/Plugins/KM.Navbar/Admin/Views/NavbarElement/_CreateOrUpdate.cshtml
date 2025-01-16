@@ -36,7 +36,8 @@
                     @await Html.PartialAsync(NavbarController.GetViewPath("NavbarElement/_CreateOrUpdate.Info.cshtml"), Model)
                 </nop-card>
 
-                <nop-card asp-name="navbar-element-vendors" asp-icon="fas fa-tv"
+                <nop-card asp-name="navbar-element-vendors"
+                          asp-icon="fas fa-tv"
                           asp-title="@T("Admin.Navbars.Elements.Vendors")"
                           asp-hide-block-attribute-name="@hideVendorsBlockAttributeName"
                           asp-hide="@hideVendorsBlock"

@@ -1,4 +1,4 @@
-﻿using KM.Api.Services.Media;
+﻿using KM.Common.Services.Media;
 using Nop.Services.Media;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;

@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Services.Media;
+﻿namespace KM.Common.Services.Media;
 public interface IStorageManager
 {
     Task DeleteAsync(string path);

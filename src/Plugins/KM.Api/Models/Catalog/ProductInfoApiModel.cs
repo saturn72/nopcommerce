@@ -1,4 +1,5 @@
-﻿using KM.Api.Models.Media;
+﻿
+using KM.Common.Models.Media;
 
 namespace KM.Api.Models.Catalog;
 public record ProductInfoApiModel

@@ -7,7 +7,7 @@ public class NavInfoModelValidator : BaseNopValidator<NavbarInfoModel>
 {
     public NavInfoModelValidator(
         ILocalizationService localizationService,
-        INavbarInfoService navbarInfoService)
+        INavbarService navbarInfoService)
     {
         RuleFor(x => x.Name)
             .NotEmpty()

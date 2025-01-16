@@ -4,12 +4,12 @@ namespace KM.Navbar.Admin.Domain;
 
 public class NavbarElementVendor : BaseEntity
 {
-    public int DisplayOrder { get; init; }
+    public int DisplayOrder { get; set; }
     public bool IsFeaturedVendor { get; set; }
-    public int NavbarElementId { get; init; }
-    public bool Published { get; init; }
-    public int VendorId { get; init; }
+    public int NavbarElementId { get; set; }
+    public bool Published { get; set; }
+    public int VendorId { get; set; }
 
     public Vendor Vendor { get; set; }
-    public NavbarElement NavbarElement { get; init; }
+    public NavbarElement NavbarElement { get; set; }
 }

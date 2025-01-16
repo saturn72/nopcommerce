@@ -1,5 +1,5 @@
 ﻿using KM.Api.Models.Directory;
-using KM.Api.Models.Media;
+using KM.Common.Models.Media;
 
 namespace KM.Api.Models.OrderManagement;
 

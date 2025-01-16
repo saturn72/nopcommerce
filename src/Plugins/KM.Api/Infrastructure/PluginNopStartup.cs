@@ -1,5 +1,6 @@
 ﻿using KM.Api.Middlewares;
-using KM.Api.Services.Media;
+using KM.Common.Services.Media;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace KM.Api.Infrastructure;
 
@@ -31,7 +32,7 @@ public class PluginNopStartup : INopStartup
         });
 
         services.AddMemoryCache();
-        services.AddSingleton<MediaConvertor>();
+        services.TryAddSingleton<MediaConvertor>();
 
         services.AddScoped<IExternalUsersService, FirebaseExternalUsersService>();
         services.AddTransient<IValidator<CartTransactionApiModel>, CartTransactionApiModelValidator>();
@@ -43,13 +44,12 @@ public class PluginNopStartup : INopStartup
         services.AddSingleton<FirebaseAdapter>();
         services.AddScoped<IProductApiFactory, ProductApiFactory>();
         services.AddScoped<IVendorApiModelFactory, VendorApiModelFactory>();
-        services.AddSingleton<MediaConvertor>();
         services.AddScoped<IShoppingCartFactory, ShoppingCartFactory>();
         services.AddScoped<IOrderApiModelFactory, OrderApiModelFactory>();
         services.AddScoped<IDirectoryFactory, DirectoryFactory>();
 
         services.AddSignalR();
-        services.AddScoped<IStorageManager, GcpStorageManager>();
+        services.TryAddScoped<IStorageManager, GcpStorageManager>();
 
         services.Configure<GcpOptions>(options =>
         {
@@ -60,14 +60,6 @@ public class PluginNopStartup : INopStartup
         });
 
         services.AddSingleton<IPriorityQueue, PriorityQueue>();
-        services.AddEasyCaching(option =>
-        {
-            option.UseFasterKv(config =>
-            {
-                config.SerializerName = "msg";
-            })
-            .WithMessagePack("msg");
-        });
     }
 
     public void Configure(IApplicationBuilder application)

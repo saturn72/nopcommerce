@@ -1,5 +1,6 @@
 ﻿using KM.Api.Models.Catalog;
-using KM.Api.Models.Media;
+using KM.Common.Models.Media;
+using KM.Common.Services.Media;
 using Microsoft.AspNetCore.Http;
 using Nop.Core.Domain.Media;
 using Nop.Services.Media;

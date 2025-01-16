@@ -1,5 +1,6 @@
 ﻿using KM.Api.Models.Directory;
 using KM.Api.Models.User;
+using KM.Common.Services.Media;
 using Nop.Services.Attributes;
 using Nop.Services.Media;
 

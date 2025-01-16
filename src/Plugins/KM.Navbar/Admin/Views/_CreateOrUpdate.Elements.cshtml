@@ -10,7 +10,7 @@
     {
         [nameof(Model.NavbarElementSearchModel.NavbarInfoId)] = Model.Id
     }),
-    UrlDelete = new DataUrl(nameof(NavbarController.NavbarElementDelete), "Navbar", new RouteValueDictionary
+    UrlDelete = new DataUrl(nameof(NavbarController.DeleteNavbarElement), "Navbar", new RouteValueDictionary
     {
         [nameof(Model.NavbarElementSearchModel.NavbarInfoId)] = Model.Id
     }),
@@ -114,7 +114,7 @@
     Title = T("Admin.Common.Edit").Text,
     Width = "200",
     ClassName =  NopColumnClassDefaults.Button,
-    Render = new RenderButtonEdit(new DataUrl("~/Admin/Navbar/NavbarElementEdit", nameof(NavbarElementModel.Id))),
+    Render = new RenderButtonEdit(new DataUrl("~/Admin/Navbar/EditNavbarElement", nameof(NavbarElementModel.Id))),
     },
     new ColumnProperty(nameof(NavbarElementModel.Id))
     {

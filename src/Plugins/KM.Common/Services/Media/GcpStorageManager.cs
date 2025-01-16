@@ -1,29 +1,33 @@
-﻿using System.Net.Http;
-using EasyCaching.Core;
-using Google.Apis.Auth.OAuth2;
+﻿using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
+using Nop.Core.Caching;
+using Nop.Services.Logging;
 
-namespace KM.Api.Services.Media;
+namespace KM.Common.Services.Media;
 public class GcpStorageManager : IStorageManager
 {
     private readonly ILogger _logger;
     private readonly IOptionsMonitor<GcpOptions> _options;
-    private readonly IEasyCachingProvider _cachingProvider;
+    private readonly IStaticCacheManager _staticCache;
     private readonly string[] _scopes = new[]
        {
        "https://www.googleapis.com/auth/cloud-platform",
        "https://www.googleapis.com/auth/firebase",
     };
     private readonly StorageClient _storageClient;
-
+    private static readonly int DefaultCachingTime = (int)TimeSpan.FromDays(7).Subtract(TimeSpan.FromMinutes(30)).TotalMinutes;
+    private CacheKey GetCacheKey(string path) => new CacheKey(path)
+    {
+        CacheTime = DefaultCachingTime
+    };
     public GcpStorageManager(
         IOptionsMonitor<GcpOptions> options,
-        IEasyCachingProvider cachingProvider,
+        IStaticCacheManager staticCache,
         ILogger logger)
     {
         _options = options;
-        _cachingProvider = cachingProvider;
+        _staticCache = staticCache;
         _logger = logger;
 
         var cred = GoogleCredential.GetApplicationDefault();
@@ -51,20 +55,22 @@ public class GcpStorageManager : IStorageManager
         _ = GetOrCreateDownloadLink(p);
     }
 
+
     protected virtual async Task<string> GetOrCreateDownloadLink(string path)
     {
         var urlSigner = _storageClient.CreateUrlSigner();
         var url = await urlSigner.SignAsync(_options.CurrentValue.BucketName, path, TimeSpan.FromDays(7), HttpMethod.Get);
-        var exp = TimeSpan.FromDays(7).Subtract(TimeSpan.FromMinutes(30));
-        await _cachingProvider.SetAsync(path, url, exp);
+        var key = GetCacheKey(path);
+        await _staticCache.SetAsync(key, url);
         return url;
     }
+
     public async Task<string?> GetDownloadLink(string path)
     {
         var p = HandlePath(path);
-        var exp = TimeSpan.FromDays(7).Subtract(TimeSpan.FromMinutes(5));
-        var cv = await _cachingProvider.GetAsync(path, () => GetOrCreateDownloadLink(p), exp);
-        return cv.HasValue ? cv.Value : default;
+        var key = GetCacheKey(p);
+        var value = await _staticCache.GetAsync(key, () => GetOrCreateDownloadLink(p));
+        return value.HasValue() ? value : default;
     }
 
     private string HandlePath(string path)
@@ -76,5 +82,5 @@ public class GcpStorageManager : IStorageManager
         return path;
     }
 
-    public string BuildWebpPath(string type, int pictureId)=>  $"/{type}/{pictureId}.webp";
+    public string BuildWebpPath(string type, int pictureId) => $"/{type}/{pictureId}.webp";
 }

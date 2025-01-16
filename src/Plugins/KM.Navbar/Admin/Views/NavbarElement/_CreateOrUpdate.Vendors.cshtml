@@ -6,20 +6,27 @@
         @await Html.PartialAsync("Table", new DataTablesModel
 {
     Name = "vendors-grid",
-    UrlRead = new DataUrl(nameof(NavbarController.NavbarElementVendorList), "Navbar", new RouteValueDictionary { [nameof(NavbarElementVendorListSearchModel.SearchNavbarElementId)] = Model.NavbarInfoId }),
-    UrlDelete = new DataUrl(nameof(NavbarController.NavbarElementVendorDelete), "Navbar", null),
-    UrlUpdate = new DataUrl(nameof(NavbarController.NavbarElementVendorUpdate), "Navbar", null),
+    UrlRead = new DataUrl(nameof(NavbarController.NavbarElementVendorList), "Navbar",
+    new RouteValueDictionary { [nameof(CreateOrUpdateNavbarElementModel.VendorSearchModel.SearchNavbarElementId)] = Model.NavbarElementId }),
+    UrlDelete = new DataUrl(nameof(NavbarController.DeleteNavbarElementVendor), "Navbar", null),
+    UrlUpdate = new DataUrl(nameof(NavbarController.UpdateNavbarElementVendor), "Navbar", null),
     Length = Model.VendorSearchModel.PageSize,
     LengthMenu = Model.VendorSearchModel.AvailablePageSizes,
-    Filters = new List<FilterParameter>
-    {
-    new FilterParameter(nameof(Model.NavbarInfoId)),
-    },
+
     ColumnCollection = new List<ColumnProperty>
     {
     new ColumnProperty(nameof(NavbarElementVendorModel.VendorName))
     {
     Title = T("Admin.NavbarElement.Vendors.Fields.Vendor").Text
+    },
+    new ColumnProperty(nameof(NavbarElementVendorModel.Published))
+    {
+    Title = T("Admin.NavbarElement.Vendors.Fields.Published").Text,
+    Width = "150",
+    ClassName = NopColumnClassDefaults.CenterAll,
+    Render = new RenderBoolean(),
+    Editable = true,
+    EditType = EditType.Checkbox
     },
     new ColumnProperty(nameof(NavbarElementVendorModel.IsFeaturedVendor))
     {
@@ -64,14 +71,14 @@
     </div>
     <div class="card-footer">
         <button type="submit" id="btnAddNewVendor"
-                onclick="javascript:OpenWindow('@(Url.Action(nameof(NavbarController.VendorAddPopup), "Navbar", 
-                new { navbarElementId = Model.NavbarInfoId , btnId = "btnRefreshVendors", formId = "navbar-element-form" }))', 800, 800, true); return false;"
+                onclick="javascript:OpenWindow('@(Url.Action(nameof(NavbarController.VendorAddPopup), "Navbar",
+                new { navbarElementId = Model.NavbarElementId , btnId = "btnRefreshVendors", formId = "navbar-element-form" }))', 800, 800, true); return false;"
                 class="btn btn-primary">
             @T("Admin.Navbars.Elements.Vendors.AddNew")
         </button>
         <button type="submit" id="btnRefreshVendors" style="display: none"></button>
         <script>
-            $(function() {
+            $(function () {
                 $('#btnRefreshVendors').click(function () {
                     //refresh grid
                     updateTable('#vendors-grid');

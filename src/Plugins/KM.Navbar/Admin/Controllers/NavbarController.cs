@@ -10,7 +10,7 @@ public class NavbarController : BaseAdminController
 {
     private const string VIEW_PATH = "~/Plugins/KM.Navbar/Admin/Views/";
     private readonly INavbarFactory _navbarFactory;
-    private readonly INavbarInfoService _navbarInfoService;
+    private readonly INavbarService _navbarInfoService;
     private readonly INotificationService _notificationService;
     private readonly ILocalizationService _localizationService;
     private readonly IStoreMappingService _storeMappingService;
@@ -18,7 +18,7 @@ public class NavbarController : BaseAdminController
 
     public NavbarController(
         INavbarFactory navbarFactory,
-        INavbarInfoService navbarInfoService,
+        INavbarService navbarInfoService,
         INotificationService notificationService,
         ILocalizationService localizationService,
         IStoreMappingService storeMappingService,
@@ -247,7 +247,7 @@ public class NavbarController : BaseAdminController
             var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Added");
             _notificationService.SuccessNotification(msg);
             if (continueEditing)
-                return RedirectToAction(nameof(NavbarElementEdit), new { id = model.NavbarInfoId });
+                return RedirectToAction(nameof(EditNavbarElement), new { id = model.NavbarInfoId });
             return RedirectToAction("Edit", new { id = model.NavbarInfoId });
         }
 
@@ -256,10 +256,11 @@ public class NavbarController : BaseAdminController
     }
 
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
-    public virtual async Task<IActionResult> NavbarElementEdit(int id)
+    public virtual async Task<IActionResult> EditNavbarElement(int id)
     {
         var e = await _navbarInfoService.GetNavbarElementsByIdAsync(id);
         var model = e.ToModel<CreateOrUpdateNavbarElementModel>();
+        model.NavbarElementId = id;
         await _navbarFactory.PrepareCreateOrUpdateNavbarElementModelAsync(model);
         return View("NavbarElement/Edit.cshtml", model);
     }
@@ -280,7 +281,7 @@ public class NavbarController : BaseAdminController
 
     [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
-    public virtual async Task<IActionResult> NavbarElementDelete(NavbarElementModel model)
+    public virtual async Task<IActionResult> DeleteNavbarElement(NavbarElementModel model)
     {
         if (ModelState.IsValid)
         {
@@ -330,15 +331,12 @@ public class NavbarController : BaseAdminController
         ViewBag.RefreshPage = true;
         var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Vendors.Deleted");
         _notificationService.SuccessNotification(msg);
-
-        ViewBag.RefreshPage = true;
-
         return View("NavbarElement/VendorAddPopup.cshtml", new AddVendorToNavbarElementSearchModel());
     }
 
     [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
-    public virtual async Task<IActionResult> NavbarElementVendorDelete(int id)
+    public virtual async Task<IActionResult> DeleteNavbarElementVendor(int id)
     {
         if (id <= 0)
             return new NullJsonResult();
@@ -352,18 +350,17 @@ public class NavbarController : BaseAdminController
     }
 
 
-    [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
-    public async Task<IActionResult> NavbarElementVendorUpdate(NavbarElementModel model)
+    public async Task<IActionResult> UpdateNavbarElementVendor(NavbarElementVendorModel model)
     {
-        throw new NotImplementedException();
-        if (ModelState.IsValid)
-        {
-            var navbarElement = model.ToEntity<NavbarElement>();
-            await _navbarInfoService.UpdateNavbarElementAsync(navbarElement);
-            var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Updated");
-            _notificationService.SuccessNotification(msg);
-        }
+        var nev = await _navbarInfoService.GetNavbarElementVendorByIdAsync(model.Id)
+            ?? throw new ArgumentException("No navbar element to vendor mapping found with the specified id");
+
+        nev.DisplayOrder = model.DisplayOrder;
+        nev.IsFeaturedVendor = model.IsFeaturedVendor;
+        nev.Published = model.Published;
+        await _navbarInfoService.UpdateNavbarElementVendorAsync(nev);
+
         return new NullJsonResult();
     }
     #endregion
