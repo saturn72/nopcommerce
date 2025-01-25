@@ -15,4 +15,5 @@ settings:
 - Customer Settings --> Advanced --> Address form fields
  - Uncheck `'Fax number' enabled`
 
+- Vendor atribute -=> create required, single line of text attribute named "Short Description"
 - Remove all UNSUPPORTED required checkout attributes

@@ -1,4 +1,5 @@
-﻿using KM.Common.Services.Media;
+﻿using KM.Common;
+using KM.Common.Services.Media;
 using Nop.Core.Domain.Directory;
 using Nop.Services.Directory;
 using static KM.Common.KmConsts;
@@ -416,7 +417,7 @@ public partial class UpdateCatalogTask : IScheduleTask
     {
         return new CatalogMediaInfo
         {
-            Type = "video",
+            Type = KmConsts.MediaTypes.Video,
             Uri = video.VideoUrl,
             DisplayOrder = displayOrder
         };

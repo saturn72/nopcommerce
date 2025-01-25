@@ -81,6 +81,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nop.Plugin.Payments.CashOnD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KM.Common", "Plugins\KM.Common\KM.Common.csproj", "{9EED49C3-3A61-4294-90FF-725C7044B9AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KM.MediaUploader", "Plugins\KM.MediaUploader\KM.MediaUploader.csproj", "{51D46E21-29BC-4152-94FF-4C401E1A4DF1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -432,6 +434,18 @@ Global
 		{9EED49C3-3A61-4294-90FF-725C7044B9AB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9EED49C3-3A61-4294-90FF-725C7044B9AB}.Release|x86.ActiveCfg = Release|Any CPU
 		{9EED49C3-3A61-4294-90FF-725C7044B9AB}.Release|x86.Build.0 = Release|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Debug|x86.Build.0 = Debug|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Release|x86.ActiveCfg = Release|Any CPU
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -472,6 +486,7 @@ Global
 		{1B0DFEF2-008D-4BF9-9BBE-03650C618A3A} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 		{E81D3B3E-87A4-4C83-A215-C430B5290B30} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 		{9EED49C3-3A61-4294-90FF-725C7044B9AB} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
+		{51D46E21-29BC-4152-94FF-4C401E1A4DF1} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EE72A8B2-332A-4175-9319-6726D36E9D25}

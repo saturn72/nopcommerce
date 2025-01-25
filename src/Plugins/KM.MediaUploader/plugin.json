@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Kedem Market",
+  "FriendlyName": "Kedem Market Media uploader plugin",
+  "SystemName": "KM.MediaUploader",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Saturn72",
+  "DisplayOrder": 1,
+  "FileName": "KM.MediaUploader.dll",
+  "Description": "Plugin to upload media to firebase storage"
+}

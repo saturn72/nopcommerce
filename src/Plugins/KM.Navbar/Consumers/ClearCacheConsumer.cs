@@ -7,6 +7,10 @@ public class ClearNavbarCacheConsumer :
     IConsumer<EntityUpdatedEvent<Vendor>>,
     IConsumer<EntityDeletedEvent<Vendor>>,
 
+    IConsumer<EntityDeletedEvent<VendorAttributeValue>>,
+    IConsumer<EntityInsertedEvent<VendorAttributeValue>>,
+    IConsumer<EntityUpdatedEvent<VendorAttributeValue>>,
+
     IConsumer<EntityInsertedEvent<NavbarInfo>>,
     IConsumer<EntityUpdatedEvent<NavbarInfo>>,
     IConsumer<EntityDeletedEvent<NavbarInfo>>,
@@ -38,13 +42,18 @@ public class ClearNavbarCacheConsumer :
     public async Task HandleEventAsync(EntityDeletedEvent<Vendor> eventMessage) =>
         await ClearNavbarVendorCacheAsync(eventMessage.Entity?.Id);
 
+    public async Task HandleEventAsync(EntityDeletedEvent<VendorAttributeValue> eventMessage) =>
+        await _staticCacheManager.RemoveByPrefixAsync(NavbarCacheSettings.NAVBAR_CACHE_KEY);
+
+    public async Task HandleEventAsync(EntityInsertedEvent<VendorAttributeValue> eventMessage) =>
+        await _staticCacheManager.RemoveByPrefixAsync(NavbarCacheSettings.NAVBAR_CACHE_KEY);
+
+    public async Task HandleEventAsync(EntityUpdatedEvent<VendorAttributeValue> eventMessage) =>
+        await _staticCacheManager.RemoveByPrefixAsync(NavbarCacheSettings.NAVBAR_CACHE_KEY);
+
     private async Task ClearNavbarVendorCacheAsync(int? vendorId)
     {
         if (vendorId <= 0)
-            return;
-
-        var nevs = await _navbarService.GetNavbarElementVendorsByVendorIdAsync(vendorId.Value);
-        if (!nevs.Any())
             return;
 
         await _staticCacheManager.RemoveByPrefixAsync(NavbarCacheSettings.NAVBAR_CACHE_KEY);
