@@ -1,4 +1,5 @@
-﻿using KM.Common.Services.Media;
+﻿using KM.Common;
+using KM.Common.Services.Media;
 using Microsoft.AspNetCore.Http;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Tax;
@@ -142,7 +143,7 @@ public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactor
         var product = await _productService.GetProductByIdAsync(sci.ProductId);
         var sciPicture = await _pictureService.GetProductPictureAsync(product, sci.AttributesXml);
         var thumbnail = sciPicture != default ?
-            await _mediaConvertor.ToThumbnail(sciPicture.Id)
+            await _mediaConvertor.GetDownloadLinkAsync(sciPicture.Id, KmConsts.MediaTypes.Image)
             : default;
 
         return new()

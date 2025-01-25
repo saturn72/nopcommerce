@@ -1,6 +1,5 @@
 ﻿using KM.Common.Models.Media;
 using KM.Common.Services.Media;
-using KM.Navbar.Admin.Domain;
 using KM.Navbar.Models;
 using Nop.Services.Media;
 using Nop.Services.Vendors;
@@ -32,15 +31,16 @@ public class NavbarFactory : INavbarFactory
 
     public async Task<NavbarAppModel?> PrepareNavbarApiModelByNameAsync(string name)
     {
-        var key = new CacheKey($"{NAVBAR_ELEMENET_CACHE_KEY}.{name}", [NAVBAR_CACHE_KEY, NAVBAR_ELEMENET_CACHE_KEY])
+        var key = new CacheKey($"{NAVBAR_CACHE_KEY}.{name}", NAVBAR_CACHE_KEY)
         {
             CacheTime = CACHE_TIME
         };
-        NavbarInfo navbar = null;
+        
         var nam = await _staticCacheManager.GetAsync<NavbarAppModel>(key);
-        if (nam == null)
-            navbar = await _navbarService.GetNavbarInfoByNameAsync(name);
+        if (nam != null)
+            return nam;
 
+        var navbar = await _navbarService.GetNavbarInfoByNameAsync(name);
         if (navbar == null)
             return null;
 
@@ -95,7 +95,7 @@ public class NavbarFactory : INavbarFactory
         {
             Elements = elements,
         };
-        await _staticCacheManager.SetAsync<NavbarAppModel>(key, nam);
+        await _staticCacheManager.SetAsync(key, nam);
 
         return nam;
     }

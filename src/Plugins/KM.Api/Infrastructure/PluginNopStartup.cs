@@ -49,16 +49,7 @@ public class PluginNopStartup : INopStartup
         services.AddScoped<IDirectoryFactory, DirectoryFactory>();
 
         services.AddSignalR();
-        services.TryAddScoped<IStorageManager, GcpStorageManager>();
-
-        services.Configure<GcpOptions>(options =>
-        {
-            var bn = configuration["gcpOptions:bucketName"];
-            if (string.IsNullOrEmpty(bn) || string.IsNullOrWhiteSpace(bn))
-                throw new ArgumentException(nameof(GcpOptions.BucketName));
-            options.BucketName = bn;
-        });
-
+        
         services.AddSingleton<IPriorityQueue, PriorityQueue>();
     }
 

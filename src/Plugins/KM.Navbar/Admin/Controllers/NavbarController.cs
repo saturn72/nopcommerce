@@ -267,7 +267,7 @@ public class NavbarController : BaseAdminController
 
     [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_EDIT)]
-    public virtual async Task<IActionResult> NavbarElementUpdate(CreateOrUpdateNavbarElementModel model)
+    public virtual async Task<IActionResult> EditNavbarElement(CreateOrUpdateNavbarElementModel model, bool continueEditing)
     {
         if (ModelState.IsValid)
         {
@@ -276,7 +276,9 @@ public class NavbarController : BaseAdminController
             var msg = await _localizationService.GetResourceAsync("Admin.Navbars.Elements.Updated");
             _notificationService.SuccessNotification(msg);
         }
-        return new NullJsonResult();
+        if (continueEditing)
+            return RedirectToAction(nameof(EditNavbarElement), new { id = model.Id });
+        return RedirectToAction("Edit", new { id = model.NavbarInfoId });
     }
 
     [HttpPost]

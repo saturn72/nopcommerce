@@ -1,6 +1,11 @@
 ﻿using KM.Catalog.Documents;
+using Nop.Core.Domain.Media;
+using Nop.Data;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using static KM.Common.KmConsts;
 
-namespace KM.Catalog.Services;
+namespace KM.Common.Services.Media;
 
 public class MediaItemInfoService : IMediaItemInfoService
 {
@@ -22,7 +27,7 @@ public class MediaItemInfoService : IMediaItemInfoService
 
         _resizeOptions = new Dictionary<string, ResizeOptions>
         {
-            { Consts.MediaTypes.Thumbnail,
+            { MediaTypes.Thumbnail,
                 new()
                 {
                     Size = new()
@@ -34,7 +39,7 @@ public class MediaItemInfoService : IMediaItemInfoService
                     Sampler = KnownResamplers.Lanczos3,
                 }
             },{
-                Consts.MediaTypes.Image,
+                MediaTypes.Image,
                 new()
                 {
                     Size = new()
@@ -50,12 +55,11 @@ public class MediaItemInfoService : IMediaItemInfoService
     }
     #endregion
 
-
     public async Task<KmMediaItemInfo> GetOrCreateMediaItemInfoAsync(string type, Picture picture, int displayOrder)
     {
         var pb = await _pictureBinaryRepository.Table
             .FirstOrDefaultAsync(pb => pb.PictureId == picture.Id);
-        KmMediaItemInfo e = null;
+        KmMediaItemInfo? e;
 
         using var inStream = new MemoryStream(pb.BinaryData);
         using var image = await Image.LoadAsync(inStream);
@@ -74,16 +78,7 @@ public class MediaItemInfoService : IMediaItemInfoService
             };
         }
 
-        IStorageManager.StoredFileInfo sfi = null;
-        using var ms = new MemoryStream(e.BinaryData);
-        {
-            sfi = await _storageManager.UploadAsync(e.Uri, "image/webp", ms);
-        }
-        if (sfi != null)
-        {
-            e.Storage = sfi.Storage;
-            e.StorageIdentifier = sfi.StorageIdentifier;
-        }
+        await _storageManager.UploadAsync(e.Uri, "image/webp", e.BinaryData);
 
         return e;
     }

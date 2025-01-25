@@ -1,4 +1,5 @@
 ﻿using KM.Common.Models.Media;
+using Nop.Core.Caching;
 using Nop.Core.Domain.Media;
 using Nop.Web.Models.Media;
 
@@ -6,22 +7,25 @@ namespace KM.Common.Services.Media;
 public sealed class MediaConvertor
 {
     private readonly IStorageManager _storageManager;
+    private readonly IStaticCacheManager _staticCache;
 
-    public MediaConvertor(IStorageManager storageManager)
+    public MediaConvertor(
+        IStorageManager storageManager,
+        IStaticCacheManager staticCache)
     {
         _storageManager = storageManager;
+        _staticCache = staticCache;
     }
 
-    public Task<string> ToThumbnail(int pictureId)
+    public async Task<string> GetDownloadLinkAsync(int pictureId, string mediaType)
     {
-        var tp = _storageManager.BuildWebpPath(KmConsts.MediaTypes.Thumbnail, pictureId);
-        return _storageManager.GetDownloadLink(tp);
-    }
+        var path = _storageManager.GetWebpPath(mediaType, pictureId);
+        var key = new CacheKey(path)
+        {
+            CacheTime = (int)TimeSpan.FromDays(7).Subtract(TimeSpan.FromMinutes(30)).TotalMinutes,
+        };
 
-    public Task<string> ToImage(int pictureId)
-    {
-        var fp = _storageManager.BuildWebpPath(KmConsts.MediaTypes.Image, pictureId);
-        return _storageManager.GetDownloadLink(fp);
+        return await _staticCache.GetAsync(key, async () => await _storageManager.CreateDownloadLinkAsync(path));
     }
     public async Task<GalleryItemModel> ToGalleryItemModel(Picture picture, int index)
     {
@@ -30,9 +34,9 @@ public sealed class MediaConvertor
         return new()
         {
             Alt = picture.AltAttribute,
-            FullImage = await ToImage(picture.Id),
+            FullImage = await GetDownloadLinkAsync(picture.Id, KmConsts.MediaTypes.Image),
             Index = index,
-            ThumbImage = await ToThumbnail(picture.Id),
+            ThumbImage = await GetDownloadLinkAsync(picture.Id, KmConsts.MediaTypes.Thumbnail),
             Title = picture.TitleAttribute,
             Type = "image"
         };
@@ -43,9 +47,9 @@ public sealed class MediaConvertor
         return new()
         {
             Alt = picture.AlternateText,
-            FullImage = await ToImage(picture.Id),
+            FullImage = await GetDownloadLinkAsync(picture.Id, KmConsts.MediaTypes.Image),
             Index = index,
-            ThumbImage = await ToThumbnail(picture.Id),
+            ThumbImage = await GetDownloadLinkAsync(picture.Id, KmConsts.MediaTypes.Thumbnail),
             Title = picture.Title,
             Type = "image"
         };

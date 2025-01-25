@@ -1,5 +1,6 @@
 ﻿
 using KM.Catalog.EventConsumers;
+using KM.Common.Services.Media;
 using SimpleScheduler;
 
 namespace KM.Catalog.Infrastructure;

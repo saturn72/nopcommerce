@@ -1,6 +1,7 @@
 ﻿using KM.Catalog.Documents;
+using Nop.Core.Domain.Media;
 
-namespace KM.Catalog.Services;
+namespace KM.Common.Services.Media;
 
 public interface IMediaItemInfoService
 {

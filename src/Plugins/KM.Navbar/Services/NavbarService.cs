@@ -1,11 +1,9 @@
 ﻿namespace KM.Navbar.Services;
 
 using KM.Navbar.Admin.Domain;
-using static NavbarCacheSettings;
 
 public class NavbarService : INavbarService
 {
-    private readonly IStaticCacheManager _staticCacheManager;
     private readonly IRepository<NavbarInfo> _navbarInfoRepository;
     private readonly IRepository<NavbarElement> _navbarElementRepository;
     private readonly IRepository<NavbarElementVendor> _navbarElementVendorRepository;
@@ -15,12 +13,10 @@ public class NavbarService : INavbarService
         IRepository<NavbarInfo> navbarInfoRepository,
         IRepository<NavbarElement> navbarElementRepository,
         IRepository<NavbarElementVendor> navbarElementVendorRepository,
-        IStaticCacheManager staticCacheManager,
         IStoreMappingService storeMappingService)
     {
         _navbarInfoRepository = navbarInfoRepository;
         _navbarElementRepository = navbarElementRepository;
-        _staticCacheManager = staticCacheManager;
         _storeMappingService = storeMappingService;
         _navbarElementVendorRepository = navbarElementVendorRepository;
     }
@@ -55,53 +51,36 @@ public class NavbarService : INavbarService
 
         var n = navbarInfo.Name.ToLower();
         var allNavbars = _navbarInfoRepository.GetAll(
-            query => query.Where(c => !c.Deleted && c.Name.ToLower() == n),
-            cache => new CacheKey(NAVBAR_CACHE_KEY, [navbarInfo.Name])
-            {
-                CacheTime = CACHE_TIME
-            });
+            query => query.Where(c => !c.Deleted && c.Name.ToLower() == n));
 
         if (allNavbars.Any())
             return;
 
         await _navbarInfoRepository.InsertAsync(navbarInfo);
-        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task<NavbarInfo> GetNavbarInfoByIdAsync(int id)
     {
-        return await _navbarInfoRepository.GetByIdAsync(id, cks =>
-        new CacheKey($"{NAVBAR_CACHE_KEY}.{id}", [NAVBAR_CACHE_KEY])
-        {
-            CacheTime = CACHE_TIME
-        });
+        return await _navbarInfoRepository.GetByIdAsync(id);
     }
 
     public async Task<NavbarInfo> GetNavbarInfoByNameAsync(string name)
     {
-        var ck = new CacheKey($"{NAVBAR_CACHE_KEY}.{name}", [NAVBAR_CACHE_KEY])
-        {
-            CacheTime = CACHE_TIME
-        };
+        var navbar = await _navbarInfoRepository.Table.FirstOrDefaultAsync(c => c.Name == name);
 
-        return await _staticCacheManager.GetAsync(ck, async () =>
+        if (navbar != null)
         {
-            var navbar = await _navbarInfoRepository.Table.FirstOrDefaultAsync(c => c.Name == name);
+            var elements = await _navbarElementRepository.GetAllAsync(query => query = query.Where(c => c.NavbarInfoId == navbar.Id));
+            navbar.Elements = elements.ToList();
+        }
+        return navbar;
 
-            if (navbar != null)
-            {
-                var elements = await _navbarElementRepository.GetAllAsync(query => query = query.Where(c => c.NavbarInfoId == navbar.Id));
-                navbar.Elements = elements.ToList();
-            }
-            return navbar;
-        });
     }
 
     public async Task UpdateNavbarInfoAsync(NavbarInfo navbarInfo)
     {
         ThrowIfNull(navbarInfo, nameof(navbarInfo));
         await _navbarInfoRepository.UpdateAsync(navbarInfo);
-        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task DeleteNavbarInfosAsync(IEnumerable<NavbarInfo> navbarInfoss)
@@ -110,7 +89,6 @@ public class NavbarService : INavbarService
         if (!navbarInfoss.Any())
             return;
         await _navbarInfoRepository.DeleteAsync(navbarInfoss.ToList());
-        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task<IEnumerable<NavbarInfo>> GetNavbarInfoByIdsAsync(IEnumerable<int> navbarInfoIds)
@@ -134,25 +112,19 @@ public class NavbarService : INavbarService
         if (navbarElementId <= 0)
             throw new ArgumentException($"{nameof(navbarElementId)} must be positive");
 
-        return await _navbarElementRepository.GetByIdAsync(navbarElementId, cks =>
-            new CacheKey($"{NAVBAR_ELEMENET_CACHE_KEY}.{navbarElementId}", [NAVBAR_CACHE_KEY, NAVBAR_ELEMENET_CACHE_KEY])
-            {
-                CacheTime = CACHE_TIME
-            });
+        return await _navbarElementRepository.GetByIdAsync(navbarElementId);
     }
 
     public async Task InsertNavbarElementAsync(NavbarElement navbarElement)
     {
         ThrowIfNull(navbarElement, nameof(navbarElement));
         await _navbarElementRepository.InsertAsync(navbarElement);
-        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task UpdateNavbarElementAsync(NavbarElement navbarElement)
     {
         ThrowIfNull(navbarElement, nameof(navbarElement));
         await _navbarElementRepository.UpdateAsync(navbarElement);
-        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task DeleteNavbarElementAsync(NavbarElement navbarElement)
@@ -164,7 +136,6 @@ public class NavbarService : INavbarService
             await _navbarElementVendorRepository.DeleteAsync(nevs);
 
         await _navbarElementRepository.DeleteAsync(navbarElement);
-        await _staticCacheManager.RemoveByPrefixAsync(NAVBAR_CACHE_KEY);
     }
 
     public async Task<IPagedList<NavbarElementVendor>> GetNavbarElementVendorsByNavbarElementIdAsync(int navbarElementId,

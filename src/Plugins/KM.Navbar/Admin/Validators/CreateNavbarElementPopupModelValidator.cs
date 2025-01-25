@@ -18,7 +18,10 @@ public class CreateNavbarElementPopupModelValidator : BaseNopValidator<CreateOrU
             .MustAwait(async (nb, ct) =>
             {
                 var nbes = await navbarInfoService.GetNavbarElementsByNavbarInfoIdAsync(nb.NavbarInfoId);
-                return nbes.FirstOrDefault(d => d.Caption == nb.Caption) == null;
+                return nbes.FirstOrDefault(d =>
+                d.Id != nb.Id &&
+                d.NavbarInfoId == nb.NavbarInfoId &&
+                d.Caption == nb.Caption) == null;
             })
             .WithMessageAwait(localizationService.GetResourceAsync("Admin.NavbarElement.Fields.Caption.Unique"));
 

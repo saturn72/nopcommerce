@@ -67,6 +67,12 @@
     <Folder Include="Plugins\KM.Catalog\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="firebase-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <!-- This target execute after "Build" target.
     We use it to clean up folder with plugins from unnecessary and obsolete libraries. -->
   <Target Name="NopTarget" AfterTargets="Build">
