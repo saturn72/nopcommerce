@@ -1,8 +1,8 @@
-﻿using KM.Api.Models.Directory;
+﻿using KedemMarket.Api.Models.Directory;
 
 using Nop.Web.Models.Common;
 
-namespace KM.Api.Extensions;
+namespace KedemMarket.Api.Extensions;
 internal static class MappingExtensions
 {
     internal static Address ToAddress(this ContactInfoModel ci)

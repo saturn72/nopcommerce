@@ -1,6 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
 
-namespace KM.Api.Services.User;
+namespace KedemMarket.Api.Services.User;
 
 public partial class FirebaseExternalUsersService : IExternalUsersService
 {

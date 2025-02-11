@@ -1,4 +1,4 @@
-﻿namespace KM.Catalog.Documents;
+﻿namespace KedemMarket.Catalog.Documents;
 
 public record StoresSnapshotInfo
 {

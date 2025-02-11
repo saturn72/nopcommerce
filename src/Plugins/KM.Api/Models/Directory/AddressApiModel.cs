@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Models.Directory;
+﻿namespace KedemMarket.Api.Models.Directory;
 
 public record AddressApiModel
 {

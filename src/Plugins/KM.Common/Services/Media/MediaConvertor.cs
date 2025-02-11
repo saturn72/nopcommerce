@@ -1,9 +1,9 @@
-﻿using KM.Common.Models.Media;
+﻿using KedemMarket.Common.Models.Media;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Media;
 using Nop.Web.Models.Media;
 
-namespace KM.Common.Services.Media;
+namespace KedemMarket.Common.Services.Media;
 public sealed class MediaConvertor
 {
     private readonly IStorageManager _storageManager;

@@ -1,4 +1,4 @@
-﻿namespace KM.Common.Models.Media;
+﻿namespace KedemMarket.Common.Models.Media;
 public record GalleryItemModel
 {
     public string Alt { get; init; }

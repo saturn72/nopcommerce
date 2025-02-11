@@ -1,6 +1,6 @@
 ﻿using SimpleScheduler;
 
-namespace KM.Catalog.EventConsumers;
+namespace KedemMarket.Catalog.EventConsumers;
 
 public class ProductActivationHandler :
     IConsumer<EntityInsertedEvent<Product>>,

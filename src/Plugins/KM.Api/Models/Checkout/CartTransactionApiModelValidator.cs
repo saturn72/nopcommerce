@@ -1,6 +1,6 @@
 ﻿using Nop.Web.Framework.Validators;
 
-namespace KM.Api.Models.Checkout;
+namespace KedemMarket.Api.Models.Checkout;
 
 public class CartTransactionApiModelValidator : AbstractValidator<CartTransactionApiModel>
 {

@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Api.Services;
+namespace KedemMarket.Api.Services;
 public class KmApiConsts
 {
     internal const string USER_ID = "USER-ID";

@@ -1,11 +1,11 @@
-﻿using KM.Catalog.Documents;
+﻿using KedemMarket.Catalog.Documents;
 using Nop.Core.Domain.Media;
 using Nop.Data;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using static KM.Common.KmConsts;
+using static KedemMarket.Common.KmConsts;
 
-namespace KM.Common.Services.Media;
+namespace KedemMarket.Common.Services.Media;
 
 public class MediaItemInfoService : IMediaItemInfoService
 {

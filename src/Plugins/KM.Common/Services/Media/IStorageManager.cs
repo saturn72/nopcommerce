@@ -1,4 +1,4 @@
-﻿namespace KM.Common.Services.Media;
+﻿namespace KedemMarket.Common.Services.Media;
 public interface IStorageManager
 {
     Task DeleteAsync(string path);

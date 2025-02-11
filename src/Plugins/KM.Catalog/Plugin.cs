@@ -1,11 +1,11 @@
-﻿using KM.Catalog.Components;
+﻿using KedemMarket.Catalog.Components;
 using Nop.Core.Domain.Cms;
 using Nop.Core.Domain.ScheduleTasks;
 using Nop.Services.Cms;
 using Nop.Services.Plugins;
 using Nop.Web.Framework.Infrastructure;
 
-namespace KM.Catalog;
+namespace KedemMarket.Catalog;
 
 public class Plugin : BasePlugin, IWidgetPlugin
 {

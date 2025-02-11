@@ -1,9 +1,9 @@
 ﻿
-using KM.Catalog.EventConsumers;
-using KM.Common.Services.Media;
+using KedemMarket.Catalog.EventConsumers;
+using KedemMarket.Common.Services.Media;
 using SimpleScheduler;
 
-namespace KM.Catalog.Infrastructure;
+namespace KedemMarket.Catalog.Infrastructure;
 
 public class PluginNopStartup : INopStartup
 {

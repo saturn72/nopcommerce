@@ -1,6 +1,6 @@
-﻿using KM.Api.Models.Catalog;
+﻿using KedemMarket.Common.Models.Catalog;
 
-namespace KM.Api.Models.Cart;
+namespace KedemMarket.Api.Models.Cart;
 
 public record CheckoutCartItemApiModel : ShoppingCartModel.ShoppingCartItemModel
 {

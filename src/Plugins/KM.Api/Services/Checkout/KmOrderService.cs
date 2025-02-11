@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Http;
 
-namespace KM.Api.Services.Checkout;
+namespace KedemMarket.Api.Services.Checkout;
 public class KmOrderService : IKmOrderService
 {
     private readonly IRepository<KmOrder> _kmOrderRepository;

@@ -2,7 +2,7 @@
 using Nop.Core.Domain.Discounts;
 using Nop.Core.Domain.Localization;
 
-namespace KM.Catalog.EventConsumers;
+namespace KedemMarket.Catalog.EventConsumers;
 
 public class NopCatalogEventsConsumer :
 

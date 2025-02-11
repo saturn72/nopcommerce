@@ -1,7 +1,7 @@
 ﻿
-using KM.Api.ScheduleTasks;
+using KedemMarket.Api.ScheduleTasks;
 
-namespace KM.Api;
+namespace KedemMarket.Api;
 
 public class Plugin : BasePlugin
 {

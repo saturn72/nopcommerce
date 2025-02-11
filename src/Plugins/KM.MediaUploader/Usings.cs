@@ -1,4 +1,4 @@
-﻿global using KM.Common.Services.Media;
+﻿global using KedemMarket.Common.Services.Media;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Nop.Core.Infrastructure;
 global using Microsoft.AspNetCore.Builder;

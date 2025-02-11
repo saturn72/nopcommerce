@@ -1,7 +1,7 @@
 ﻿
 using Google.Cloud.Firestore;
 
-namespace KM.Catalog.Services;
+namespace KedemMarket.Catalog.Services;
 
 public class FirestoreDocumentStore : IDocumentStore
 {   private readonly string _projectId;

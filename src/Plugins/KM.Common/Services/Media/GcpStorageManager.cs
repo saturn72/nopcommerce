@@ -3,7 +3,7 @@ using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
 using Nop.Services.Logging;
 
-namespace KM.Common.Services.Media;
+namespace KedemMarket.Common.Services.Media;
 public class GcpStorageManager : IStorageManager
 {
     private readonly ILogger _logger;
@@ -38,11 +38,9 @@ public class GcpStorageManager : IStorageManager
     public async Task UploadAsync(string path, string contentType, byte[] bytes)
     {
         var p = PreparePath(path);
-        await _logger.InformationAsync($"Start uploading object to path: {p}");
 
         using var stream = new MemoryStream(bytes);
-        var res = await _storageClient.UploadObjectAsync(_options.CurrentValue.BucketName, p, contentType, stream);
-        await _logger.InformationAsync($"Finish uploading to bucket. Success =  {(res.Id.IsNullOrEmpty() ? "false" : "true")}");
+        _ = await _storageClient.UploadObjectAsync(_options.CurrentValue.BucketName, p, contentType, stream);
     }
 
     public async Task<string> CreateDownloadLinkAsync(string webpPath)

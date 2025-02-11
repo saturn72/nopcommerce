@@ -1,7 +1,7 @@
 ﻿using Nop.Core.Domain.Directory;
 using Nop.Services.Customers;
 
-namespace KM.Catalog.Services;
+namespace KedemMarket.Catalog.Services;
 public class StructuredDataService : IStructuredDataService
 {
     private readonly IProductService _productService;

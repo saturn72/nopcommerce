@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Api.Documents
+namespace KedemMarket.Api.Documents
 {
     [FirestoreData]
     public class ProductDocument 

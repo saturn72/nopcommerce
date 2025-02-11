@@ -1,4 +1,4 @@
-﻿using KM.Common;
+﻿using KedemMarket.Common;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Vendors;
@@ -6,7 +6,7 @@ using Nop.Core.Events;
 using Nop.Services.Events;
 using Nop.Services.Media;
 
-namespace KM.Navbar.Consumers;
+namespace KedemMarket.Navbar.Consumers;
 public class ClearNavbarCacheConsumer :
     IConsumer<EntityDeletedEvent<Picture>>,
     IConsumer<EntityUpdatedEvent<Picture>>,

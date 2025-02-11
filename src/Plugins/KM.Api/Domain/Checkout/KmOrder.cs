@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Domain.Checkout
+﻿namespace KedemMarket.Api.Domain.Checkout
 {
     public class KmOrder : BaseEntity
     {

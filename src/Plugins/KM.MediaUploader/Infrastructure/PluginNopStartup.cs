@@ -1,5 +1,5 @@
 ﻿
-namespace KM.MediaUploader.Infrastructure;
+namespace KedemMarket.MediaUploader.Infrastructure;
 
 public class PluginNopStartup : INopStartup
 {

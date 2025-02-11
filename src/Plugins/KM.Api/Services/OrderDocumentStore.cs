@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Services;
+﻿namespace KedemMarket.Api.Services;
 public class OrderDocumentStore : FirebaseDocumentStore<FirestoreCartDocument>, IOrderDocumentStore
 {
     public OrderDocumentStore(IConfiguration configuration) : base(configuration, "orders")

@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Models.Cart;
+﻿namespace KedemMarket.Api.Models.Cart;
 
 public record CheckoutCartApiModel
 {

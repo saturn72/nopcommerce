@@ -1,4 +1,4 @@
-﻿namespace KM.Api;
+﻿namespace KedemMarket.Api;
 
 public class OrderHub : Hub
 {

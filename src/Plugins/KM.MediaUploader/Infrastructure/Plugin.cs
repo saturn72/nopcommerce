@@ -1,6 +1,6 @@
 ﻿using Nop.Services.Plugins;
 
-namespace KM.MediaUploader.Infrastructure;
+namespace KedemMarket.MediaUploader.Infrastructure;
 public class Plugin : BasePlugin
 {
 

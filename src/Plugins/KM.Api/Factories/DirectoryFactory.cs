@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Api.Factories;
+namespace KedemMarket.Api.Factories;
 
 public class DirectoryFactory:IDirectoryFactory
 {

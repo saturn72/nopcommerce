@@ -1,6 +1,6 @@
 ﻿
 
-namespace KM.Api.ScheduleTasks
+namespace KedemMarket.Api.ScheduleTasks
 {
     public class ImportOrderScheduleTask : IScheduleTask
     {

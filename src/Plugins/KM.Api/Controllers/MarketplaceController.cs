@@ -1,7 +1,7 @@
-﻿using KM.Api.Models.Store;
+﻿using KedemMarket.Api.Models.Store;
 using Nop.Services.Vendors;
 
-namespace KM.Api.Controllers;
+namespace KedemMarket.Api.Controllers;
 
 [Route("api/marketplace")]
 public class MarketplaceController : KmApiControllerBase

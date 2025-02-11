@@ -1,9 +1,9 @@
-﻿using KM.Common.Services.Media;
+﻿using KedemMarket.Common.Services.Media;
 using Nop.Services.Media;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
-namespace KM.Api.Consumer;
+namespace KedemMarket.Api.Consumer;
 
 public class PictureBinaryEventConsumer :
     IConsumer<EntityInsertedEvent<PictureBinary>>,

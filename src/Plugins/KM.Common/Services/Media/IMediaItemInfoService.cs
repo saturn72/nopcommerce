@@ -1,7 +1,7 @@
-﻿using KM.Catalog.Documents;
+﻿using KedemMarket.Catalog.Documents;
 using Nop.Core.Domain.Media;
 
-namespace KM.Common.Services.Media;
+namespace KedemMarket.Common.Services.Media;
 
 public interface IMediaItemInfoService
 {

@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Services.User;
+﻿namespace KedemMarket.Api.Services.User;
 
 public static class ExternalUsersServiceExtensions
 {

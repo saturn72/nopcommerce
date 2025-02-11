@@ -1,7 +1,7 @@
-﻿using KM.Api.Models.Directory;
-using KM.Common.Models.Media;
+﻿using KedemMarket.Api.Models.Directory;
+using KedemMarket.Common.Models.Media;
 
-namespace KM.Api.Models.OrderManagement;
+namespace KedemMarket.Api.Models.OrderManagement;
 
 public record OrderInfoModel
 {

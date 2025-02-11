@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace KM.Api.Infrastructure;
+namespace KedemMarket.Api.Infrastructure;
 
 public class PriorityQueue : IPriorityQueue
 {

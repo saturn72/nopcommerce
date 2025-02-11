@@ -1,6 +1,6 @@
 ﻿using Nop.Data.Mapping;
 
-namespace KM.Api.Mapping
+namespace KedemMarket.Api.Mapping
 {
     public partial class NameCompatibility : INameCompatibility
     {

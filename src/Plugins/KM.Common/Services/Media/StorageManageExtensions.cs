@@ -1,9 +1,9 @@
 ﻿using Nop.Core.Domain.Media;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using static KM.Common.KmConsts;
+using static KedemMarket.Common.KmConsts;
 
-namespace KM.Common.Services.Media;
+namespace KedemMarket.Common.Services.Media;
 
 public static class StorageManageExtensions
 {

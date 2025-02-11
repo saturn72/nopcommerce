@@ -1,10 +1,10 @@
-﻿using KM.Common;
-using KM.Common.Services.Media;
+﻿using KedemMarket.Common;
+using KedemMarket.Common.Services.Media;
 using Nop.Core.Domain.Directory;
 using Nop.Services.Directory;
-using static KM.Common.KmConsts;
+using static KedemMarket.Common.KmConsts;
 
-namespace KM.Catalog.ScheduledTasks;
+namespace KedemMarket.Catalog.ScheduledTasks;
 
 public partial class UpdateCatalogTask : IScheduleTask
 {

@@ -1,10 +1,10 @@
 ﻿global using Google.Apis.Auth.OAuth2;
 global using Google.Cloud.Storage.V1;
-global using KM.Catalog;
-global using KM.Catalog.Documents;
-global using KM.Catalog.Domain;
-global using KM.Catalog.ScheduledTasks;
-global using KM.Catalog.Services;
+global using KedemMarket.Catalog;
+global using KedemMarket.Catalog.Documents;
+global using KedemMarket.Catalog.Domain;
+global using KedemMarket.Catalog.ScheduledTasks;
+global using KedemMarket.Catalog.Services;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Mvc.Razor;
 global using Microsoft.Extensions.Configuration;

@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Api.Consumer;
+namespace KedemMarket.Api.Consumer;
 
 public class CustomerUpdateConsumer : IConsumer<EntityUpdatedEvent<Customer>>
 {

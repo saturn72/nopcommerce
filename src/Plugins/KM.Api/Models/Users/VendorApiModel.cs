@@ -1,7 +1,7 @@
-﻿using KM.Api.Models.Directory;
-using KM.Common.Models.Media;
+﻿using KedemMarket.Api.Models.Directory;
+using KedemMarket.Common.Models.Media;
 
-namespace KM.Api.Models.User;
+namespace KedemMarket.Api.Models.User;
 public record VendorApiModel
 {
     public int Id { get; init; }

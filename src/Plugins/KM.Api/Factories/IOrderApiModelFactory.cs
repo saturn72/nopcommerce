@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Factories;
+﻿namespace KedemMarket.Api.Factories;
 public interface IOrderApiModelFactory
 {
     Task<OrderInfoModel> PrepareOrderDetailsModelAsync(Order order);

@@ -1,6 +1,7 @@
-﻿using KM.Api.Factories;
+﻿using KedemMarket.Common.Factories;
+using KedemMarket.Common.Models.Cart;
 
-namespace KM.Api.Controllers;
+namespace KedemMarket.Api.Controllers;
 
 
 [Route("api/shopping-cart")]
@@ -155,7 +156,7 @@ public class ShoppingCartController : KmApiControllerBase
             ShoppingCartType.ShoppingCart,
             storeId: store.Id);
 
-        var cartModel = await _productApiFactory.ToShoppingCartApiModel(cart);
+        var cartModel = await _productApiFactory.ToShoppingCartApiModelAsync(cart);
         return ToJsonResult(cartModel);
     }
 

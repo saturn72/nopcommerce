@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Infrastructure;
+﻿namespace KedemMarket.Api.Infrastructure;
 public interface IPriorityQueue
 {
     void Dequeue(string key);

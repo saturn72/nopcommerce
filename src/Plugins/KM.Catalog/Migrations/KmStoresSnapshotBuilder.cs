@@ -3,7 +3,7 @@ using FluentMigrator;
 using FluentMigrator.Builders.Create.Table;
 using Nop.Data.Mapping.Builders;
 
-namespace KM.Catalog.Migrations;
+namespace KedemMarket.Catalog.Migrations;
 
 public class KmStoresSnapshotBuilder : NopEntityBuilder<KmStoresSnapshot>
 {

@@ -1,6 +1,6 @@
-﻿using KM.Api.Models.User;
+﻿using KedemMarket.Api.Models.User;
 
-namespace KM.Api.Factories;
+namespace KedemMarket.Api.Factories;
 public interface IVendorApiModelFactory
 {
     Task<VendorApiModel> ToVendorApiModel(Vendor vendor);

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace KM.Api.Middlewares;
+namespace KedemMarket.Api.Middlewares;
 public class KmAuthenticationMiddleware
 {
     private readonly RequestDelegate _next;

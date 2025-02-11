@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace KM.Catalog.Documents;
+namespace KedemMarket.Catalog.Documents;
 
 [FirestoreData]
 public record VendorInfo

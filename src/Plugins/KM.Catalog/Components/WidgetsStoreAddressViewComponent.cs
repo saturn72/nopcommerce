@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nop.Web.Framework.Components;
 
-namespace KM.Catalog.Components
+namespace KedemMarket.Catalog.Components
 {
     public class WidgetsStoreAddressViewComponent : NopViewComponent
     {

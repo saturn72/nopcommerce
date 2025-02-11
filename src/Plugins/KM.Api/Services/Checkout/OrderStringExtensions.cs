@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Api.Services.Checkout;
+namespace KedemMarket.Api.Services.Checkout;
 
 public static class OrderStringExtensions
 {

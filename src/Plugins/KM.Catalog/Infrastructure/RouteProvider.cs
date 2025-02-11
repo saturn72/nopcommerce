@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Routing;
 using Nop.Web.Framework.Mvc.Routing;
 
-namespace KM.Catalog.Infrastructure;
+namespace KedemMarket.Catalog.Infrastructure;
 
 public class RouteProvider : IRouteProvider
 {

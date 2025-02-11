@@ -1,5 +1,6 @@
-﻿using KM.Common;
-using KM.Common.Services.Media;
+﻿using KedemMarket.Common;
+using KedemMarket.Common.Models.Cart;
+using KedemMarket.Common.Services.Media;
 using Microsoft.AspNetCore.Http;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Tax;
@@ -15,7 +16,7 @@ using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Services.Vendors;
 
-namespace KM.Api.Factories;
+namespace KedemMarket.Api.Factories;
 
 public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactory
 {

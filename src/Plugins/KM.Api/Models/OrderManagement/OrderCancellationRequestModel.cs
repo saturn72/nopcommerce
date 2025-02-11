@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Models.OrderManagement;
+﻿namespace KedemMarket.Api.Models.OrderManagement;
 
 public record OrderCancellationRequestModel
 {

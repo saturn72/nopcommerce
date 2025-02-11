@@ -1,6 +1,6 @@
 ﻿
 
-namespace KM.Catalog.EventConsumers;
+namespace KedemMarket.Catalog.EventConsumers;
 
 public class KmStoresSnapshotInsertedEventConsumer :
     IConsumer<EntityInsertedEvent<KmStoresSnapshot>>

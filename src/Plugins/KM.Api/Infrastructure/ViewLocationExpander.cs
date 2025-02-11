@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
 
-namespace KM.Api.Infrastructure
+namespace KedemMarket.Api.Infrastructure
 {
     public class ViewLocationExpander : IViewLocationExpander
     {

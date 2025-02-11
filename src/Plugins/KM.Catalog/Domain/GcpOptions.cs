@@ -1,4 +1,4 @@
-﻿namespace KM.Catalog.Domain;
+﻿namespace KedemMarket.Catalog.Domain;
 
 public class GcpOptions
 {

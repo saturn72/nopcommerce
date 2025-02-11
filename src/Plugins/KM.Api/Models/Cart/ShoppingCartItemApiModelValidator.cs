@@ -1,4 +1,6 @@
-﻿namespace KM.Api.Models.Cart;
+﻿using KedemMarket.Common.Models.Cart;
+
+namespace KedemMarket.Api.Models.Cart;
 
 public class ShoppingCartItemApiModelValidator : AbstractValidator<ShoppingCartItemApiModel>
 {

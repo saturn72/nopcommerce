@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Services;
+﻿namespace KedemMarket.Api.Services;
 
 public interface IDocumentStore<TDocument> where TDocument : IDocument
 {

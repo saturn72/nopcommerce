@@ -1,6 +1,6 @@
 ﻿
 
-namespace KM.Api.Domain.User
+namespace KedemMarket.Api.Domain.User
 {
     public class KmUserCustomerMap : BaseEntity
     {

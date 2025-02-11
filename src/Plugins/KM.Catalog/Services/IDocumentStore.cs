@@ -1,4 +1,4 @@
-﻿namespace KM.Catalog.Services;
+﻿namespace KedemMarket.Catalog.Services;
 
 public interface IDocumentStore
 {

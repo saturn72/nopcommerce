@@ -1,6 +1,6 @@
-﻿using KM.Api.Factories;
+﻿using KedemMarket.Common.Factories;
 
-namespace KM.Api.Controllers;
+namespace KedemMarket.Api.Controllers;
 
 [Route("api/product")]
 public class ProductController : KmApiControllerBase
@@ -38,7 +38,7 @@ public class ProductController : KmApiControllerBase
             orderBy: ProductSortingEnum.Position
             );
 
-        var data = await _productApiFactory.ToProductInfoApiModel(products);
+        var data = await _productApiFactory.ToProductInfoApiModelAsync(products);
         return ToJsonResult(new { products = data });
     }
 }

@@ -1,10 +1,10 @@
-﻿using KM.Api.Models.Directory;
-using KM.Api.Models.User;
-using KM.Common.Services.Media;
+﻿using KedemMarket.Api.Models.Directory;
+using KedemMarket.Api.Models.User;
+using KedemMarket.Common.Services.Media;
 using Nop.Services.Attributes;
 using Nop.Services.Media;
 
-namespace KM.Api.Factories;
+namespace KedemMarket.Api.Factories;
 
 public class VendorApiModelFactory : IVendorApiModelFactory
 {

@@ -1,4 +1,4 @@
-﻿namespace KM.Catalog;
+﻿namespace KedemMarket.Catalog;
 
 public class CatalogHub : Hub
 {

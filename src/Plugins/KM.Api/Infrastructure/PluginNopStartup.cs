@@ -1,8 +1,9 @@
-﻿using KM.Api.Middlewares;
-using KM.Common.Services.Media;
+﻿using KedemMarket.Api.Middlewares;
+using KedemMarket.Common.Factories;
+using KedemMarket.Common.Services.Media;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace KM.Api.Infrastructure;
+namespace KedemMarket.Api.Infrastructure;
 
 public class PluginNopStartup : INopStartup
 {
@@ -32,7 +33,6 @@ public class PluginNopStartup : INopStartup
         });
 
         services.AddMemoryCache();
-        services.TryAddSingleton<MediaConvertor>();
 
         services.AddScoped<IExternalUsersService, FirebaseExternalUsersService>();
         services.AddTransient<IValidator<CartTransactionApiModel>, CartTransactionApiModelValidator>();
@@ -42,7 +42,6 @@ public class PluginNopStartup : INopStartup
         services.AddScoped<IUserProfileDocumentStore, UserProfileDocumentStore>();
         services.AddScoped(typeof(IDocumentStore<>), typeof(FirebaseDocumentStore<>));
         services.AddSingleton<FirebaseAdapter>();
-        services.AddScoped<IProductApiFactory, ProductApiFactory>();
         services.AddScoped<IVendorApiModelFactory, VendorApiModelFactory>();
         services.AddScoped<IShoppingCartFactory, ShoppingCartFactory>();
         services.AddScoped<IOrderApiModelFactory, OrderApiModelFactory>();

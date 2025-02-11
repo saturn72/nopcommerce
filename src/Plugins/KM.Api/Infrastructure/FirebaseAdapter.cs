@@ -1,6 +1,6 @@
 ﻿using Google.Apis.Auth.OAuth2;
 
-namespace KM.Api.Infrastructure;
+namespace KedemMarket.Api.Infrastructure;
 public sealed class FirebaseAdapter
 {
     private readonly FirebaseApp _app;

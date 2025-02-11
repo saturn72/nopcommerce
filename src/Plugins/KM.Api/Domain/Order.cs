@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Domains
+﻿namespace KedemMarket.Api.Domains
 {
     public record Order
     {

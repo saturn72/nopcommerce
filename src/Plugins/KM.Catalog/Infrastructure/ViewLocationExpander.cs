@@ -1,4 +1,4 @@
-﻿namespace KM.Catalog.Infrastructure;
+﻿namespace KedemMarket.Catalog.Infrastructure;
 
 public class ViewLocationExpander : IViewLocationExpander
 {

@@ -1,5 +1,5 @@
 ﻿
-namespace KM.Api.Services
+namespace KedemMarket.Api.Services
 {
     public class FirebaseDocumentStore<TDocument> : IDocumentStore<TDocument> where TDocument : IDocument
     {

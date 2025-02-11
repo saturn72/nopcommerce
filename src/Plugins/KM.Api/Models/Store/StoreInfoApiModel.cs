@@ -1,4 +1,4 @@
-﻿namespace KM.Api.Models.Store;
+﻿namespace KedemMarket.Api.Models.Store;
 public record StoreInfoApiModel
 {
     public string StoreName { get; init; }
