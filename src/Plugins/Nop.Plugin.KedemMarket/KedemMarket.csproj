@@ -19,17 +19,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Admin\Views\Create.cshtml">
+    <Content Include="Admin\Views\Navbar\Create.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Admin\Views\Edit.cshtml">
+    <Content Include="Admin\Views\Navbar\Edit.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Admin\Views\List.cshtml">
+    <Content Include="Admin\Views\Navbar\List.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Admin\Views\NavbarElement\Edit.cshtml">
@@ -57,17 +57,17 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="Admin\Views\_CreateOrUpdate.cshtml">
+    <Content Include="Admin\Views\Navbar\_CreateOrUpdate.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Admin\Views\_CreateOrUpdate.Info.cshtml">
+    <Content Include="Admin\Views\Navbar\_CreateOrUpdate.Info.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Admin\Views\_CreateOrUpdate.Elements.cshtml">
+    <Content Include="Admin\Views\Navbar\_CreateOrUpdate.Elements.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -83,10 +83,10 @@
     <Content Include="plugin.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Admin\Views\_ViewImports.cshtml">
+    <Content Include="Admin\Views\Navbar\_ViewImports.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Update="Admin\Views\_ViewImports.cshtml">
+    <Content Update="Admin\Views\Navbar\_ViewImports.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

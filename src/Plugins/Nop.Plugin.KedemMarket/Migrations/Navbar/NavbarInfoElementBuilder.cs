@@ -1,9 +1,8 @@
 ﻿using FluentMigrator.Builders.Create.Table;
-using KedemMarket.Admin.Domain;
 using KedemMarket.Infrastructure;
 using Nop.Data.Mapping.Builders;
 
-namespace KedemMarket.Navbar.Migrations;
+namespace KedemMarket.Migrations.Navbar;
 
 public class NavbarInfoElementBuilder : NopEntityBuilder<NavbarElement>
 {

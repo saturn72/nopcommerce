@@ -12,7 +12,7 @@ namespace KedemMarket.Admin.Controllers;
 [Area(AreaNames.ADMIN)] //specifies the area containing a controller or action
 public class NavbarController : BaseAdminController
 {
-    private const string VIEW_PATH = "~/Plugins/KM.Navbar/Admin/Views/";
+    private const string VIEW_PATH = "~/Plugins/KedemMarket/Admin/Views/Navbar";
     private readonly INavbarFactory _navbarFactory;
     private readonly INavbarService _navbarInfoService;
     private readonly INotificationService _notificationService;
