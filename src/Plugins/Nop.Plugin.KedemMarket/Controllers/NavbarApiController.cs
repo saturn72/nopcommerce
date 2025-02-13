@@ -1,28 +1,17 @@
-﻿
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
+﻿using KedemMarket.Api.Controllers;
 
 namespace KedemMarket.Controllers;
 
 [Route("api/navbar")]
-public class NavbarApiController : ControllerBase
+public class NavbarApiController : KmApiControllerBase
 {
     private readonly KedemMarket.Factories.Navbar.INavbarFactory _navbarFactory;
-    private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
-    {
-        NullValueHandling = NullValueHandling.Ignore,
-        ContractResolver = new CamelCasePropertyNamesContractResolver()
-    };
 
     public NavbarApiController(KedemMarket.Factories.Navbar.INavbarFactory navbarFactory)
     {
         _navbarFactory = navbarFactory;
     }
 
-    protected internal static JsonResult ToJsonResult(object body)
-    {
-        return new(body, _jsonSerializerSettings);
-    }
     [HttpGet("{name}")]
     public async Task<IActionResult> GeNavbarInfoByNameAsync(string name)
     {
