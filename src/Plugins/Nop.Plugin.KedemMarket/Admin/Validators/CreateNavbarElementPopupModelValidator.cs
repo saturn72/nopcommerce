@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using KedemMarket.Admin.Models;
+using KedemMarket.Admin.Models.Navbar;
 using KedemMarket.Services.Navbar;
 using Nop.Web.Framework.Validators;
 

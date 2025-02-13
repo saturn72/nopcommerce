@@ -1,8 +1,4 @@
-﻿using KedemMarket.Common.Factories;
-using KedemMarket.Common.Models.Cart;
-
-namespace KedemMarket.Api.Controllers;
-
+﻿namespace KedemMarket.Controllers;
 
 [Route("api/shopping-cart")]
 public class ShoppingCartController : KmApiControllerBase
@@ -174,7 +170,7 @@ public class ShoppingCartController : KmApiControllerBase
         var errors = new List<string>();
         var items = await _shoppingCartFactory.ToShoppingCartItems(model.Items, errors);
         await SaveShoppingCartAsync(customer, store, items, errors);
-        
+
         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId: store.Id);
         var ccm = await _shoppingCartFactory.PrepareCheckoutCartApiModelAsync(cart);
         return ToJsonResult(ccm);
@@ -192,14 +188,12 @@ public class ShoppingCartController : KmApiControllerBase
         var products = (await _productService.GetProductsByIdsAsync(productIds)).Where(p => !p.Deleted);
 
         foreach (var product in products)
-        {
             if (product.LimitedToStores)
             {
                 var storeMap = await _storeMappingService.GetStoreMappingsAsync(product);
                 if (storeMap.All(sm => sm.StoreId != store.Id))
                     return false;
             }
-        }
 
         return true;
     }

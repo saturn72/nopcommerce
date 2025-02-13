@@ -1,8 +1,4 @@
-﻿using KedemMarket.Domain.User;
-using Nop.Core.Events;
-using Nop.Services.Events;
-
-namespace KedemMarket.Consumers;
+﻿namespace KedemMarket.Consumers;
 
 public class CustomerUpdateConsumer : IConsumer<EntityUpdatedEvent<Customer>>
 {

@@ -1,7 +1,4 @@
-﻿using KedemMarket.Admin.Domain;
-using Nop.Data.Mapping;
-
-namespace KedemMarket.Infrastructure;
+﻿namespace KedemMarket.Infrastructure;
 
 public partial class NameCompatibility : INameCompatibility
 {

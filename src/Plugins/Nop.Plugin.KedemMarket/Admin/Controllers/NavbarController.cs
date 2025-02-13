@@ -1,9 +1,5 @@
-﻿using KedemMarket.Admin.Domain;
-using KedemMarket.Admin.Factories;
-using KedemMarket.Admin.Models;
+﻿using KedemMarket.Admin.Models.Navbar;
 using KedemMarket.Security;
-using KedemMarket.Services.Navbar;
-using Nop.Web.Framework.Mvc;
 
 namespace KedemMarket.Admin.Controllers;
 
@@ -283,7 +279,7 @@ public class NavbarController : BaseAdminController
 
     [HttpPost]
     [CheckPermission(NavbarPermissions.NAVBARS_ELEMENTS_DELETE)]
-    public virtual async Task<IActionResult> DeleteNavbarElement(NavbarElementModel model)
+    public virtual async Task<IActionResult> DeleteNavbarElement(Models.Navbar.NavbarElementModel model)
     {
         if (ModelState.IsValid)
         {

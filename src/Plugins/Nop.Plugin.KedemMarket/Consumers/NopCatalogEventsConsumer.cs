@@ -1,15 +1,4 @@
-﻿using System.Text.Json;
-using KedemMarket.Infrastructure;
-using Microsoft.AspNetCore.SignalR;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Discounts;
-using Nop.Core.Domain.Localization;
-using Nop.Core.Domain.Shipping;
-using Nop.Core.Domain.Stores;
-using Nop.Core.Domain.Vendors;
-using Nop.Core.Events;
-using Nop.Services.Events;
-
+﻿
 namespace KedemMarket.Consumers;
 
 public class NopCatalogEventsConsumer :
@@ -142,7 +131,7 @@ public class NopCatalogEventsConsumer :
 
     private Task Handler<TEntity>(TEntity entity)
     {
-        return _hub.Clients.All.SendAsync("catalog-updated", entity.GetType().Name, JsonSerializer.Serialize(entity, _jso));
+        return _hub.Clients.All.SendAsync("catalog-updated", entity.GetType().Name, System.Text.Json.JsonSerializer.Serialize(entity, _jso));
     }
 
     public Task HandleEventAsync(EntityInsertedEvent<Category> eventMessage) => TriggerUpdateStorageTask(eventMessage.Entity);

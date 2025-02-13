@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
-namespace KedemMarket.Api.Controllers;
+﻿
+namespace KedemMarket.Controllers;
 
 [ApiController]
 [Area("api")]

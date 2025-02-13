@@ -1,4 +1,4 @@
-﻿namespace KedemMarket.Domain.Checkout;
+﻿namespace System;
 
 public static class CartTransactionExtensions
 {

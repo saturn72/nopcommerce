@@ -1,8 +1,4 @@
-﻿using KedemMarket.Models.Users;
-using Nop.Core;
-using Nop.Services.Vendors;
-
-namespace KedemMarket.Api.Controllers;
+﻿namespace KedemMarket.Controllers;
 
 [Route("api/store")]
 public class StoreController : KmApiControllerBase
@@ -52,7 +48,7 @@ public class StoreController : KmApiControllerBase
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
         var vendors = await _vendorService.GetVendorsByCustomerIdsAsync([customer.Id]);
-        
+
         var cur = vendors?.ElementAtOrDefault(0);
         //create
         if (vendors == default || vendors.Count == 0)

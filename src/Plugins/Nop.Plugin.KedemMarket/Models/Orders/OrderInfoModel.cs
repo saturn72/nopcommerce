@@ -1,6 +1,7 @@
 ﻿using KedemMarket.Models.Directory;
+using KedemMarket.Models.Media;
 
-namespace KedemMarket.Models.OrderManagement;
+namespace KedemMarket.Models.Orders;
 
 public record OrderInfoModel
 {

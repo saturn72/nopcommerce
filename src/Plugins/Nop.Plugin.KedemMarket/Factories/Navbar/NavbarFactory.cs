@@ -1,17 +1,5 @@
-﻿using KedemMarket.Common;
-using KedemMarket.Models.Catalog;
-using KedemMarket.Factories.Catalog;
-using KedemMarket.Models.Media;
-using KedemMarket.Models.Navbar;
-using KedemMarket.Services.Media;
-using KedemMarket.Services.Navbar;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Vendors;
-using Nop.Services.Attributes;
-using Nop.Services.Catalog;
-using Nop.Services.Common;
-using Nop.Services.Media;
-using Nop.Services.Vendors;
+﻿
+using KedemMarket.Admin.Models.Navbar;
 
 namespace KedemMarket.Factories.Navbar;
 
@@ -68,7 +56,7 @@ public class NavbarFactory : INavbarFactory
             return null;
 
         var elms = navbar?.Elements ?? [];
-        var elements = new List<NavbarElementModel>();
+        var elements = new List<Models.Navbar.NavbarElementModel>();
 
         var allVendorAttributes = await _vendorAttributeService.GetAllAttributesAsync();
         var shortDescriptionAttribute = allVendorAttributes.First(va => va.Name == KmConsts.VendorAttributeNames.ShortDescription);
@@ -98,7 +86,7 @@ public class NavbarFactory : INavbarFactory
             await Task.WhenAll(gitTemp.Values);
             await Task.WhenAll(vpTemp.Values);
 
-            var vendorModels = new List<VendorModel>();
+            var vendorModels = new List<NavbarVendorModel>();
             foreach (var v in vendors)
             {
                 var selectedVendorAttributes = await _genericAttributeService.GetAttributeAsync<string>(v, NopVendorDefaults.VendorAttributes);
@@ -135,7 +123,7 @@ public class NavbarFactory : INavbarFactory
             }
 
             //var vendors 
-            var ne = new NavbarElementModel
+            var ne = new Models.Navbar.NavbarElementModel
             {
                 ActiveIcon = e.ActiveIcon,
                 Alt = e.Alt,

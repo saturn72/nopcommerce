@@ -1,7 +1,4 @@
-﻿using KedemMarket.Admin.Domain;
-using KedemMarket.Admin.Models;
-using KedemMarket.Services.Navbar;
-using Nop.Services.Vendors;
+﻿using KedemMarket.Admin.Models.Navbar;
 using Nop.Web.Areas.Admin.Factories;
 
 namespace KedemMarket.Admin.Factories;
@@ -104,7 +101,7 @@ public class NavbarFactory : INavbarFactory
         //prepare grid model
         var model = new NavbarInfoElementListModel();
         return model.PrepareToGrid(searchModel, navbarElements,
-            () => navbarElements.Select(navbarElement => navbarElement.ToModel<NavbarElementModel>()));
+            () => navbarElements.Select(navbarElement => navbarElement.ToModel<Models.Navbar.NavbarElementModel>()));
     }
     public Task PrepareCreateOrUpdateNavbarElementModelAsync(CreateOrUpdateNavbarElementModel model)
     {

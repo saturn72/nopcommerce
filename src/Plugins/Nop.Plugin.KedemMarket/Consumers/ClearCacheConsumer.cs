@@ -1,10 +1,4 @@
-﻿using KedemMarket.Services.Navbar;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Vendors;
-using Nop.Core.Events;
-using Nop.Services.Events;
-
-namespace KedemMarket.Consumers;
+﻿namespace KedemMarket.Consumers;
 public class ClearNavbarCacheConsumer :
     IConsumer<EntityUpdatedEvent<Vendor>>,
     IConsumer<EntityDeletedEvent<Vendor>>,

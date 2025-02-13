@@ -1,9 +1,6 @@
-﻿using KedemMarket.Models.Catalog;
-using KedemMarket.Models.Media;
+﻿namespace KedemMarket.Models.Navbar;
 
-namespace KedemMarket.Models.Navbar;
-
-public record VendorModel
+public record NavbarVendorModel
 {
     public required int Id { get; init; }
     public string Name { get; init; }

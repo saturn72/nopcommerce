@@ -1,4 +1,6 @@
-﻿namespace KedemMarket.Api.Controllers;
+﻿using KM.Api.Factories;
+
+namespace KedemMarket.Api.Controllers;
 
 [Route("api/order")]
 public class OrderController : KmApiControllerBase

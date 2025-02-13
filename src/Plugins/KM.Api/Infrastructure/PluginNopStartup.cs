@@ -1,6 +1,7 @@
 ﻿using KedemMarket.Api.Middlewares;
 using KedemMarket.Common.Factories;
 using KedemMarket.Common.Services.Media;
+using KM.Api.Factories;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace KedemMarket.Api.Infrastructure;

@@ -1,6 +1,7 @@
-﻿using Nop.Web.Framework.Validators;
+﻿using FluentValidation;
+using Nop.Web.Framework.Validators;
 
-namespace KedemMarket.Api.Models.Checkout;
+namespace KedemMarket.Models.Checkout;
 
 public class CartTransactionApiModelValidator : AbstractValidator<CartTransactionApiModel>
 {

@@ -13,7 +13,7 @@ public class KedemMarketAuthenticationMiddleware
     public async Task InvokeAsync(HttpContext context)
     {
         var eus = context.RequestServices.GetService<IExternalUsersService>();
-        if (context.Request.Headers.TryGetValue(KmApiConsts.USER_ID, out var userId) &&
+        if (context.Request.Headers.TryGetValue(KmConsts.USER_ID, out var userId) &&
             !string.IsNullOrEmpty(userId) &&
             !string.IsNullOrWhiteSpace(userId))
         {

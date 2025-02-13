@@ -1,6 +1,4 @@
-﻿using Nop.Core.Domain.Stores;
-
-namespace KedemMarket.Admin.Domain;
+﻿namespace KedemMarket.Admin.Domain;
 public class NavbarInfo : BaseEntity, IStoreMappingSupported
 {
     public IEnumerable<NavbarElement> Elements { get; set; }

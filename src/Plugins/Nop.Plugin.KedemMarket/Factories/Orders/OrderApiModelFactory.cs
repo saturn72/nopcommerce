@@ -1,11 +1,4 @@
-﻿using KedemMarket.Services.Media;
-using Nop.Services.Catalog;
-using Nop.Services.Media;
-using Nop.Services.Orders;
-using Nop.Web.Areas.Admin.Factories;
-using Nop.Web.Models.Order;
-
-namespace KedemMarket.Factories.Orders;
+﻿namespace KedemMarket.Factories.Orders;
 
 public class OrderApiModelFactory : IOrderApiModelFactory
 {

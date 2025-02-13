@@ -1,5 +1,4 @@
-﻿using KedemMarket.Admin.Domain;
-using KedemMarket.Admin.Models;
+﻿using KedemMarket.Admin.Models.Navbar;
 
 namespace KedemMarket.Admin.Factories;
 public interface INavbarFactory

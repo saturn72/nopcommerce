@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using KedemMarket.Admin.Domain;
-using KedemMarket.Admin.Models;
-using KedemMarket.Models.Catalog;
+using KedemMarket.Admin.Models.Navbar;
 using Nop.Core.Infrastructure.Mapper;
 
 namespace KedemMarket.Infrastructure;
@@ -12,7 +10,7 @@ public class MapperConfiguration : Profile, IOrderedMapperProfile
     {
         CreateMap<NavbarInfoModel, NavbarInfo>()
               .ReverseMap();
-        CreateMap<NavbarElementModel, NavbarElement>()
+        CreateMap<Admin.Models.Navbar.NavbarElementModel, NavbarElement>()
               .ReverseMap();
         CreateMap<NavbarElement, KedemMarket.Models.Navbar.NavbarElementModel>()
               .ReverseMap();

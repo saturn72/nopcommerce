@@ -1,12 +1,6 @@
-﻿using KedemMarket.Infrastructure;
-using KedemMarket.Services.Media;
-using Nop.Core.Domain.Media;
-using Nop.Core.Events;
-using Nop.Services.Events;
-using Nop.Services.Media;
+﻿
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using static KedemMarket.Common.KmConsts;
 
 namespace KedemMarket.Api.Consumer;
 
@@ -33,7 +27,7 @@ public class PictureBinaryEventConsumer :
 
         _resizeOptions = new Dictionary<string, ResizeOptions> {
             {
-                MediaTypes.Thumbnail,
+                KmConsts.MediaTypes.Thumbnail,
                 new() {
                     Size = new()
                     {
@@ -45,7 +39,7 @@ public class PictureBinaryEventConsumer :
                 }
             },
             {
-                MediaTypes.Image,
+                KmConsts.MediaTypes.Image,
                 new()
                 {
                     Size = new()

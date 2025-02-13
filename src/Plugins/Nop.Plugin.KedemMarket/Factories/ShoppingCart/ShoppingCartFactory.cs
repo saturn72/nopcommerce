@@ -1,33 +1,4 @@
-﻿using KedemMarket.Common;
-using KedemMarket.Services.Media;
-using Microsoft.AspNetCore.Http;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Common;
-using Nop.Core.Domain.Media;
-using Nop.Core.Domain.Orders;
-using Nop.Core.Domain.Security;
-using Nop.Core.Domain.Shipping;
-using Nop.Core.Domain.Tax;
-using Nop.Core.Domain.Vendors;
-using Nop.Services.Attributes;
-using Nop.Services.Catalog;
-using Nop.Services.Common;
-using Nop.Services.Customers;
-using Nop.Services.Directory;
-using Nop.Services.Discounts;
-using Nop.Services.Helpers;
-using Nop.Services.Localization;
-using Nop.Services.Media;
-using Nop.Services.Orders;
-using Nop.Services.Payments;
-using Nop.Services.Security;
-using Nop.Services.Seo;
-using Nop.Services.Shipping;
-using Nop.Services.Tax;
-using Nop.Services.Vendors;
-using Nop.Web.Factories;
-
-namespace KedemMarket.Factories.ShoppingCart;
+﻿namespace KedemMarket.Factories.ShoppingCart;
 
 public class ShoppingCartFactory : ShoppingCartModelFactory, IShoppingCartFactory
 {

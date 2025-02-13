@@ -1,17 +1,4 @@
-﻿using KedemMarket.Models.Cart;
-using KedemMarket.Models.Catalog;
-using KedemMarket.Models.Media;
-using KedemMarket.Services.Media;
-using Microsoft.AspNetCore.Http;
-using Nop.Core;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Orders;
-using Nop.Services.Catalog;
-using Nop.Services.Media;
-using Nop.Web.Factories;
-using Nop.Web.Models.Catalog;
-
-namespace KedemMarket.Factories.Catalog;
+﻿namespace KedemMarket.Factories.Catalog;
 
 public class ProductApiFactory : IProductApiFactory
 {

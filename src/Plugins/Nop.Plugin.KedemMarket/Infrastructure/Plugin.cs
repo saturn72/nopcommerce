@@ -1,11 +1,4 @@
-﻿using KedemMarket.Navbar.Widgets;
-using Nop.Core.Domain.Cms;
-using Nop.Core.Domain.Localization;
-using Nop.Services.Cms;
-using Nop.Services.Configuration;
-using Nop.Web.Framework.Infrastructure;
-
-namespace KedemMarket.Infrastructure;
+﻿namespace KedemMarket.Infrastructure;
 public class Plugin : BasePlugin, IWidgetPlugin
 {
     private readonly ILocalizationService _localizationService;

@@ -1,12 +1,4 @@
-﻿using KedemMarket.Factories.Directory;
-using KedemMarket.Services.Media;
-using Nop.Core.Domain.Common;
-using Nop.Core.Domain.Vendors;
-using Nop.Services.Attributes;
-using Nop.Services.Common;
-using Nop.Services.Media;
-
-namespace KedemMarket.Factories.Vendors;
+﻿namespace KedemMarket.Factories.Vendors;
 
 public class VendorApiModelFactory : IVendorApiModelFactory
 {

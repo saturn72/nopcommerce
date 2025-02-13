@@ -1,7 +1,4 @@
-﻿using KedemMarket.Api.Models.Store;
-using Nop.Services.Vendors;
-
-namespace KedemMarket.Api.Controllers;
+﻿namespace KedemMarket.Controllers;
 
 [Route("api/marketplace")]
 public class MarketplaceController : KmApiControllerBase
@@ -40,9 +37,9 @@ public class MarketplaceController : KmApiControllerBase
             Url = store.Url,
             SocialLinks = new Dictionary<string, string>
             {
-                { KmApiConsts.SocialLinkNames.Facebook , "https://www.facebook.com/KedemMarket.co.il" },
-                { KmApiConsts.SocialLinkNames.Instagram , "https://www.instagram.com/kedemmarket.co.il/"},
-                { KmApiConsts.SocialLinkNames.Linktr , "https://linktr.ee/kedemmarket" },
+                { KmConsts.SocialLinkNames.Facebook , "https://www.facebook.com/KedemMarket.co.il" },
+                { KmConsts.SocialLinkNames.Instagram , "https://www.instagram.com/kedemmarket.co.il/"},
+                { KmConsts.SocialLinkNames.Linktr , "https://linktr.ee/kedemmarket" },
             }
         };
         return ToJsonResult(data);

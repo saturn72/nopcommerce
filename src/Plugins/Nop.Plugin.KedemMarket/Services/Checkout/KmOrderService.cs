@@ -104,10 +104,10 @@ public class KmOrderService : IKmOrderService
             var kmOrder = new KmOrder
             {
                 CreatedOnUtc = _systemClock.UtcNow.DateTime,
-                Data = JsonSerializer.Serialize(request, jso),
+                Data = System.Text.Json.JsonSerializer.Serialize(request, jso),
                 NopOrderId = placeOrderResult.PlacedOrder.Id,
                 NopOrder = placeOrderResult.PlacedOrder,
-                KmUserId = _httpAccessor.HttpContext.Request.Headers[KmApiConsts.USER_ID],
+                KmUserId = _httpAccessor.HttpContext.Request.Headers[KmConsts.USER_ID],
                 Status = placeOrderResult.Success ? "success" : "failed",
                 Errors = string.Join("\n\n", placeOrderResult.Errors),
             };

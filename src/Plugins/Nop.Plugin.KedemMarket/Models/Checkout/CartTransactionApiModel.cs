@@ -1,7 +1,7 @@
-﻿using KedemMarket.Common.Models.Cart;
+﻿using KedemMarket.Models.Cart;
 using KedemMarket.Models.Directory;
 
-namespace KedemMarket.Api.Models.Checkout;
+namespace KedemMarket.Models.Checkout;
 
 public record CartTransactionApiModel
 {

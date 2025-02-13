@@ -1,7 +1,5 @@
-﻿using Nop.Core.Domain.Common;
-using Nop.Web.Models.Common;
+﻿namespace KedemMarket.Extensions;
 
-namespace KedemMarket.Extensions;
 internal static class MappingExtensions
 {
     internal static Address ToAddress(this ContactInfoModel ci)

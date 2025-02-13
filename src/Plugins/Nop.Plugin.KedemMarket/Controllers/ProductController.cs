@@ -1,6 +1,4 @@
-﻿using KedemMarket.Common.Factories;
-
-namespace KedemMarket.Api.Controllers;
+﻿namespace KedemMarket.Controllers;
 
 [Route("api/product")]
 public class ProductController : KmApiControllerBase
@@ -21,7 +19,7 @@ public class ProductController : KmApiControllerBase
 
     [HttpGet]
     public async Task<IActionResult> Query(
-        [FromQuery(Name = "q")] string? keywords,
+        [FromQuery(Name = "q")] string keywords,
         [FromQuery] int offset = 0,
         [FromQuery] int pageSize = 50)
     {

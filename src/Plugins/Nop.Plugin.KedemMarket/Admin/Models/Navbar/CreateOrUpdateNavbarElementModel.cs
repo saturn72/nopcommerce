@@ -1,4 +1,4 @@
-﻿namespace KedemMarket.Admin.Models;
+﻿namespace KedemMarket.Admin.Models.Navbar;
 public record CreateOrUpdateNavbarElementModel : BaseNopEntityModel
 {
     public int NavbarInfoId { get; set; }

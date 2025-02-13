@@ -1,7 +1,7 @@
 ﻿using Nop.Core.Domain.Media;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using static KedemMarket.Common.KmConsts;
+using static KedemMarket.KmConsts;
 
 namespace KedemMarket.Services.Media;
 

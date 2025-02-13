@@ -1,4 +1,4 @@
-﻿namespace KedemMarket.Admin.Models;
+﻿namespace KedemMarket.Admin.Models.Navbar;
 public partial record NavbarInfoModel : BaseNopEntityModel
 {
     [NopResourceDisplayName("Admin.Navbar.Fields.Elements")]

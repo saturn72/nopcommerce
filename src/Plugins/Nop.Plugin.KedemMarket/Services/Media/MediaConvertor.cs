@@ -1,7 +1,7 @@
 ﻿using KedemMarket.Models.Media;
 using Nop.Core.Domain.Media;
 using Nop.Web.Models.Media;
-using static KedemMarket.Common.KmConsts;
+using static KedemMarket.KmConsts;
 
 namespace KedemMarket.Services.Media;
 public sealed class MediaConvertor

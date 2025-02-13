@@ -1,11 +1,4 @@
-﻿using KedemMarket.Common.Services.Media;
-using Nop.Core.Domain.Directory;
-using Nop.Services.Directory;
-using Nop.Services.Localization;
-using Nop.Services.Media;
-using Nop.Services.Seo;
-
-namespace KedemMarket.Api.Controllers;
+﻿namespace KedemMarket.Controllers;
 
 [Route("api/search")]
 public class SearchController : KmApiControllerBase
@@ -41,7 +34,7 @@ public class SearchController : KmApiControllerBase
 
     [HttpGet]
     public async Task<IActionResult> Query(
-        [FromQuery(Name = "q")] string? keywords,
+        [FromQuery(Name = "q")] string keywords,
         [FromQuery] int storeId,
         [FromQuery] int offset = 0,
         [FromQuery] int pageSize = 50)
@@ -87,11 +80,11 @@ public class SearchController : KmApiControllerBase
                 sku = p.Sku,
                 gtin = p.Gtin,
                 mpn = p.ManufacturerPartNumber,
-                slug = slug,
+                slug,
                 currency = currencyName,
                 //attributes = productAttributes,
-                gallery = gallery,
-                reviews = reviews,
+                gallery,
+                reviews,
                 //unit =
             };
 
@@ -104,7 +97,7 @@ public class SearchController : KmApiControllerBase
         {
             if (product.MarkAsNew &&
                     (product.MarkAsNewEndDateTimeUtc == null ||
-                    (epoch - new DateTimeOffset(product.MarkAsNewEndDateTimeUtc.Value).ToUnixTimeSeconds() > 0)))
+                    epoch - new DateTimeOffset(product.MarkAsNewEndDateTimeUtc.Value).ToUnixTimeSeconds() > 0))
                 return "new";
 
             var pd = await _productService.GetAllDiscountsAppliedToProductAsync(product.Id);

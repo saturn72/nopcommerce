@@ -1,4 +1,4 @@
-﻿namespace KedemMarket.Api.Controllers;
+﻿namespace KedemMarket.Controllers;
 
 [Route("api/checkout")]
 public class CheckoutController : KmApiControllerBase
@@ -27,7 +27,7 @@ public class CheckoutController : KmApiControllerBase
         if (res.IsError)
             return BadRequest(new { error = res.Error });
 
-        var o = res.KmOrder.NopOrder;
-        return Ok(new {id = o.Id, status = o.OrderStatus });
+        var nopOrder = res.KmOrder.NopOrder;
+        return Ok(new { id = nopOrder.Id, status = nopOrder.OrderStatus });
     }
 }

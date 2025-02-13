@@ -1,6 +1,4 @@
-﻿using KedemMarket.Domain.Orders;
-
-namespace KedemMarket.Domain.Checkout;
+﻿namespace KedemMarket.Domain.Checkout;
 
 public class KmOrder : BaseEntity
 {

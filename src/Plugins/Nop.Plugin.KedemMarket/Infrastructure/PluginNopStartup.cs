@@ -1,19 +1,15 @@
-﻿using FluentValidation;
-using KedemMarket.Admin.Factories;
-using KedemMarket.Admin.Models;
-using KedemMarket.Admin.Validators;
-using KedemMarket.Infrastructure;
-using KedemMarket.Factories.Catalog;
-using KedemMarket.Services.Media;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using KedemMarket.Services.Navbar;
-using Microsoft.AspNetCore.Cors.Infrastructure;
+﻿
+
+using KedemMarket.Admin.Models.Navbar;
+using KedemMarket.Api.Middlewares;
+using KedemMarket.Services.Orders;
 
 namespace KedemMarket.Infrastructure;
 
 public class PluginNopStartup : INopStartup
 {
-
+    private const string CorsPolicy = "api-order-cors";
+    private const string CatalogWSCorsPolicy = "catalog-ws-cors";
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         var origins = configuration.GetRequiredSection("cors:origins")
@@ -86,7 +82,7 @@ public class PluginNopStartup : INopStartup
         application.UseCors(CorsPolicy);
         application.UseWhen(
             ctx => ctx.Request.Path.StartsWithSegments("/api"),
-            appBuilder => appBuilder.UseMiddleware<KmAuthenticationMiddleware>());
+            appBuilder => appBuilder.UseMiddleware<KedemMarketAuthenticationMiddleware>());
     }
 
     public int Order => 10;

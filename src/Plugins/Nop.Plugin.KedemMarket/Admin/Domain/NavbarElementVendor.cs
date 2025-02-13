@@ -1,7 +1,4 @@
-﻿using Nop.Core.Domain.Vendors;
-
-namespace KedemMarket.Admin.Domain;
-
+﻿namespace KedemMarket.Admin.Domain;
 public class NavbarElementVendor : BaseEntity
 {
     public int DisplayOrder { get; set; }

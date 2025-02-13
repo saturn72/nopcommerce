@@ -1,6 +1,4 @@
-﻿using KedemMarket.Api.Controllers;
-
-namespace KedemMarket.Controllers;
+﻿namespace KedemMarket.Controllers;
 
 [Route("api/navbar")]
 public class NavbarApiController : KmApiControllerBase

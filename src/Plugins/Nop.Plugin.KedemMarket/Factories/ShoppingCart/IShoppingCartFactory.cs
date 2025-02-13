@@ -1,6 +1,4 @@
-﻿using KedemMarket.Models.Cart;
-
-namespace KedemMarket.Factories.ShoppingCart;
+﻿namespace KedemMarket.Factories.ShoppingCart;
 public interface IShoppingCartFactory
 {
     Task<CreateOrderRequest> ToCreateOrderRequest(CartTransactionApiModel model, List<string> errors);
