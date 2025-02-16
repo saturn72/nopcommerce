@@ -64,10 +64,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Plugins\KM.Catalog\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Update="firebase-config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

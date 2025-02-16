@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace KedemMarket.Api.Middlewares;
+﻿namespace KedemMarket.Middlewares;
 public class KedemMarketAuthenticationMiddleware
 {
     private readonly RequestDelegate _next;
@@ -12,12 +10,12 @@ public class KedemMarketAuthenticationMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var eus = context.RequestServices.GetService<IExternalUsersService>();
         if (context.Request.Headers.TryGetValue(KmConsts.USER_ID, out var userId) &&
             !string.IsNullOrEmpty(userId) &&
             !string.IsNullOrWhiteSpace(userId))
         {
-            var customer = await eus.GetCustomerByExternalUserIdAsync(userId, false);
+            var eus = context.RequestServices.GetService<IExternalUsersService>();
+            var customer = await eus.GetCustomerByExternalUserIdAsync(userId);
             var wc = context.RequestServices.GetService<IWorkContext>();
             await wc.SetCurrentCustomerAsync(customer);
         }

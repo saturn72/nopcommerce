@@ -1,7 +1,7 @@
 ﻿namespace KedemMarket.Controllers;
 
 [Route("api/shopping-cart")]
-public class ShoppingCartController : KmApiControllerBase
+public class ShoppingCartApiController : KmApiControllerBase
 {
     private readonly IWorkContext _workContext;
     private readonly IStoreContext _storeContext;
@@ -12,7 +12,7 @@ public class ShoppingCartController : KmApiControllerBase
     private readonly IProductApiFactory _productApiFactory;
     private readonly IShoppingCartFactory _shoppingCartFactory;
 
-    public ShoppingCartController(
+    public ShoppingCartApiController(
             IShoppingCartService shoppingCartService,
             IProductService productService,
             IStoreMappingService storeMappingService,
@@ -43,8 +43,6 @@ public class ShoppingCartController : KmApiControllerBase
             return;
         }
 
-        var tasks1 = new List<Task<IList<string>>>();
-        var tasks2 = new List<Task>();
         var userCart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
         var productIds = items.Select(x => x.ProductId).ToArray();
         var products = await _productService.GetProductsByIdsAsync(productIds);
@@ -64,7 +62,7 @@ public class ShoppingCartController : KmApiControllerBase
             //item not exist in cart - update
             if (usci == default)
             {
-                var addTask = _shoppingCartService.AddToCartAsync(
+                await _shoppingCartService.AddToCartAsync(
                     customer,
                     product,
                     ShoppingCartType.ShoppingCart,
@@ -75,24 +73,19 @@ public class ShoppingCartController : KmApiControllerBase
                     item.RentalEndDateUtc,
                     item.Quantity,
                     true);
-                tasks1.Add(addTask);
                 continue;
             }
             //exist in cart - delete or update
 
             if (item.Quantity != 0)
-            {
-                var updateTask = _shoppingCartService.UpdateShoppingCartItemAsync(
-                    customer, usci.Id,
-                    item.AttributesXml,
-                    item.CustomerEnteredPrice,
-                    item.RentalStartDateUtc,
-                    item.RentalEndDateUtc,
-                    item.Quantity,
-                    true);
-
-                tasks1.Add(updateTask);
-            }
+                await _shoppingCartService.UpdateShoppingCartItemAsync(
+                       customer, usci.Id,
+                       item.AttributesXml,
+                       item.CustomerEnteredPrice,
+                       item.RentalStartDateUtc,
+                       item.RentalEndDateUtc,
+                       item.Quantity,
+                       true);
         }
 
         //delete all items that were removed from incoming cart
@@ -101,7 +94,7 @@ public class ShoppingCartController : KmApiControllerBase
             var product = products.FirstOrDefault(x => x.Id == uc.ProductId);
             if (product == default)
             {
-                tasks2.Add(_shoppingCartService.DeleteShoppingCartItemAsync(uc));
+                await _shoppingCartService.DeleteShoppingCartItemAsync(uc);
                 continue;
             }
 
@@ -112,15 +105,8 @@ public class ShoppingCartController : KmApiControllerBase
                 uc.AttributesXml);
 
             if (exist == default || exist.Quantity == 0)
-                tasks2.Add(_shoppingCartService.DeleteShoppingCartItemAsync(uc));
+                await _shoppingCartService.DeleteShoppingCartItemAsync(uc);
         }
-
-        await Task.WhenAll(tasks1);
-
-        foreach (var task in tasks1)
-            errors.AddRange(await task);
-
-        await Task.WhenAll(tasks2);
     }
 
     [HttpPut]

@@ -12,7 +12,7 @@ public class KmConsts
         public const string ShortDescription = "Short Description";
     }
 
-    internal const string USER_ID = "USER-ID";
+    internal const string USER_ID = "U-ID";
 
     internal sealed class SocialLinkNames
     {

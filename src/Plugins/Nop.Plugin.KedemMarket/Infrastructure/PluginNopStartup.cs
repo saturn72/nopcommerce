@@ -1,7 +1,7 @@
 ﻿
 
 using KedemMarket.Admin.Models.Navbar;
-using KedemMarket.Api.Middlewares;
+using KedemMarket.Middlewares;
 using KedemMarket.Services.Orders;
 
 namespace KedemMarket.Infrastructure;

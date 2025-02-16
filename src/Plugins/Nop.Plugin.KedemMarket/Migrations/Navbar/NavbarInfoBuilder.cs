@@ -1,5 +1,4 @@
 ﻿using FluentMigrator.Builders.Create.Table;
-using KedemMarket.Admin.Domain;
 using Nop.Data.Mapping.Builders;
 
 namespace KedemMarket.Migrations.Navbar;

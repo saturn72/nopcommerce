@@ -3,7 +3,6 @@
 public class KmOrder : BaseEntity
 {
     public DateTime? CreatedOnUtc { get; init; }
-    public string Data { get; init; }
     public string Status { get; init; }
     //public string KmOrderId { get; init; }
     public string KmUserId { get; init; }

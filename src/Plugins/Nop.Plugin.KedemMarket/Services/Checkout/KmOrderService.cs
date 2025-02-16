@@ -1,14 +1,5 @@
-﻿using System.Text.Json;
-using KedemMarket.Domain.Checkout;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Nop.Core.Domain.Orders;
-using Nop.Services.Catalog;
-using Nop.Services.Common;
-using Nop.Services.Customers;
+﻿using Microsoft.AspNetCore.Authentication;
 using Nop.Services.Logging;
-using Nop.Services.Orders;
-using Nop.Services.Payments;
 
 namespace KedemMarket.Services.Checkout;
 public class KmOrderService : IKmOrderService
@@ -65,8 +56,6 @@ public class KmOrderService : IKmOrderService
         var res = new CreateOrderResponse { Request = request };
 
         var cart = request.CartItems;
-        //var (cart, disapproved) = await ExtractShoppingCart(request.CartItems);
-        //res.DisapprovedShoppingCartItems = disapproved;
         res.ApprovedShoppingCartItems = cart;
         res.DisapprovedShoppingCartItems = Array.Empty<ShoppingCartItem>();
 
@@ -77,9 +66,9 @@ public class KmOrderService : IKmOrderService
         }
         var customer = await _workContext.GetCurrentCustomerAsync();
 
-        if (request.UpdateBillingInfo || customer.BillingAddressId == 0)
+        if (request.UpdateBillingInfo || customer.BillingAddressId == 0 || !customer.BillingAddressId.HasValue)
             await CreateOrUpdateCustomerAddress(customer, request.BillingInfo, AddressType.BillingAddress);
-        if (request.UpdateShippingInfo || customer.ShippingAddressId == 0)
+        if (request.UpdateShippingInfo || customer.ShippingAddressId == 0 || !customer.ShippingAddressId.HasValue)
             await CreateOrUpdateCustomerAddress(customer, request.ShippingInfo, AddressType.ShippingAddress);
 
         var store = await _storeContext.GetCurrentStoreAsync();
@@ -94,17 +83,9 @@ public class KmOrderService : IKmOrderService
             res.Error = string.Join('\n', placeOrderResult.Errors);
         else
         {
-            var jso = new JsonSerializerOptions
-            {
-                AllowTrailingCommas = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = false,
-            };
-
             var kmOrder = new KmOrder
             {
                 CreatedOnUtc = _systemClock.UtcNow.DateTime,
-                Data = System.Text.Json.JsonSerializer.Serialize(request, jso),
                 NopOrderId = placeOrderResult.PlacedOrder.Id,
                 NopOrder = placeOrderResult.PlacedOrder,
                 KmUserId = _httpAccessor.HttpContext.Request.Headers[KmConsts.USER_ID],

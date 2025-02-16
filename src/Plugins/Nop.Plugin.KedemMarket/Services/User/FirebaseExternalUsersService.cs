@@ -1,6 +1,4 @@
 ﻿using FirebaseAdmin.Auth;
-using KedemMarket.Domain.User;
-using KedemMarket.Infrastructure;
 
 namespace KedemMarket.Services.User;
 
@@ -190,18 +188,18 @@ public partial class FirebaseExternalUsersService : IExternalUsersService
 
     public async Task<KmUserCustomerMap> GetUserIdCustomerMapByExternalUserId(string userId)
     {
-        var read = false;
+        var aquired = false;
         var key = BuildUserCacheKey(userId);
         var map = await _cache.GetAsync(key, async () =>
         {
             var map = await _kmUserCustomerMapRepository.Table.FirstOrDefaultAsync(x => x.KmUserId == userId);
             if (map != default)
                 map.Customer = await _customerRepository.Table.FirstOrDefaultAsync(x => x.Id == map.CustomerId);
-            read = true;
+            aquired = true;
             return map;
         });
 
-        if (read)
+        if (aquired && map!=null)
         {
             var key2 = BuildCustomerCacheKey(map.CustomerId);
             _ = _cache.GetAsync(key2, () => map);

@@ -2,9 +2,9 @@
 using Nop.Data.Extensions;
 using Nop.Data.Migrations;
 
-namespace KedemMarket.Navbar.Migrations;
+namespace KedemMarket.Migrations;
 
-[NopMigration("2024/12/27 10:45:08:9037677", "KM.Navbar schema", MigrationProcessType.NoMatter)]
+[NopMigration("2025/02/15 10:45:08:9037678", "KedemMarket schema", MigrationProcessType.Installation)]
 public class SchemaMigration : ForwardOnlyMigration
 {
 
@@ -13,6 +13,9 @@ public class SchemaMigration : ForwardOnlyMigration
     /// </summary>
     public override void Up()
     {
+        Create.TableFor<KmOrder>();
+        Create.TableFor<KmUserCustomerMap>();
+
         Create.TableFor<NavbarInfo>();
         Create.TableFor<NavbarElement>();
         Create.TableFor<NavbarElementVendor>();
