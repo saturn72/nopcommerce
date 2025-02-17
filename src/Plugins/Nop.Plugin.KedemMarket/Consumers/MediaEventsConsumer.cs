@@ -2,7 +2,7 @@
 
 namespace KedemMarket.Consumers;
 
-public class NopCatalogEventsConsumer :
+public class MediaEventsConsumer :
 
     IConsumer<EntityInsertedEvent<Category>>,
     IConsumer<EntityUpdatedEvent<Category>>,
@@ -35,7 +35,7 @@ public class NopCatalogEventsConsumer :
     private readonly IStorageManager _storageManager;
     private readonly IPictureService _pictureService;
 
-    public NopCatalogEventsConsumer(
+    public MediaEventsConsumer(
         IStorageManager storageManager,
         IPictureService pictureService)
     {
