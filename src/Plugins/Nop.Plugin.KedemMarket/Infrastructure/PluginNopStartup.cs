@@ -8,8 +8,7 @@ namespace KedemMarket.Infrastructure;
 
 public class PluginNopStartup : INopStartup
 {
-    private const string CorsPolicy = "api-order-cors";
-    private const string CatalogWSCorsPolicy = "catalog-ws-cors";
+    private const string CorsPolicy = "kedemmarket-api-cors";
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         var origins = configuration.GetRequiredSection("cors:origins")
@@ -24,12 +23,6 @@ public class PluginNopStartup : INopStartup
                 policy => policy.WithOrigins(origins)
                 .AllowAnyHeader()
                 .AllowAnyMethod());
-
-            options.AddPolicy(name: CatalogWSCorsPolicy,
-                          policy => policy.WithOrigins(origins)
-                              .WithMethods("GET", "POST")
-                              .AllowCredentials()
-                              .AllowAnyHeader());
         });
 
         services.AddMemoryCache();
@@ -47,9 +40,6 @@ public class PluginNopStartup : INopStartup
         services.AddScoped<IOrderApiModelFactory, OrderApiModelFactory>();
         services.AddScoped<IDirectoryFactory, DirectoryFactory>();
 
-        services.AddSignalR();
-
-        services.AddSingleton<IPriorityQueue, PriorityQueue>();
 
         //new KM.Common.Infrastructure.NopStartup().ConfigureServices(services, configuration);
         services.AddScoped<INavbarService, NavbarService>();
@@ -78,7 +68,6 @@ public class PluginNopStartup : INopStartup
 
     public void Configure(IApplicationBuilder application)
     {
-        application.UseCors(CatalogWSCorsPolicy);
         application.UseCors(CorsPolicy);
         application.UseWhen(
             ctx => ctx.Request.Path.StartsWithSegments("/api"),

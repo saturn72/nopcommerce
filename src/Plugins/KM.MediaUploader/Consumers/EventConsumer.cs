@@ -7,7 +7,7 @@ using Nop.Services.Events;
 using Nop.Services.Media;
 
 namespace KedemMarket.Navbar.Consumers;
-public class ClearNavbarCacheConsumer :
+public class UpdateMediaConsumer :
     IConsumer<EntityDeletedEvent<Picture>>,
     IConsumer<EntityUpdatedEvent<Picture>>,
 
@@ -34,7 +34,7 @@ public class ClearNavbarCacheConsumer :
     private readonly IStorageManager _storageManager;
     private readonly IPictureService _pictureService;
 
-    public ClearNavbarCacheConsumer(
+    public UpdateMediaConsumer(
         IStorageManager storageManager,
         IPictureService pictureService)
     {
