@@ -51,6 +51,7 @@ public class PluginNopStartup : INopStartup
 
         services.TryAddScoped<IProductApiFactory, ProductApiFactory>();
         services.TryAddSingleton<MediaConvertor>();
+        services.TryAddSingleton(TimeProvider.System);
 
         services.TryAddScoped<IStorageManager, GcpStorageManager>();
         //do not configure if already configured

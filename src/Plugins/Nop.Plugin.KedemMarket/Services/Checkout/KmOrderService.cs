@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Nop.Services.Logging;
+﻿using Nop.Services.Logging;
 
 namespace KedemMarket.Services.Checkout;
 public class KmOrderService : IKmOrderService
@@ -14,7 +13,7 @@ public class KmOrderService : IKmOrderService
     private readonly IProductService _productService;
     private readonly IStoreMappingService _storeMappingService;
     private readonly IShoppingCartService _shoppingCartService;
-    private readonly ISystemClock _systemClock;
+    private readonly TimeProvider _timeProvider;
     private readonly IHttpContextAccessor _httpAccessor;
     private readonly ILogger _logger;
 
@@ -29,7 +28,7 @@ public class KmOrderService : IKmOrderService
         IProductService productService,
         IStoreMappingService storeMappingService,
         IShoppingCartService shoppingCartService,
-        ISystemClock systemClock,
+        TimeProvider timeProvider,
         IHttpContextAccessor httpAccessor,
         ILogger logger
         )
@@ -44,7 +43,7 @@ public class KmOrderService : IKmOrderService
         _productService = productService;
         _storeMappingService = storeMappingService;
         _shoppingCartService = shoppingCartService;
-        _systemClock = systemClock;
+        _timeProvider = timeProvider;
         _httpAccessor = httpAccessor;
         _logger = logger;
     }
@@ -85,7 +84,7 @@ public class KmOrderService : IKmOrderService
         {
             var kmOrder = new KmOrder
             {
-                CreatedOnUtc = _systemClock.UtcNow.DateTime,
+                CreatedOnUtc = _timeProvider.GetUtcNow().DateTime,
                 NopOrderId = placeOrderResult.PlacedOrder.Id,
                 NopOrder = placeOrderResult.PlacedOrder,
                 KmUserId = _httpAccessor.HttpContext.Request.Headers[KmConsts.USER_ID],
