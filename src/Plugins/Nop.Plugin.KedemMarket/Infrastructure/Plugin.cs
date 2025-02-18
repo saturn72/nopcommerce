@@ -24,17 +24,31 @@ public class Plugin : BasePlugin, IWidgetPlugin
 
     private IEnumerable<LocaleStringResource> GetLocaleStringResources()
     {
-        var languageId = _languageService.GetAllLanguages(showHidden: true)
-          .Where(l => l.Published)
-          .OrderBy(l => l.DisplayOrder).First().Id;
+        var languageIds = _languageService.GetAllLanguages(showHidden: true)
+          .OrderBy(l => l.DisplayOrder).Select(x => x.Id);
+
+        var res = new List<LocaleStringResource>();
+        foreach (var lId in languageIds)
+            res.AddRange(GetLocaleResourcesInfo(lId));
+
+        return res;
+    }
+
+    private IEnumerable<LocaleStringResource> GetLocaleResourcesInfo(int languageId)
+    {
         return new[]
-       {
+           {
         new LocaleStringResource
         {
                 LanguageId = languageId,
                 ResourceName = "admin.navbar.list",
                 ResourceValue = "Navbars list"
             },
+        new LocaleStringResource {
+            LanguageId = languageId,
+            ResourceName =  "admin.navbars.info",
+            ResourceValue ="Navbar Info",
+        },
         new LocaleStringResource
         {
                 LanguageId = languageId,
@@ -221,7 +235,7 @@ public class Plugin : BasePlugin, IWidgetPlugin
                 LanguageId = languageId,
                 ResourceName = "Admin.Navbars.Elements.Vendors.SaveBeforeEdit",
                 ResourceValue = "Save Before Edit"
-            },            
+            },
             new LocaleStringResource
             {
                 LanguageId = languageId,
@@ -365,7 +379,7 @@ public class Plugin : BasePlugin, IWidgetPlugin
                 LanguageId = languageId,
                 ResourceName = "Admin.NavbarElement.Vendors.Fields.DisplayOrder",
                 ResourceValue = "Display Order"
-            },            
+            },
             new LocaleStringResource
             {
                 LanguageId = languageId,
