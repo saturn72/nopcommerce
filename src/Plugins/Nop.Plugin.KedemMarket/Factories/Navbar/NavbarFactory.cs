@@ -1,7 +1,4 @@
-﻿
-using KedemMarket.Admin.Models.Navbar;
-
-namespace KedemMarket.Factories.Navbar;
+﻿namespace KedemMarket.Factories.Navbar;
 
 public class NavbarFactory : INavbarFactory
 {
@@ -93,24 +90,7 @@ public class NavbarFactory : INavbarFactory
                 var shortDescription = _vendorAttributeParser.ParseValues(selectedVendorAttributes, shortDescriptionAttribute.Id).FirstOrDefault();
                 _ = gitTemp.TryGetValue(v.Id, out var pic);
 
-
-                var products = await _productApiFactory.ToProductInfoApiModelAsync(await vpTemp[v.Id]);
-
-                var productSlims = products.Select(p => new ProductSlimApiModel
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Banners = p.Banners,
-                    Gallery = [p.Gallery.FirstOrDefault()],
-                    Price = p.Price,
-                    PriceText = p.PriceText,
-                    PriceOld = p.PriceOld,
-                    PriceOldText = p.PriceOldText,
-                    PriceWithDiscount = p.PriceWithDiscount,
-                    PriceWithDiscountText = p.PriceWithDiscountText,
-                    Variants = p.Variants,
-                    Slug = p.Slug,
-                });
+                var productSlims = await _productApiFactory.ToProductSlimApiModelAsync(await vpTemp[v.Id]);
 
                 vendorModels.Add(new()
                 {

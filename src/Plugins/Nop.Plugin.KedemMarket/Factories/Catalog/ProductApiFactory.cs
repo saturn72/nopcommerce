@@ -53,6 +53,44 @@ public class ProductApiFactory : IProductApiFactory
         return m;
 
     }
+
+    public async Task<IEnumerable<ProductSlimApiModel>> ToProductSlimApiModelAsync(IEnumerable<Product> products)
+    {
+        var ps = new List<ProductSlimApiModel>();
+        var tasks = products.Select(async p =>
+        {
+            var model = await _productModelFactory.PrepareProductDetailsModelAsync(p, null, false);
+            ps.Add(await ToProductSlim(model, p));
+        });
+        await Task.WhenAll(tasks);
+
+        return ps;
+
+    }
+
+    private async Task<ProductSlimApiModel> ToProductSlim(ProductDetailsModel productDetails, Product product)
+    {
+        var banners = await GetBannerAsync(productDetails, product);
+        var image = (await GetProductGalleryAsync(product))?.FirstOrDefault();
+        var variants = await GetProductVariantsAsync(productDetails, product);
+
+        return new()
+        {
+            Id = product.Id,
+            Banners = banners,
+            Gallery = image == null ? [] : [image],
+            Name = productDetails.Name,
+            Price = productDetails.ProductPrice.PriceValue,
+            PriceText = productDetails.ProductPrice.Price,
+            PriceOld = productDetails.ProductPrice.OldPriceValue,
+            PriceOldText = productDetails.ProductPrice.OldPrice,
+            PriceWithDiscountText = productDetails.ProductPrice.PriceWithDiscount,
+            PriceWithDiscount = productDetails.ProductPrice.PriceWithDiscountValue,
+            Slug = productDetails.SeName,
+            Variants = variants,
+        };
+    }
+
     private async Task<ProductInfoApiModel> ToProductInfo(ProductDetailsModel productDetails, Product product)
     {
         var banners = await GetBannerAsync(productDetails, product);
@@ -257,8 +295,7 @@ public class ProductApiFactory : IProductApiFactory
     {
         var productIds = cart.Select(p => p.ProductId).ToArray();
         var products = await _productService.GetProductsByIdsAsync(productIds);
-        var productInfos = await ToProductInfoApiModelAsync(products);
-
+        var productSlims = await ToProductSlimApiModelAsync(products);
         var items = new List<ShoppingCartItemApiModel>();
         var updatedDate = default(DateTime);
 
@@ -274,7 +311,7 @@ public class ProductApiFactory : IProductApiFactory
             {
                 Quantity = ci.Quantity,
                 VariantId = productAttribute?.ProductAttributeMappingId ?? 0,
-                ProductInfo = productInfos.FirstOrDefault(x => x.Id == ci.ProductId),
+                ProductInfo = productSlims.FirstOrDefault(x => x.Id == ci.ProductId),
                 ProductId = ci.ProductId,
                 OptionId = productAttribute?.Id ?? 0,
             });

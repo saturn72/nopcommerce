@@ -22,9 +22,7 @@ public class MapperConfiguration : Profile, IOrderedMapperProfile
 
         CreateMap<Nop.Core.Domain.Vendors.Vendor, NavbarElementVendorModel>()
             .ForMember(dest => dest.VendorName, mo => mo.MapFrom(src => src.Name))
-            .ForMember(dest => dest.VendorId, mo => mo.MapFrom(src => src.Id));
-
-        CreateMap<ProductInfoApiModel, ProductSlimApiModel>();
+            .ForMember(dest => dest.VendorId, mo => mo.MapFrom(src => src.Id));      
     }
     public int Order => 1;
 }
